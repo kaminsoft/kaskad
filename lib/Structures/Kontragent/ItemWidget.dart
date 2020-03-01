@@ -1,5 +1,6 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
@@ -10,22 +11,27 @@ class ItemWidget extends StatefulWidget {
 
   const ItemWidget({Key key, @required this.kontragent}) : super(key: key);
   @override
-  _ItemWidgetState createState() => _ItemWidgetState();
+  _ItemWidgetState createState() => _ItemWidgetState(kontragent);
 }
 
 class _ItemWidgetState extends State<ItemWidget> {
+
+  Kontragent kontragent;
+  _ItemWidgetState(this.kontragent);
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('${widget.kontragent.name}',maxLines: 2,textAlign: TextAlign.center,),
+        title: Text('${kontragent.name}',maxLines: 2,textAlign: TextAlign.center,),
         actions: <Widget>[
           StoreConnector<AppState, List<Kontragent>>(
             converter: (store) => store.state.kontragents,
             builder: (context, kontragents) {
               bool active = kontragents
-                      .where((k) => k.guid == widget.kontragent.guid)
+                      .where((k) => k.guid == kontragent.guid)
                       .length >
                   0;
               return IconButton(
@@ -39,14 +45,14 @@ class _ItemWidgetState extends State<ItemWidget> {
                     StoreProvider.dispatchFuture(
                         context,
                         active
-                            ? RemoveKontragent(widget.kontragent)
-                            : AddKontragent(widget.kontragent));
+                            ? RemoveKontragent(kontragent)
+                            : AddKontragent(kontragent));
                   });
             },
           )
         ],
       ),
-      body: Container(),
+      body: Container(child: Text(kontragent.fullName),),
     );
   }
 }

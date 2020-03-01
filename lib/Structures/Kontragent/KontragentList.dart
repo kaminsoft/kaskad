@@ -119,11 +119,10 @@ class _KontragentListState extends State<KontragentList> {
                       itemCount: list.length,
                       itemBuilder: (BuildContext context, int index) {
                         Kontragent kontragent = list[index];
-                        bool active = kontragents
-                                .where((k) => k.guid == kontragent.guid)
-                                .length >
-                            0;
+                        Kontragent cashedKontragent = kontragents.firstWhere((k)=> k.guid == kontragent.guid, orElse: ()=> null);
+                        bool active = cashedKontragent != null;
                         return ItemCard(
+                          cashedKontragent: cashedKontragent,
                           kontragent: kontragent,
                           active: active,
                         );
@@ -152,12 +151,11 @@ class _KontragentListState extends State<KontragentList> {
                 itemCount: kontragents.length,
                 itemBuilder: (BuildContext context, int index) {
                   Kontragent kontragent = kontragents[index];
-                  bool active = kontragents
-                          .where((k) => k.guid == kontragent.guid)
-                          .length >
-                      0;
+                  Kontragent cashedKontragent = kontragents.firstWhere((k)=> k.guid == kontragent.guid, orElse: ()=> null);
+                  bool active = cashedKontragent != null;
                   return ItemCard(
                     kontragent: kontragent,
+                    cashedKontragent: cashedKontragent,
                     active: active,
                     showStar: false,
                   );
@@ -173,11 +171,13 @@ class ItemCard extends StatelessWidget {
   const ItemCard(
       {Key key,
       @required this.kontragent,
+      @required this.cashedKontragent,
       @required this.active,
       this.showStar = true})
       : super(key: key);
 
   final Kontragent kontragent;
+  final Kontragent cashedKontragent;
   final bool active;
   final bool showStar;
 
@@ -189,7 +189,7 @@ class ItemCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: () {
-          Kontr.openItem(context, kontragent);
+          Kontr.openItem(context, active ? cashedKontragent : kontragent);
         },
         child: Padding(
           padding: const EdgeInsets.only(left: 10, top: 8, bottom: 8, right: 8),

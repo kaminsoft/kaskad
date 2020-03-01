@@ -50,7 +50,9 @@ class DBProvider {
           "adressActual TEXT,"
           "email TEXT,"
           "orientir TEXT,"
-          "phone TEXT"
+          "phone TEXT,"
+          "persons TEXT,"
+          "secrets TEXT"
           ")");
     });
   }

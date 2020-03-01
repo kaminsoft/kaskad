@@ -213,9 +213,14 @@ class AddKontragent extends ReduxAction<AppState> {
   AddKontragent(this.kontragent);
 
   @override
-  FutureOr<AppState> reduce() {
+  FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
-    newState.kontragents.add(kontragent);
+    Kontragent newKontr = await Connection.getKontragent(kontragent.guid);
+    if (newKontr == null) {
+     newState.kontragents.add(kontragent); 
+    } else {
+      newState.kontragents.add(newKontr);
+    }
     newState.kontragents.sort((a,b) => a.name.compareTo(b.name) );
     DBProvider.db.saveKontragents(newState.kontragents);
     return newState;

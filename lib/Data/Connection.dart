@@ -8,7 +8,6 @@ import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 
-
 class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
   static int timeOut = 5;
@@ -30,7 +29,7 @@ class Connection {
           HttpHeaders.authorizationHeader:
               "Basic 0JzQsNCy0YDQuNC9INCQLtCQLjo3NDUyNzc="
         },
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
         var parsedUsersList = json.decode(response.body);
@@ -51,7 +50,7 @@ class Connection {
       final response = await http.get(
         '$url/auth?token=$token',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
         print('token sent');
@@ -71,7 +70,7 @@ class Connection {
       final response = await http.get(
         '$url/messages/inbox?isPublicate=$isPublicate' + _lastNum + _firstNum,
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
         var parsedUsersList = json.decode(response.body);
@@ -96,7 +95,7 @@ class Connection {
           HttpHeaders.authorizationHeader:
               "Basic 0JzQsNCy0YDQuNC9INCQLtCQLjo3NDUyNzc="
         },
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
         var parsedres = json.decode(response.body);
@@ -117,7 +116,7 @@ class Connection {
       final response = await http.get(
         '$url/messages/$guid',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
         msg = Message.fromJSON(json.decode(response.body));
@@ -135,7 +134,7 @@ class Connection {
       final response = await http.get(
         '$url/messages/read/$guid',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
         return true;
@@ -155,7 +154,7 @@ class Connection {
       final response = await http.get(
         '$url/message/users',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
       if (response.statusCode == 200) {
         var parsedList = json.decode(response.body);
         parsedList.forEach((item) {
@@ -202,7 +201,7 @@ class Connection {
       final response = await http.get(
         '$url/searchpartner?query=$query',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
-      ).timeout(Duration(seconds: timeOut),onTimeout: onTimeout);
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
         var parsedList = json.decode(response.body);
@@ -217,4 +216,22 @@ class Connection {
     return list;
   }
 
+  static Future<Kontragent> getKontragent(String id) async {
+    User user = await DBProvider.db.getUser();
+    Kontragent kontr;
+    try {
+      final response = await http.get(
+        '$url/partner/$id',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        kontr = Kontragent.fromJSON(json.decode(response.body));
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    return kontr;
+  }
 }
