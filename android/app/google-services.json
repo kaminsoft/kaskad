@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "357298474996",
+    "firebase_url": "https://kaskad-mobile.firebaseio.com",
+    "project_id": "kaskad-mobile",
+    "storage_bucket": "kaskad-mobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357298474996:android:21e55a3940bb6651bf33a1",
+        "android_client_info": {
+          "package_name": "com.kamin.kaskad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "357298474996-n83lpho0us269em8dju9o039vfsn196c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpYl2Rg5WQYXWLw0cubZURLj5Mhdm0hM8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357298474996-n83lpho0us269em8dju9o039vfsn196c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "357298474996-k93a88b5rdnotdqfv1ck77mi77vjunh0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kamin.kaskad"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
