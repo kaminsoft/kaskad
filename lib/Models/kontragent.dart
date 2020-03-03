@@ -20,7 +20,8 @@ class Kontragent {
 
   factory Kontragent.fromJSON(Map<String, dynamic> json) {
 
-    List<dynamic> _tmp = json['secrets'] == null ? [] : json['secrets'];
+    var src = json['secrets'] is String ? jsonDecode(json['secrets']) : json['secrets'];
+    List<dynamic> _tmp = src == null ? [] : src;
     List<KontragentSecret> secrets = List<KontragentSecret>();
     if (_tmp != null) {
       for (var item in _tmp) {
@@ -28,7 +29,8 @@ class Kontragent {
       }
     }
 
-    _tmp = json['persons'] == null ? [] : json['persons'];
+    src = json['persons'] is String ? jsonDecode(json['persons']) : json['persons'];
+    _tmp = src == null ? [] : src;
     List<KontaktPerson> persons = List<KontaktPerson>();
     if (_tmp != null) {
       for (var item in _tmp) {

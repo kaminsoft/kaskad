@@ -167,8 +167,8 @@ class _KontragentListState extends State<KontragentList> {
   }
 }
 
-class ItemCard extends StatelessWidget {
-  const ItemCard(
+class ItemCard extends StatefulWidget {
+  ItemCard(
       {Key key,
       @required this.kontragent,
       @required this.cashedKontragent,
@@ -182,14 +182,21 @@ class ItemCard extends StatelessWidget {
   final bool showStar;
 
   @override
+  _ItemCardState createState() => _ItemCardState();
+}
+
+class _ItemCardState extends State<ItemCard> {
+  bool loading = false;
+
+  @override
   Widget build(BuildContext context) {
-    String inn = kontragent.inn != null && kontragent.inn.isNotEmpty
-        ? 'ИНН: ${kontragent.inn}'
+    String inn = widget.kontragent.inn != null && widget.kontragent.inn.isNotEmpty
+        ? 'ИНН: ${widget.kontragent.inn}'
         : 'ИНН не указан';
     return Card(
       child: InkWell(
         onTap: () {
-          Kontr.openItem(context, active ? cashedKontragent : kontragent);
+          Kontr.openItem(context, widget.active ? widget.cashedKontragent : widget.kontragent);
         },
         child: Padding(
           padding: const EdgeInsets.only(left: 10, top: 8, bottom: 8, right: 8),
@@ -200,7 +207,7 @@ class ItemCard extends StatelessWidget {
                 child: RotatedBox(
                   quarterTurns: -1,
                   child: Text(
-                    '${kontragent.code}',
+                    '${widget.kontragent.code}',
                     style: TextStyle(color: Colors.black45, fontSize: 12),
                   ),
                 ),
@@ -210,7 +217,7 @@ class ItemCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      '${kontragent.name}',
+                      '${widget.kontragent.name}',
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
@@ -226,19 +233,25 @@ class ItemCard extends StatelessWidget {
               ),
               Column(
                 children: <Widget>[
-                  showStar ? IconButton(
-                      icon: active
+                  widget.showStar ? loading ? IconButton(icon: CupertinoActivityIndicator(), onPressed: null,) : IconButton(
+                      icon: widget.active
                           ? Icon(
                               Icons.star,
                               color: ColorMain,
                             )
                           : Icon(Icons.star_border),
-                      onPressed: () {
-                        StoreProvider.dispatchFuture(
+                      onPressed: () async {
+                        setState(() {
+                          loading = true;
+                        });
+                        await StoreProvider.dispatchFuture(
                             context,
-                            active
-                                ? RemoveKontragent(kontragent)
-                                : AddKontragent(kontragent));
+                            widget.active
+                                ? RemoveKontragent(widget.kontragent)
+                                : AddKontragent(widget.kontragent));
+                        setState(() {
+                          loading = false;
+                        });
                       }) : Icon(Icons.chevron_right, color: Colors.black45),
                 ],
               )

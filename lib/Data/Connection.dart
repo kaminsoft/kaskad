@@ -209,6 +209,9 @@ class Connection {
           list.add(Kontragent.fromJSON(item));
         });
       }
+      else {
+        print(response.body);
+      }
     } catch (e) {
       print(e);
     }

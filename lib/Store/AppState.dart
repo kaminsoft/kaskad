@@ -17,7 +17,7 @@ class AppState {
 
   List<Feature> features;
   List<Kontragent> kontragents;
-
+  
   static Future<AppState> initState() async{
     var user = await DBProvider.db.getUser();
     var msg = user == null ? List<Message>() : await Connection.getMessageList(false);
@@ -30,12 +30,12 @@ class AppState {
   AppState({this.user, this.messages, this.messagesP, this.messageCount, this.features, this.kontragents});
     
   AppState.copy(AppState other) {
-    messages        = List<Message>.from(other.messages);
-    messagesP       = List<Message>.from(other.messagesP);
-    features        = List<Feature>.from(other.features);
-    kontragents     = List<Kontragent>.from(other.kontragents);
-    messageCount    = other.messageCount;
-    user            = other.user;
+    messages            = List<Message>.from(other.messages);
+    messagesP           = List<Message>.from(other.messagesP);
+    features            = List<Feature>.from(other.features);
+    kontragents         = List<Kontragent>.from(other.kontragents);
+    messageCount        = other.messageCount;
+    user                = other.user;
   }
 
 }

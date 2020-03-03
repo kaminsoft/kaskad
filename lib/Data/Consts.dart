@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Models/intro.dart';
 import 'package:mobile_kaskad/Models/user.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vibrate/vibrate.dart';
 
 class Data {
@@ -76,6 +77,9 @@ void logOpenScreen(Widget widget) {
   Data.analytics.logEvent(name: 'open_screen',parameters: {'name': widget.runtimeType.toString()});
 }
 
+void call (String phone) {
+  launch("tel:$phone");
+}
 
 class OnMessageEvent {
   dynamic data;

@@ -209,16 +209,24 @@ class RemoveFeature extends ReduxAction<AppState> {
 
 class AddKontragent extends ReduxAction<AppState> {
   final Kontragent kontragent;
+  final bool fromServer;
 
-  AddKontragent(this.kontragent);
+  AddKontragent(this.kontragent, {this.fromServer = true});
 
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
-    Kontragent newKontr = await Connection.getKontragent(kontragent.guid);
-    if (newKontr == null) {
-     newState.kontragents.add(kontragent); 
+    Kontragent newKontr;
+    if (fromServer) {
+      newKontr = await Connection.getKontragent(kontragent.guid);
     } else {
+      newKontr = kontragent;
+    }
+    
+    if (newKontr == null) {
+     return null;
+    } else {
+      newState.kontragents.removeWhere((k) => k.guid == newKontr.guid);
       newState.kontragents.add(newKontr);
     }
     newState.kontragents.sort((a,b) => a.name.compareTo(b.name) );
