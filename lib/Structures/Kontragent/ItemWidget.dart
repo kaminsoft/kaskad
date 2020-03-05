@@ -84,16 +84,18 @@ class _ItemWidgetState extends State<ItemWidget> {
             }
           }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _labeledWidget(kontragent.fullName, 'Полное наименование'),
-              _getAdresses(),
-              _labeledWidget(kontragent.orientir, 'Ориентир'),
-              _getINNKPP(),
-              _getKontacts(),
-              _getContactUsers(),
-            ],
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _labeledWidget(kontragent.fullName, 'Полное наименование'),
+                _getAdresses(),
+                _labeledWidget(kontragent.orientir, 'Ориентир'),
+                _getINNKPP(),
+                _getKontacts(),
+                _getContactUsers(),
+              ],
+            ),
           );
         },
       ),
@@ -107,15 +109,26 @@ class _ItemWidgetState extends State<ItemWidget> {
           Divider(),
           SizedBox(
             height: 115,
-            child: Center(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(CupertinoIcons.person_solid, size: 48, color: Colors.black26,),
-                SizedBox(height: 5,),
-                Text('Нет контактных лиц'.toUpperCase(), style: TextStyle(fontSize: 14, color: Colors.black45),),
-              ],
-            ),),
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    CupertinoIcons.person_solid,
+                    size: 48,
+                    color: Colors.black26,
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    'Нет контактных лиц'.toUpperCase(),
+                    style: TextStyle(fontSize: 14, color: Colors.black45),
+                  ),
+                ],
+              ),
+            ),
           ),
           Divider(),
         ],
@@ -195,8 +208,8 @@ class _ItemWidgetState extends State<ItemWidget> {
         scrollDirection: Axis.horizontal,
         children: <Widget>[
           InkWell(
-            onTap: () => call(kontragent.phone),
-            child: _labeledWidget(kontragent.phone, 'Телефон')),
+              onTap: () => call(kontragent.phone),
+              child: _labeledWidget(kontragent.phone, 'Телефон')),
           _labeledWidget(kontragent.email, 'Email')
         ],
       ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -11,6 +12,8 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 
 import 'Kontragent.dart';
+
+GlobalKey kontragentListKey = GlobalKey();
 
 class KontragentList extends StatefulWidget {
   KontragentList({Key key}) : super(key: key);
@@ -35,6 +38,7 @@ class _KontragentListState extends State<KontragentList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: kontragentListKey,
       appBar: searchMode
           ? AppBar(
               automaticallyImplyLeading: false,
@@ -199,13 +203,16 @@ class _ItemCardState extends State<ItemCard> {
             : 'ИНН не указан';
     return Slidable(
       actionPane: SlidableBehindActionPane(),
+      enabled: !widget.showStar,
       secondaryActions: <Widget>[
         IconSlideAction(
-          caption: 'Удалить',
-          icon: Icons.close,
+          caption: 'Убрать',
+          icon: Icons.star_border,
           color: Colors.transparent,
           foregroundColor: ColorMain,
-          onTap: () => StoreProvider.dispatchFuture(context, RemoveKontragent(widget.kontragent)),
+          onTap: (){
+            deleteKontragent(widget.kontragent);
+          },
         ),
       ],
       child: Card(
@@ -287,3 +294,37 @@ class _ItemCardState extends State<ItemCard> {
     );
   }
 }
+
+Future deleteKontragent(Kontragent kontragent) async {
+    await StoreProvider.dispatchFuture(kontragentListKey.currentContext, RemoveKontragent(kontragent));
+    Flushbar(
+        messageText: Text(
+          'Удален из избранного',
+          style: TextStyle(fontSize: 11, color: Colors.white54),
+        ),
+        titleText: Text(
+          kontragent.name,
+          style: TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+        mainButton: FlatButton(
+          child: Text(
+            'Отменить',
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: () {
+            StoreProvider.dispatchFuture(kontragentListKey.currentContext, AddKontragent(kontragent, fromServer: false));
+            Navigator.of(kontragentListKey.currentContext).pop();
+          },
+        ),
+        animationDuration: Duration(milliseconds: 200),
+        isDismissible: true,
+        duration: Duration(seconds: 7),
+        dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+        icon: Icon(Icons.close, color: ColorMain),
+        // Show it with a cascading operator
+      )..show(kontragentListKey.currentContext);
+    // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Контрагент удален'),action: SnackBarAction(label: 'Отменить', onPressed: (){
+    //   StoreProvider.dispatchFuture(context, AddKontragent(kontragent, fromServer: false));
+    // }),));
+  }
