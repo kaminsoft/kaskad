@@ -55,7 +55,6 @@ class _KontragentListState extends State<KontragentList> {
                 },
               ),
               actions: <Widget>[
-                
                 IconButton(
                     icon: Icon(Icons.clear),
                     onPressed: () {
@@ -119,7 +118,9 @@ class _KontragentListState extends State<KontragentList> {
                       itemCount: list.length,
                       itemBuilder: (BuildContext context, int index) {
                         Kontragent kontragent = list[index];
-                        Kontragent cashedKontragent = kontragents.firstWhere((k)=> k.guid == kontragent.guid, orElse: ()=> null);
+                        Kontragent cashedKontragent = kontragents.firstWhere(
+                            (k) => k.guid == kontragent.guid,
+                            orElse: () => null);
                         bool active = cashedKontragent != null;
                         return ItemCard(
                           cashedKontragent: cashedKontragent,
@@ -151,7 +152,9 @@ class _KontragentListState extends State<KontragentList> {
                 itemCount: kontragents.length,
                 itemBuilder: (BuildContext context, int index) {
                   Kontragent kontragent = kontragents[index];
-                  Kontragent cashedKontragent = kontragents.firstWhere((k)=> k.guid == kontragent.guid, orElse: ()=> null);
+                  Kontragent cashedKontragent = kontragents.firstWhere(
+                      (k) => k.guid == kontragent.guid,
+                      orElse: () => null);
                   bool active = cashedKontragent != null;
                   return ItemCard(
                     kontragent: kontragent,
@@ -190,72 +193,94 @@ class _ItemCardState extends State<ItemCard> {
 
   @override
   Widget build(BuildContext context) {
-    String inn = widget.kontragent.inn != null && widget.kontragent.inn.isNotEmpty
-        ? 'ИНН: ${widget.kontragent.inn}'
-        : 'ИНН не указан';
-    return Card(
-      child: InkWell(
-        onTap: () {
-          Kontr.openItem(context, widget.active ? widget.cashedKontragent : widget.kontragent);
-        },
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10, top: 8, bottom: 8, right: 8),
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(right: 15),
-                child: RotatedBox(
-                  quarterTurns: -1,
-                  child: Text(
-                    '${widget.kontragent.code}',
-                    style: TextStyle(color: Colors.black45, fontSize: 12),
+    String inn =
+        widget.kontragent.inn != null && widget.kontragent.inn.isNotEmpty
+            ? 'ИНН: ${widget.kontragent.inn}'
+            : 'ИНН не указан';
+    return Slidable(
+      actionPane: SlidableBehindActionPane(),
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: 'Удалить',
+          icon: Icons.close,
+          color: Colors.transparent,
+          foregroundColor: ColorMain,
+          onTap: () => StoreProvider.dispatchFuture(context, RemoveKontragent(widget.kontragent)),
+        ),
+      ],
+      child: Card(
+        child: InkWell(
+          onTap: () {
+            Kontr.openItem(context,
+                widget.active ? widget.cashedKontragent : widget.kontragent);
+          },
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 10, top: 8, bottom: 8, right: 8),
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 15),
+                  child: RotatedBox(
+                    quarterTurns: -1,
+                    child: Text(
+                      '${widget.kontragent.code}',
+                      style: TextStyle(color: Colors.black45, fontSize: 12),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      '${widget.kontragent.name}',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      '$inn',
-                      style: TextStyle(color: Colors.black45, fontSize: 12),
-                    )
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        '${widget.kontragent.name}',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        '$inn',
+                        style: TextStyle(color: Colors.black45, fontSize: 12),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Column(
-                children: <Widget>[
-                  widget.showStar ? loading ? IconButton(icon: CupertinoActivityIndicator(), onPressed: null,) : IconButton(
-                      icon: widget.active
-                          ? Icon(
-                              Icons.star,
-                              color: ColorMain,
-                            )
-                          : Icon(Icons.star_border),
-                      onPressed: () async {
-                        setState(() {
-                          loading = true;
-                        });
-                        await StoreProvider.dispatchFuture(
-                            context,
-                            widget.active
-                                ? RemoveKontragent(widget.kontragent)
-                                : AddKontragent(widget.kontragent));
-                        setState(() {
-                          loading = false;
-                        });
-                      }) : Icon(Icons.chevron_right, color: Colors.black45),
-                ],
-              )
-            ],
+                Column(
+                  children: <Widget>[
+                    widget.showStar
+                        ? loading
+                            ? IconButton(
+                                icon: CupertinoActivityIndicator(),
+                                onPressed: null,
+                              )
+                            : IconButton(
+                                icon: widget.active
+                                    ? Icon(
+                                        Icons.star,
+                                        color: ColorMain,
+                                      )
+                                    : Icon(Icons.star_border),
+                                onPressed: () async {
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                  await StoreProvider.dispatchFuture(
+                                      context,
+                                      widget.active
+                                          ? RemoveKontragent(widget.kontragent)
+                                          : AddKontragent(widget.kontragent));
+                                  setState(() {
+                                    loading = false;
+                                  });
+                                })
+                        : Icon(Icons.chevron_right, color: Colors.black45),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
