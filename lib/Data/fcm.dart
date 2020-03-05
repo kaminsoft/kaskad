@@ -5,7 +5,6 @@ import 'package:async_redux/async_redux.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_eventemitter/flutter_eventemitter.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
@@ -64,32 +63,4 @@ class FirebaseNotifications {
       print("Settings registered: $settings");
     });
   }
-}
-
-class LocalNotifications {
-
-  static FlutterLocalNotificationsPlugin localNotificationsPlugin;
-  
-  static Future onSelectNotification(String payload) async{
-    print(payload);
-  }
-
-  static void setUpLocalNotifications() async {
-
-    var androidSettings = AndroidInitializationSettings('app_icon');
-    var iOSSettings = IOSInitializationSettings();
-    var settings = InitializationSettings(androidSettings, iOSSettings);
-
-    localNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    bool res = await localNotificationsPlugin.initialize(settings,onSelectNotification: onSelectNotification);
-    print(res);
-  }
-
-  static void showNotification(String title, String text, {Message msg}) async{
-    var android = AndroidNotificationDetails('channelId', 'channelName', 'channelDescription');
-    var iOS = IOSNotificationDetails();
-    var details = NotificationDetails(android, iOS);
-    await localNotificationsPlugin.show(0, title, text, details);
-  }
-
 }

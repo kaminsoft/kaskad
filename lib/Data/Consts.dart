@@ -78,7 +78,13 @@ void logOpenScreen(Widget widget) {
 }
 
 void call (String phone) {
-  launch("tel:$phone");
+  if (phone != null && phone.isNotEmpty) {
+    var num = phone.replaceAll('-', '');
+    num = num.replaceAll('(', '');
+    num = num.replaceAll(')', '');
+    num = num.replaceAll(' ', '');
+    launch("tel:$num");
+  }
 }
 
 class OnMessageEvent {
