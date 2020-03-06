@@ -87,6 +87,8 @@ void call (String phone) {
   }
 }
 
+GlobalKey mainWidgetKey = GlobalKey();
+
 class OnMessageEvent {
   dynamic data;
 

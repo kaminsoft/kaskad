@@ -96,6 +96,9 @@ class UpdateMessages extends ReduxAction<AppState> {
     AppState newState = AppState.copy(state);
 
     if (isPublicate) {
+      if (newState.messagesP.isEmpty) {
+        return null;
+      }
       var msgs = await Connection.getMessageList(isPublicate,
           lastNum: addBefore ? null : newState.messagesP.last.number,
           firstNum: newState.messagesP.first.number);
@@ -105,9 +108,12 @@ class UpdateMessages extends ReduxAction<AppState> {
         newState.messagesP.addAll(msgs);
       }
     } else {
+      if (newState.messages.isEmpty) {
+        return null;
+      }
       var msgs = await Connection.getMessageList(isPublicate,
           lastNum: addBefore ? null : newState.messages.last.number,
-          firstNum: newState.messagesP.first.number);
+          firstNum: newState.messages.first.number);
       if (addBefore) {
         newState.messages.insertAll(0, msgs);
       } else {

@@ -60,6 +60,7 @@ class _MainPageState extends State<MainPage> {
         converter: (store) => store.state.user,
         builder: (context, user) {
           return Scaffold(
+            key: mainWidgetKey,
             appBar: AppBar(
               centerTitle: true,
               title: editMode

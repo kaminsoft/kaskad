@@ -20,6 +20,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   bool _isLoading = false;
+  bool _built = false;
   RefreshController _refreshController = RefreshController(
       initialRefresh: false, initialLoadStatus: LoadStatus.loading);
 
@@ -38,8 +39,6 @@ class _MessageListState extends State<MessageList> {
 
   @override
   Widget build(BuildContext context) {
-    StoreProvider.dispatchFuture(
-        context, UpdateMessages(widget.isPublicate, addBefore: true));
     return StoreConnector<AppState, AppState>(
       converter: (store) => store.state,
       builder: (BuildContext context, state) {
@@ -54,6 +53,10 @@ class _MessageListState extends State<MessageList> {
               child: CupertinoActivityIndicator(),
             ),
           );
+        } else if (!_built){
+          _built = true;
+          StoreProvider.dispatchFuture(
+              context, UpdateMessages(widget.isPublicate, addBefore: true));
         }
 
         return Scaffold(
@@ -72,7 +75,7 @@ class _MessageListState extends State<MessageList> {
               onNotification: (ScrollNotification scrollInfo) {
                 if (!_isLoading &&
                     scrollInfo.metrics.pixels >=
-                        scrollInfo.metrics.maxScrollExtent - 200) {
+                        scrollInfo.metrics.maxScrollExtent - 200 && scrollInfo.metrics.pixels <= scrollInfo.metrics.maxScrollExtent) {
                   _updateList();
                   return true;
                 }

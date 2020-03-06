@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform ;
 
 import 'package:async_redux/async_redux.dart';
 import 'package:flushbar/flushbar.dart';
@@ -28,6 +29,8 @@ class _KontragentListState extends State<KontragentList> {
   FocusNode focusNode = FocusNode();
   List<Kontragent> searchList = List<Kontragent>();
   String query = '';
+  List list = [];
+  bool loading = false;
 
   @override
   void dispose() {
@@ -52,20 +55,40 @@ class _KontragentListState extends State<KontragentList> {
                   hintText: 'Поиск',
                   hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                 ),
-                onChanged: (text) {
+                onChanged: (text) async {
                   setState(() {
-                    query = filter.text;
+                    loading = true;
+                  });
+                  var lst = await Connection.searchKontragent(filter.text);
+                  setState(() {
+                    list = lst;
+                  });
+                  setState(() {
+                    loading = false;
                   });
                 },
               ),
-              actions: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.clear),
+              leading: IconButton(
+                    icon: Icon( Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios),
+
                     onPressed: () {
                       setState(() {
                         searchMode = false;
                       });
                     }),
+              actions: <Widget>[
+                Visibility(
+                  visible: filter.text.isNotEmpty,
+                  child: IconButton(
+                      icon: Icon(CupertinoIcons.clear),
+                      onPressed: () {
+                        setState(() {
+                          query = '';
+                          filter.text = '';
+                        });
+                      }),
+                ),
+                
               ],
             )
           : AppBar(
@@ -87,10 +110,8 @@ class _KontragentListState extends State<KontragentList> {
       body: StoreConnector<AppState, List<Kontragent>>(
           converter: (store) => store.state.kontragents,
           builder: (context, kontragents) {
-            var list = [];
-
             if (searchMode) {
-              if (query.length < 2) {
+              if (filter.text.length < 2) {
                 return Center(
                   child: Text(
                     'Введите наименование, инн или код контрагента',
@@ -99,42 +120,36 @@ class _KontragentListState extends State<KontragentList> {
                   ),
                 );
               }
-              return FutureBuilder(
-                future: Connection.searchKontragent(query),
-                builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: CupertinoActivityIndicator(),
+              if (loading) {
+                return Center(
+                  child: CupertinoActivityIndicator(),
+                );
+              }
+              if (list.length == 0) {
+                return Center(
+                  child: Text(
+                    'Нет данных для отображения',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.black45),
+                  ),
+                );
+              }
+              return Scrollbar(
+                child: ListView.builder(
+                  itemCount: list.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    Kontragent kontragent = list[index];
+                    Kontragent cashedKontragent = kontragents.firstWhere(
+                        (k) => k.guid == kontragent.guid,
+                        orElse: () => null);
+                    bool active = cashedKontragent != null;
+                    return ItemCard(
+                      cashedKontragent: cashedKontragent,
+                      kontragent: kontragent,
+                      active: active,
                     );
-                  }
-                  list = snapshot.data;
-                  if (list.length == 0) {
-                    return Center(
-                      child: Text(
-                        'Нет данных для отображения',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.black45),
-                      ),
-                    );
-                  }
-                  return Scrollbar(
-                    child: ListView.builder(
-                      itemCount: list.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        Kontragent kontragent = list[index];
-                        Kontragent cashedKontragent = kontragents.firstWhere(
-                            (k) => k.guid == kontragent.guid,
-                            orElse: () => null);
-                        bool active = cashedKontragent != null;
-                        return ItemCard(
-                          cashedKontragent: cashedKontragent,
-                          kontragent: kontragent,
-                          active: active,
-                        );
-                      },
-                    ),
-                  );
-                },
+                  },
+                ),
               );
             }
 
@@ -210,7 +225,7 @@ class _ItemCardState extends State<ItemCard> {
           icon: Icons.star_border,
           color: Colors.transparent,
           foregroundColor: ColorMain,
-          onTap: (){
+          onTap: () {
             deleteKontragent(widget.kontragent);
           },
         ),
@@ -296,35 +311,37 @@ class _ItemCardState extends State<ItemCard> {
 }
 
 Future deleteKontragent(Kontragent kontragent) async {
-    await StoreProvider.dispatchFuture(kontragentListKey.currentContext, RemoveKontragent(kontragent));
-    Flushbar(
-        messageText: Text(
-          'Удален из избранного',
-          style: TextStyle(fontSize: 11, color: Colors.white54),
-        ),
-        titleText: Text(
-          kontragent.name,
-          style: TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
-        ),
-        mainButton: FlatButton(
-          child: Text(
-            'Отменить',
-            style: TextStyle(color: Colors.white),
-          ),
-          onPressed: () {
-            StoreProvider.dispatchFuture(kontragentListKey.currentContext, AddKontragent(kontragent, fromServer: false));
-            Navigator.of(kontragentListKey.currentContext).pop();
-          },
-        ),
-        animationDuration: Duration(milliseconds: 200),
-        isDismissible: true,
-        duration: Duration(seconds: 7),
-        dismissDirection: FlushbarDismissDirection.HORIZONTAL,
-        icon: Icon(Icons.close, color: ColorMain),
-        // Show it with a cascading operator
-      )..show(kontragentListKey.currentContext);
-    // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Контрагент удален'),action: SnackBarAction(label: 'Отменить', onPressed: (){
-    //   StoreProvider.dispatchFuture(context, AddKontragent(kontragent, fromServer: false));
-    // }),));
-  }
+  await StoreProvider.dispatchFuture(
+      kontragentListKey.currentContext, RemoveKontragent(kontragent));
+  Flushbar(
+    messageText: Text(
+      'Удален из избранного',
+      style: TextStyle(fontSize: 11, color: Colors.white54),
+    ),
+    titleText: Text(
+      kontragent.name,
+      style: TextStyle(
+          fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+    ),
+    mainButton: FlatButton(
+      child: Text(
+        'Отменить',
+        style: TextStyle(color: Colors.white),
+      ),
+      onPressed: () {
+        StoreProvider.dispatchFuture(kontragentListKey.currentContext,
+            AddKontragent(kontragent, fromServer: false));
+        Navigator.of(kontragentListKey.currentContext).pop();
+      },
+    ),
+    animationDuration: Duration(milliseconds: 200),
+    isDismissible: true,
+    duration: Duration(seconds: 7),
+    dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+    icon: Icon(Icons.close, color: ColorMain),
+    // Show it with a cascading operator
+  )..show(kontragentListKey.currentContext);
+  // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Контрагент удален'),action: SnackBarAction(label: 'Отменить', onPressed: (){
+  //   StoreProvider.dispatchFuture(context, AddKontragent(kontragent, fromServer: false));
+  // }),));
+}

@@ -24,22 +24,20 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          '${kontragent.name}',
-          maxLines: 2,
-          textAlign: TextAlign.center,
-        ),
-        actions: <Widget>[
-          StoreConnector<AppState, List<Kontragent>>(
-            converter: (store) => store.state.kontragents,
-            builder: (context, kontragents) {
-              active =
-                  kontragents.where((k) => k.guid == kontragent.guid).length >
-                      0;
-              return loading
+    return StoreConnector<AppState, List<Kontragent>>(
+      converter: (store) => store.state.kontragents,
+      builder: (context, kontragents) {
+        active = kontragents.where((k) => k.guid == kontragent.guid).length > 0;
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: Text(
+              '${kontragent.name}',
+              maxLines: 2,
+              textAlign: TextAlign.center,
+            ),
+            actions: <Widget>[
+              loading
                   ? IconButton(
                       icon: CupertinoActivityIndicator(),
                       onPressed: null,
@@ -59,46 +57,53 @@ class _ItemWidgetState extends State<ItemWidget> {
                             context,
                             active
                                 ? RemoveKontragent(kontragent)
-                                : AddKontragent(kontragent));
+                                : AddKontragent(kontragent, fromServer: false));
                         setState(() {
                           loading = false;
                         });
-                      });
-            },
-          )
-        ],
-      ),
-      body: FutureBuilder(
-        future: Connection.getKontragent(kontragent.guid),
-        builder: (BuildContext context, AsyncSnapshot<Kontragent> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CupertinoActivityIndicator(),
-            );
-          }
-          if (snapshot.hasData) {
-            kontragent = snapshot.data;
-            if (active) {
-              StoreProvider.dispatchFuture(
-                  context, AddKontragent(kontragent, fromServer: false));
-            }
-          }
+                      })
+            ],
+          ),
+          body: FutureBuilder(
+            future: Connection.getKontragent(kontragent.guid),
+            builder:
+                (BuildContext context, AsyncSnapshot<Kontragent> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !snapshot.hasData) {
+                if (active) {
+                  kontragent =
+                      kontragents.where((k) => k.guid == kontragent.guid).first;
+                } else if (kontragent.fullName == null) {
+                  return Center(
+                    child: CupertinoActivityIndicator(),
+                  );
+                }
+              }
+              if (snapshot.hasData) {
+                kontragent = snapshot.data;
+                if (active) {
+                  StoreProvider.dispatchFuture(
+                      context, AddKontragent(kontragent, fromServer: false));
+                }
+              }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                _labeledWidget(kontragent.fullName, 'Полное наименование'),
-                _getAdresses(),
-                _labeledWidget(kontragent.orientir, 'Ориентир'),
-                _getINNKPP(),
-                _getKontacts(),
-                _getContactUsers(),
-              ],
-            ),
-          );
-        },
-      ),
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _labeledWidget(kontragent.fullName, 'Полное наименование'),
+                    _getAdresses(),
+                    _labeledWidget(kontragent.orientir, 'Ориентир'),
+                    _getINNKPP(),
+                    _getKontacts(),
+                    _getContactUsers(),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

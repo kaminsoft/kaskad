@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
@@ -16,7 +18,7 @@ class Connection {
   //static String get url => isProduction ? 'http://62.148.143.24:81/kaskadfb/hs/mobile' : 'http://62.148.143.24:81/kaskad/hs/mobile';
 
   static FutureOr<http.Response> onTimeout() {
-    return http.Response('', 504);
+    return http.Response('time out', 504);
   }
 
   static Future<List<User>> getAuthList() async {
@@ -62,6 +64,7 @@ class Connection {
 
   static Future<List<Message>> getMessageList(bool isPublicate,
       {String lastNum, String firstNum}) async {
+        print('${DateTime.now()} getting messages');
     List<Message> msgs = List<Message>();
     User user = await DBProvider.db.getUser();
     String _lastNum = lastNum == null ? '' : '&lastNum=$lastNum';
@@ -196,7 +199,7 @@ class Connection {
   static Future<List<Kontragent>> searchKontragent(String query) async {
     List<Kontragent> list = List<Kontragent>();
     User user = await DBProvider.db.getUser();
-
+    
     try {
       final response = await http.get(
         '$url/searchpartner?query=$query',

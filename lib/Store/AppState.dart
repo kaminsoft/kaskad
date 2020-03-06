@@ -20,12 +20,9 @@ class AppState {
   
   static Future<AppState> initState() async{
     var user = await DBProvider.db.getUser();
-    var msg = user == null ? List<Message>() : await Connection.getMessageList(false);
-    var msgP = user == null ? List<Message>() : await Connection.getMessageList(true);
-    var msgC = user == null ? NewMessageCount() : await Connection.getMessageCount();
     var ftrs = user == null ? List<Feature>() : await DBProvider.db.getFeatures();
     var kontr = user == null ? List<Kontragent>() : await DBProvider.db.getKontragents();
-    return AppState(messages: msg, messagesP: msgP, user: user, features: ftrs, messageCount: msgC, kontragents: kontr);
+    return AppState(messages: List<Message>(), messagesP: List<Message>(), user: user, features: ftrs, messageCount: NewMessageCount(), kontragents: kontr);
   }
   AppState({this.user, this.messages, this.messagesP, this.messageCount, this.features, this.kontragents});
     
