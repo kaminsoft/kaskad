@@ -42,6 +42,9 @@ class Feature {
 
 _wip(BuildContext context, {String feature}) {
   Navigator.of(context).push(MaterialPageRoute(
+      settings: RouteSettings(
+        name: feature,
+      ),
       builder: (ctx) => UnderConstruction(
             feature: feature,
           )));

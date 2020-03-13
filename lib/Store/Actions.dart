@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
+import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
@@ -19,8 +20,9 @@ class LogIn extends ReduxAction<AppState> {
     AppState newState = AppState.copy(state);
     newState.features = List<Feature>.from(getInitialFeatureList());
     newState.user = user;
-    await DBProvider.db.addUser(user);
-    await DBProvider.db.saveFeatures(newState.features);
+    Data.curUser = user;
+    DBProvider.db.addUser(user);
+    DBProvider.db.saveFeatures(newState.features);
     return newState;
   }
 }
@@ -31,8 +33,9 @@ class LogOut extends ReduxAction<AppState> {
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
-    await DBProvider.db.deleteUser();
+    DBProvider.db.deleteUser();
     newState.user = null;
+    Data.curUser = null;
     return newState;
   }
 }

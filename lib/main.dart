@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,28 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'Data/Consts.dart';
 import 'Pages/auth.dart';
+
+class MyRouteObserver extends RouteObserver<PageRoute<dynamic>> {
+  @override
+  void didPush(Route route, Route previousRoute) {
+    if (Data.curUser != null) {
+      Data.analytics.logEvent(
+          name: 'open_screen', parameters: {'name': route.settings.name});
+    }
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didPop(Route route, Route previousRoute) {
+    if (previousRoute.settings.name == '/' && Data.curUser != null) {
+      Timer(Duration(milliseconds: 500), () {
+        StoreProvider.dispatchFuture(
+            previousRoute.navigator.context, UpdateMessageCount());
+      });
+    }
+    super.didPop(route, previousRoute);
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +77,15 @@ class MyApp extends StatelessWidget {
         ),
         title: 'КАСКАД',
         debugShowCheckedModeBanner: false,
-        home: MyHomePage(title: 'КАСКАД'),
+        home: StoreConnector<AppState, User>(
+            converter: (store) => store.state.user,
+            builder: (context, user) {
+              if (user == null) {
+                return AuthPage();
+              }
+              return MainPage();
+            }),
+        navigatorObservers: [MyRouteObserver()],
       ),
     );
   }
@@ -74,7 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return StoreConnector<AppState, User>(
         converter: (store) => store.state.user,
         builder: (context, user) {
-          
           if (user == null) {
             return AuthPage();
           }

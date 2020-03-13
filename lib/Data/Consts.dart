@@ -11,6 +11,7 @@ class Data {
   static User curUser;
   static String messageId;
   static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static String version = '0.0.1 (beta)';
 }
 
 const Color ColorGray = Color(0xFFEEEEEE);
@@ -73,9 +74,6 @@ List<Intro> introList = [
       image: 'assets/img/intro04.svg'),
 ];
 
-void logOpenScreen(Widget widget) {
-  Data.analytics.logEvent(name: 'open_screen',parameters: {'name': widget.runtimeType.toString()});
-}
 
 void call (String phone) {
   if (phone != null && phone.isNotEmpty) {
@@ -87,7 +85,7 @@ void call (String phone) {
   }
 }
 
-GlobalKey mainWidgetKey = GlobalKey();
+GlobalKey<ScaffoldState> mainWidgetKey = GlobalKey();
 
 class OnMessageEvent {
   dynamic data;

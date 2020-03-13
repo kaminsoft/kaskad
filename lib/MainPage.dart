@@ -33,7 +33,6 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     Data.analytics.logLogin();
-    logOpenScreen(this.widget);
   }
 
   @override
@@ -49,11 +48,9 @@ class _MainPageState extends State<MainPage> {
       FirebaseNotifications().setUpFirebase(context);
       subscibed = true;
     }
-    StoreProvider.dispatchFuture(context, UpdateMessageCount());
     SystemChannels.lifecycle.setMessageHandler((msg) {
       if (msg == AppLifecycleState.resumed.toString()) {
         StoreProvider.dispatchFuture(context, UpdateMessageCount());
-        print(msg);
       }
     });
     return StoreConnector<AppState, User>(
@@ -66,15 +63,16 @@ class _MainPageState extends State<MainPage> {
               title: editMode
                   ? Text('Режим редактирования')
                   : Text(
-                      '${user.firstname} ${user.lastname}',
+                      'Рабочий стол',
                       style: TextStyle(fontSize: 16),
                     ),
               actions: editMode
                   ? []
                   : <Widget>[
                       IconButton(
-                          icon: Icon(Icons.exit_to_app),
-                          onPressed: () => Profile.logOut(context))
+                          icon: Icon(Icons.menu),
+                          onPressed: () =>
+                              _openMenu(context)),
                     ],
             ),
             body: Column(
@@ -191,6 +189,56 @@ class _MainPageState extends State<MainPage> {
             ),
           );
         });
+  }
+
+  _openMenu(context) {
+    showCupertinoModalPopup(context: context, builder: (context){
+      return CupertinoActionSheet(
+        
+        actions: <Widget>[
+          CupertinoActionSheetAction(onPressed: (){
+            Navigator.of(context).pop();
+            showCupertinoDialog(context: context, builder: (context){
+              return CupertinoAlertDialog(
+                
+                content: Column(
+                  children: <Widget>[
+                    Text('Мобильное приложение для взаимодействия с функциями КАСКАДа'),
+                    SizedBox(height: 5,),
+                    Text('Версия ${Data.version}', style: TextStyle(color: Colors.black54),)
+                  ],
+                ),
+                actions: <Widget>[
+                  CupertinoDialogAction(child: Text('OK'), onPressed: () => Navigator.of(context).pop(),)
+                ],
+              );
+            });
+          }, child: Text('О приложении'))
+        ],
+        cancelButton: CupertinoActionSheetAction(isDestructiveAction: true, onPressed: (){Profile.logOut(context);}, child: Text('Выход')),
+      );
+    });
+    // showModalBottomSheet(
+    //   isDismissible: true,
+    //   backgroundColor: Colors.transparent,
+    //   clipBehavior: Clip.antiAlias,
+    //   context: context, builder: (context){
+    //   return Container(
+        
+    //     height: MediaQuery.of(context).size.height/3,
+    //     decoration: BoxDecoration(
+    //       color: Colors.white,
+    //       borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))
+    //     ),
+    //     child: Column(children: <Widget>[
+    //       Row(children: <Widget>[
+    //         CupertinoButton(color: ColorMain, child: Text('О приложении'), onPressed: (){},),
+    //         CupertinoButton(color: ColorMain, child: Text('Выход'), onPressed: (){},)
+    //       ],) 
+          
+    //     ],),
+    //   );
+    // });
   }
 }
 

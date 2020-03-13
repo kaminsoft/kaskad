@@ -18,12 +18,6 @@ class ItemWidget extends StatefulWidget {
 
 class _ItemWidgetState extends State<ItemWidget> {
   @override
-  void initState() {
-    super.initState();
-    logOpenScreen(this.widget);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: Connection.getMessage(widget.id),
@@ -32,135 +26,150 @@ class _ItemWidgetState extends State<ItemWidget> {
             return Scaffold(body: Center(child: CupertinoActivityIndicator()));
           }
           var msg = snapshot.data;
+          if (msg.number == null) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Ошибка',
+                ),
+                centerTitle: true,
+                brightness: Brightness.light,
+              ),
+              body: Center(
+                child: Text(
+                  'Не удалось получить информацию о сообщении',
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
+            );
+          }
           if (!msg.isRead()) {
             StoreProvider.dispatchFuture(context, SetMessageRead(msg));
           }
 
           return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                msg.isPublicite ? 'Объявление' : 'Cообщение',
+              appBar: AppBar(
+                title: Text(
+                  msg.isPublicite ? 'Объявление' : 'Cообщение',
+                ),
+                centerTitle: true,
+                brightness: Brightness.light,
+                actions: <Widget>[
+                  IconButton(
+                      icon: Icon(Icons.more_vert),
+                      onPressed: () {
+                        Post.showContextMenu(context, msg);
+                      })
+                ],
               ),
-              centerTitle: true,
-              
-              brightness: Brightness.light,
-              actions: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.more_vert),
-                    onPressed: () {
-                      Post.showContextMenu(context, msg);
-                    })
-              ],
-            ),
-            body: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: ListView(
-                    children: <Widget>[
-                      Text(DateFormat("dd.MM.yyyy HH:mm:ss").format(msg.date)),
-                      Divider(),
-                      SelectableText(
-                        msg.title,
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "От: ",
-                            style: TextStyle(fontSize: 14),
+              body: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: ListView(
+                  children: <Widget>[
+                    Text(DateFormat("dd.MM.yyyy HH:mm:ss").format(msg.date)),
+                    Divider(),
+                    SelectableText(
+                      msg.title,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          "От: ",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Chip(
+                          label: Text(msg.from.name),
+                          avatar: CircleAvatar(
+                            backgroundColor: ColorMain,
+                            child: Text(
+                              msg.getAvatarLetter(),
+                              style: TextStyle(fontSize: 10),
+                            ),
                           ),
-                          Chip(
-                            label: Text(msg.from.name),
-                            avatar: CircleAvatar(
-                              backgroundColor: ColorMain,
-                              child: Text(
-                                msg.getAvatarLetter(),
-                                style: TextStyle(fontSize: 10),
-                              ),
+                        )
+                      ],
+                    ),
+                    msg.to.length > 1
+                        ? GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (ctx) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(20))),
+                                      child: Column(
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Text(
+                                              "Получатели",
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Scrollbar(
+                                              child: ListView.builder(
+                                                itemCount: msg.to.length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return ListTile(
+                                                    title: Text(
+                                                        msg.to[index].name),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  });
+                            },
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  "Кому: ",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Chip(
+                                  label: Text(msg.to.length.toString()),
+                                  avatar: CircleAvatar(
+                                    backgroundColor: ColorMain,
+                                    child: Icon(
+                                      Icons.people,
+                                      size: 12,
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           )
-                        ],
-                      ),
-                      msg.to.length > 1
-                          ? GestureDetector(
-                              onTap: () {
-                                showModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    context: context,
-                                    builder: (ctx) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.vertical(
-                                                top: Radius.circular(20))),
-                                        child: Column(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(12.0),
-                                              child: Text(
-                                                "Получатели",
-                                                style: TextStyle(fontSize: 18),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Scrollbar(
-                                                child: ListView.builder(
-                                                  itemCount: msg.to.length,
-                                                  itemBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    return ListTile(
-                                                      title: Text(
-                                                          msg.to[index].name),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
-                              },
-                              child: Row(
-                                children: <Widget>[
-                                  Text(
-                                    "Кому: ",
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Chip(
-                                    label: Text(msg.to.length.toString()),
-                                    avatar: CircleAvatar(
-                                      backgroundColor: ColorMain,
-                                      child: Icon(
-                                        Icons.people,
-                                        size: 12,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          : Container(),
+                        : Container(),
 
-                      Divider(),
-                      // SizedBox(
-                      //   height: 24,
-                      //   child: ListView.builder(
-                      //     scrollDirection: Axis.horizontal,
-                      //     itemCount: msg.to.length,
-                      //     itemBuilder: (BuildContext context, int index) {
-                      //       return UserChip(text: msg.to[index].name);
-                      //     },
-                      //   ),
-                      // ),
-                      SelectableText(
-                        msg.text,
-                        style: TextStyle(fontSize: 16),
-                      )
-                    ],
-                  ),
-                ));
+                    Divider(),
+                    // SizedBox(
+                    //   height: 24,
+                    //   child: ListView.builder(
+                    //     scrollDirection: Axis.horizontal,
+                    //     itemCount: msg.to.length,
+                    //     itemBuilder: (BuildContext context, int index) {
+                    //       return UserChip(text: msg.to[index].name);
+                    //     },
+                    //   ),
+                    // ),
+                    SelectableText(
+                      msg.text,
+                      style: TextStyle(fontSize: 16),
+                    )
+                  ],
+                ),
+              ));
         });
   }
 }

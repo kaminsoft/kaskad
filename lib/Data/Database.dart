@@ -65,6 +65,7 @@ class DBProvider {
   }
 
   Future<User> getUser() async {
+    print('${DateTime.now()} getting user');
     final db = await database;
     var res = await db.query("User");
     return res.isNotEmpty ? User.fromJSON(res.first) : null;
@@ -74,6 +75,7 @@ class DBProvider {
     final db = await database;
     db.delete("User");
     db.delete("Feature");
+    db.delete("Kontragent");
   }
 
   Future<int> addUser(User newUser) async {
@@ -126,7 +128,10 @@ class DBProvider {
       return tmp;
     }
     for (var item in res) {
-      tmp.add(Kontragent.fromJSON(item));
+      Kontragent kntr = Kontragent.fromJSON(item);
+      if (!tmp.contains(kntr)) {
+        tmp.add(kntr);
+      }
     }
     return tmp;
   }

@@ -8,12 +8,11 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 class Profile {
   static void logIn(context, user) async {
     await StoreProvider.dispatchFuture(context, LogIn(user));
-    
   }
 
   static void logOut(context) async {
     Data.analytics.logEvent(name: 'logout');
-     
-    StoreProvider.dispatchFuture(context, LogOut());
+    await StoreProvider.dispatchFuture(context, LogOut());
+    Navigator.of(context).pop();
   }
 }

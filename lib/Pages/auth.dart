@@ -169,9 +169,11 @@ class _AuthNamePageState extends State<AuthNamePage> {
   List<User> _sudgestion = List<User>();
   FocusNode _usernameFocusNode;
   Timer _timer;
+  Future<List<User>> _futureList;
 
   @override
   void initState() {
+    _futureList = Connection.getAuthList();
     super.initState();
     _usernameFocusNode = FocusNode();
   }
@@ -222,12 +224,14 @@ class _AuthNamePageState extends State<AuthNamePage> {
     );
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorGray,
       body: FutureBuilder(
-        future: Connection.getAuthList(),
+        future: _futureList,
         builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CupertinoActivityIndicator());
@@ -323,7 +327,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
         _authwrong = false;
         _isLoading = false;
       });
-      Navigator.popUntil(context, ModalRoute.withName('/'));
+      Navigator.popUntil(context, (ModalRoute.withName('/')),);
     } else {
       setState(() {
         _authwrong = true;

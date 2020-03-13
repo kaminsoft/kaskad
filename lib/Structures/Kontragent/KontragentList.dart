@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io' show Platform ;
+import 'dart:io' show Platform;
 
 import 'package:async_redux/async_redux.dart';
 import 'package:flushbar/flushbar.dart';
@@ -31,6 +31,7 @@ class _KontragentListState extends State<KontragentList> {
   String query = '';
   List list = [];
   bool loading = false;
+  Timer timer;
 
   @override
   void dispose() {
@@ -55,27 +56,33 @@ class _KontragentListState extends State<KontragentList> {
                   hintText: 'Поиск',
                   hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                 ),
-                onChanged: (text) async {
-                  setState(() {
-                    loading = true;
-                  });
-                  var lst = await Connection.searchKontragent(filter.text);
-                  setState(() {
-                    list = lst;
-                  });
-                  setState(() {
-                    loading = false;
+                onChanged: (text) {
+                  if (timer != null) {
+                    timer.cancel();
+                  }
+                  timer = Timer(Duration(milliseconds: 500), () async {
+                    setState(() {
+                      loading = true;
+                    });
+                    var lst = await Connection.searchKontragent(filter.text);
+                    setState(() {
+                      list = lst;
+                    });
+                    setState(() {
+                      loading = false;
+                    });
                   });
                 },
               ),
               leading: IconButton(
-                    icon: Icon( Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios),
-
-                    onPressed: () {
-                      setState(() {
-                        searchMode = false;
-                      });
-                    }),
+                  icon: Icon(Platform.isAndroid
+                      ? Icons.arrow_back
+                      : Icons.arrow_back_ios),
+                  onPressed: () {
+                    setState(() {
+                      searchMode = false;
+                    });
+                  }),
               actions: <Widget>[
                 Visibility(
                   visible: filter.text.isNotEmpty,
@@ -88,7 +95,6 @@ class _KontragentListState extends State<KontragentList> {
                         });
                       }),
                 ),
-                
               ],
             )
           : AppBar(

@@ -1,5 +1,6 @@
 
 import 'package:mobile_kaskad/Data/Connection.dart';
+import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
@@ -22,6 +23,7 @@ class AppState {
     var user = await DBProvider.db.getUser();
     var ftrs = user == null ? List<Feature>() : await DBProvider.db.getFeatures();
     var kontr = user == null ? List<Kontragent>() : await DBProvider.db.getKontragents();
+    Data.curUser = user;
     return AppState(messages: List<Message>(), messagesP: List<Message>(), user: user, features: ftrs, messageCount: NewMessageCount(), kontragents: kontr);
   }
   AppState({this.user, this.messages, this.messagesP, this.messageCount, this.features, this.kontragents});

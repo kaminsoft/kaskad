@@ -18,6 +18,8 @@ class Kontragent {
 
   Kontragent({this.guid, this.code, this.name, this.fullName, this.inn, this.kpp, this.adressLegal, this.adressActual, this.email, this.orientir, this.phone, this.persons, this.secrets});
 
+  bool operator ==(other)  => other.guid == guid;
+
   factory Kontragent.fromJSON(Map<String, dynamic> json) {
 
     var src = json['secrets'] is String ? jsonDecode(json['secrets']) : json['secrets'];
