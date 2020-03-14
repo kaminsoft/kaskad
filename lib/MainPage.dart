@@ -46,6 +46,7 @@ class _MainPageState extends State<MainPage> {
     if (!subscibed) {
       Events.subscribeMessageEvents(context);
       FirebaseNotifications().setUpFirebase(context);
+      StoreProvider.dispatchFuture(context, UpdateMessageCount());
       subscibed = true;
     }
     SystemChannels.lifecycle.setMessageHandler((msg) {

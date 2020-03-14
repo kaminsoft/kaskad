@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_kaskad/Data/Consts.dart';
-import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/user.dart';
+import 'package:mobile_kaskad/Models/woker.dart';
 
 class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
@@ -282,4 +281,31 @@ class Connection {
 
     return result;
   }
+
+  static Future<List<Woker>> getWorkers() async {
+    List<Woker> list = List<Woker>();
+    User user = Data.curUser;
+    print('${DateTime.now()} getting Workers');
+    try {
+      final response = await http.get(
+        '$url/users',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = json.decode(response.body);
+        parsedList.forEach((item) {
+          list.add(Woker.fromJSON(item));
+        });
+      }
+      else {
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    return list;
+  }
+
 }

@@ -1,13 +1,10 @@
-import 'dart:convert';
 
-import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Pages/underConstruction.dart';
-import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
-import 'package:toast/toast.dart';
+import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 typedef PressCallback = void Function(BuildContext context, {String feature});
 
@@ -63,7 +60,7 @@ List<Feature> getInitialFeatureList() {
         icon: CupertinoIcons.person_solid,
         color: Color(0xff5972F3),
         image: 'assets/img/cards/sotrudnik.png',
-        onPressed: _wip),
+        onPressed: (ctx, {feature}) => Wkr.openList(ctx)),
     Feature(
         name: 'Задачи',
         icon: Icons.playlist_add_check,

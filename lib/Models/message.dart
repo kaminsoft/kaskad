@@ -25,7 +25,7 @@ class Message {
   }
 
   bool isRead() {
-    return status == "Прочитано" || status == null;
+    return status == "Прочитано";
   }
 
   String getAvatarLetter() {
@@ -42,39 +42,27 @@ class Message {
   String getDate() {
     var now = DateTime.now();
     var diff = now.difference(date);
-    initializeDateFormatting();
-    switch (diff.inDays) {
-      case 0:
-        return DateFormat("HH:mm").format(date);
-        break;
-      case 1:
-        return "Вчера";
-        break;
-      case 1:
-        return "Позавчера";
-        break;
-      default:
-      return DateFormat.MMMMd('ru').format(date);
+    if (diff.inDays == 0 && now.day == date.day) {
+      return DateFormat("HH:mm").format(date);
     }
+    else if (diff.inDays == 1 || diff.inDays == 0 && now.day-1 == date.day) {
+      return "Вчера";
+    }
+    initializeDateFormatting();
+    return DateFormat.MMMMd('ru').format(date);
   }
 
   String getSeparatorText() {
     var now = DateTime.now();
     var diff = now.difference(date);
-    initializeDateFormatting();
-    switch (diff.inDays) {
-      case 0:
-        return "Сегодня";
-        break;
-      case 1:
-        return "Вчера";
-        break;
-      case 1:
-        return "Позавчера";
-        break;
-      default:
-      return DateFormat.MMMMd('ru').format(date);
+     if (diff.inDays == 0 && now.day == date.day) {
+      return "Сегодня";
     }
+    else if (diff.inDays == 1 || diff.inDays == 0 && now.day-1 == date.day) {
+      return "Вчера";
+    }
+    initializeDateFormatting();
+    return DateFormat.MMMMd('ru').format(date);
   }
 
   Message(

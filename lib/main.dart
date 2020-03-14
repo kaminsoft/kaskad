@@ -5,12 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/MainPage.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'Data/Consts.dart';
 import 'Pages/auth.dart';

@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/user.dart';
+import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
-import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -53,6 +53,18 @@ class DBProvider {
           "phone TEXT,"
           "persons TEXT,"
           "secrets TEXT"
+          ")");
+      await db.execute("CREATE TABLE Woker ("
+          "id INTEGER PRIMARY KEY,"
+          "guid TEXT,"
+          "name TEXT,"
+          "shortName TEXT,"
+          "sex INTEGER,"
+          "position TEXT,"
+          "subdivision TEXT,"
+          "mobilePhone TEXT,"
+          "birthday TEXT,"
+          "workPhone TEXT"
           ")");
     });
   }
@@ -141,6 +153,30 @@ class DBProvider {
     db.delete("Kontragent");
     for (var item in list) {
       await db.insert("Kontragent", item.toJson());
+    }
+  }
+
+  Future<List<Woker>> getWorkers() async {
+    List<Woker> tmp = List<Woker>();
+    final db = await database;
+    var res = await db.query("Woker", orderBy: 'name');
+    if (res.isEmpty) {
+      return tmp;
+    }
+    for (var item in res) {
+      Woker kntr = Woker.fromJSON(item);
+      if (!tmp.contains(kntr)) {
+        tmp.add(kntr);
+      }
+    }
+    return tmp;
+  }
+
+  saveWorkers(List<Woker> list) async {
+    final db = await database;
+    db.delete("Woker");
+    for (var item in list) {
+      await db.insert("Woker", item.toJson());
     }
   }
 

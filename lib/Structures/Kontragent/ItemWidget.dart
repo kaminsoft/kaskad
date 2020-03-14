@@ -1,5 +1,4 @@
 import 'package:async_redux/async_redux.dart';
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
@@ -7,7 +6,6 @@ import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 var dogovors;
 var products;
@@ -437,9 +435,6 @@ class ProductWidget extends StatefulWidget {
 
 class _ProductWidgetState extends State<ProductWidget> {
   List _allProducts;
-  List _products;
-  List _its;
-  List _services;
   @override
   Widget build(BuildContext context) {
     if (products == null) {
@@ -468,9 +463,6 @@ class _ProductWidgetState extends State<ProductWidget> {
       ));
     }
 
-    _products = _allProducts.where((e) => e['type'] == 'product').toList();
-    _its = _allProducts.where((e) => e['type'] == 'its').toList();
-    _services = _allProducts.where((e) => e['type'] == 'service').toList();
 
     String curType = '';
     return Scrollbar(
