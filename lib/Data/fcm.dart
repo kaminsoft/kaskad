@@ -12,10 +12,22 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 class FirebaseNotifications {
   FirebaseMessaging _firebaseMessaging;
   bool _isConfigured = false;
-  
+
   void setUpFirebase(BuildContext context) {
     _firebaseMessaging = FirebaseMessaging();
     firebaseCloudMessagingListeners(context);
+  }
+
+  getMessageData(message) {
+    var msg = message;
+    if (Platform.isAndroid) {
+      msg = message['data'];
+    }
+    return {
+      'text': msg['text'],
+      'title': msg['title'],
+      'id': msg['id']
+    };
   }
 
   void firebaseCloudMessagingListeners(BuildContext context) async {
@@ -29,26 +41,17 @@ class FirebaseNotifications {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
           StoreProvider.dispatchFuture(context, UpdateMessageCount());
-          if(message['action'] != null) {
-            var action = json.decode(message['action']);
-            EventEmitter.publishSync(action['type'] ,action['data']);
-          }
-          
-          Data.messageId = message['id'];
-          var data = {'text': message['text'], 'title': message['title'], 'id': message['id']};
-          EventEmitter.publishSync("ShowSnakBarNewMessage",data);
-          
+
+          EventEmitter.publishSync(
+              "ShowSnakBarNewMessage", getMessageData(message));
         },
         onResume: (Map<String, dynamic> message) async {
           StoreProvider.dispatchFuture(context, UpdateMessageCount());
-          Data.messageId = message['id'];
-          var data = {'text': message['text'], 'title': message['title'], 'id': message['id']};
-          EventEmitter.publishSync("OpenInMessage", data);
+          EventEmitter.publishSync("OpenInMessage",  getMessageData(message));
         },
         onLaunch: (Map<String, dynamic> message) async {
           StoreProvider.dispatchFuture(context, UpdateMessageCount());
-          var data = {'text': message['data']['text'], 'title': message['data']['title'], 'id': message['data']['id']};
-          EventEmitter.publishSync("ShowSnakBarNewMessage",data);
+          EventEmitter.publishSync("ShowSnakBarNewMessage",  getMessageData(message));
         },
       );
       _isConfigured = true;

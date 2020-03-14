@@ -26,7 +26,7 @@ class Feature {
       this.color,
       this.onPressed,
       this.image,
-      this.enabled = true,
+      this.enabled = false,
       this.isNew = false});
 
   Map<String, dynamic> toJson() => {
@@ -50,12 +50,14 @@ _wip(BuildContext context, {String feature}) {
 List<Feature> getInitialFeatureList() {
   return [
     Feature(
+        enabled: true,
         name: 'Контрагенты',
         icon: CupertinoIcons.group_solid,
         color: Color(0xff5972F3),
         image: 'assets/img/cards/kontragent.png',
         onPressed: (ctx, {feature}) => Kontr.openList(ctx)),
     Feature(
+        enabled: true,
         name: 'Сотрудники',
         icon: CupertinoIcons.person_solid,
         color: Color(0xff5972F3),

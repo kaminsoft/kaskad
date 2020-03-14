@@ -46,7 +46,7 @@ class _ItemWidgetState extends State<ItemWidget> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          SelectableText(
+          Text(
             _value,
             style: TextStyle(fontSize: 14),
           )
