@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Models/intro.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:vibrate/vibrate.dart';
+//import 'package:vibrate/vibrate.dart';
 
 class Data {
   static User curUser;
@@ -47,8 +47,8 @@ String getAvatarLetter(String name) {
   }
 
 void vibrate() async {
-  bool canVibrate = await Vibrate.canVibrate;
-  canVibrate ? Vibrate.feedback(FeedbackType.medium) : null;
+  // bool canVibrate = await Vibrate.canVibrate;
+  // canVibrate ? Vibrate.feedback(FeedbackType.medium) : null;
 }
 
 List<Intro> introList = [
