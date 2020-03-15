@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:async_redux/async_redux.dart';
 import 'package:badges/badges.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/fcm.dart';
@@ -31,6 +34,12 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
+      FeatureDiscovery.discoverFeatures(
+        context,
+        mainPageTutt
+      );
+    });
     super.initState();
     Data.analytics.logLogin();
   }
@@ -72,8 +81,7 @@ class _MainPageState extends State<MainPage> {
                   : <Widget>[
                       IconButton(
                           icon: Icon(Icons.menu),
-                          onPressed: () =>
-                              _openMenu(context)),
+                          onPressed: () => _openMenu(context)),
                     ],
             ),
             body: Column(
@@ -97,6 +105,10 @@ class _MainPageState extends State<MainPage> {
                                     setState(() {
                                       editMode = true;
                                     });
+                                    FeatureDiscovery.discoverFeatures(
+                                      context,
+                                      <String>{mainPageTutt[1]},
+                                    );
                                   },
                                   child: Text('Редактировать'))
                             ],
@@ -124,6 +136,10 @@ class _MainPageState extends State<MainPage> {
                                       editMode = true;
                                     });
                                     vibrate();
+                                    Timer(Duration(milliseconds: 500), ()=>FeatureDiscovery.discoverFeatures(
+                                      context,
+                                      mainPageTutt
+                                    ));
                                   }
                                 },
                                 child: FeatureCard(
@@ -141,49 +157,97 @@ class _MainPageState extends State<MainPage> {
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   color: Colors.transparent,
                   child: editMode
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Expanded(
-                              child: MessageButton(
-                                  filed: true,
-                                  count: 0,
-                                  text: 'Завершить редактированиe',
-                                  onPressed: () {
-                                    setState(() {
-                                      editMode = false;
-                                    });
-                                    StoreProvider.dispatchFuture(
-                                        context, AfterEditFeatures());
-                                  }),
-                            ),
-                          ],
+                      ? DescribedFeatureOverlay(
+                          featureId: mainPageTutt[1],
+                          tapTarget: Text('OK',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                              backgroundColor: ColorMain,
+                          
+                          title: Text('Редактирование'),
+                          description: Column(
+                            children: <Widget>[
+                              Text(
+                                'В этом режиме можно менять местами карточки разделов, включать и выключать их.',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                'Чтобы упорядочить разделы просто нажмите на один из них и переместите на удобное вам место.',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(
+                                height: 30,
+                              ),
+                            ],
+                          ),
+                          
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: MessageButton(
+                                filed: true,
+                                count: 0,
+                                text: 'Завершить редактированиe',
+                                onPressed: () {
+                                  setState(() {
+                                    editMode = false;
+                                  });
+                                  StoreProvider.dispatchFuture(
+                                      context, AfterEditFeatures());
+                                }),
+                          ),
                         )
-                      : StoreConnector<AppState, NewMessageCount>(
-                          converter: (store) => store.state.messageCount,
-                          builder: (context, messages) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Expanded(
-                                    child: MessageButton(
-                                  count: messages.message,
-                                  onPressed: () =>
-                                      Post.openList(context, false),
-                                  text: 'сообщения',
-                                )),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Expanded(
-                                    child: MessageButton(
-                                  count: messages.post,
-                                  onPressed: () => Post.openList(context, true),
-                                  text: 'объявления',
-                                )),
-                              ],
-                            );
-                          },
+                      : DescribedFeatureOverlay(
+                          featureId: mainPageTutt[0],
+                          tapTarget: Text('OK',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          backgroundColor: ColorMain,
+                          
+                          title: Text('Добро пожаловать!'),
+                          description: Column(
+                            children: <Widget>[
+                              Text(
+                                'Это главный экран приложения. Здесь отображаются сообщения, объявления и доступные разделы, которыми можно управлять.',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                'Чтобы убрать ненужные разделы или поменять их местами, просто зажмите палец на разделе. Откроется режим редактирования разделами.',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                          child: StoreConnector<AppState, NewMessageCount>(
+                            converter: (store) => store.state.messageCount,
+                            builder: (context, messages) {
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  Expanded(
+                                      child: MessageButton(
+                                    count: messages.message,
+                                    onPressed: () =>
+                                        Post.openList(context, false),
+                                    text: 'сообщения',
+                                  )),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Expanded(
+                                      child: MessageButton(
+                                    count: messages.post,
+                                    onPressed: () =>
+                                        Post.openList(context, true),
+                                    text: 'объявления',
+                                  )),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                 )
               ],
@@ -193,39 +257,57 @@ class _MainPageState extends State<MainPage> {
   }
 
   _openMenu(context) {
-    showCupertinoModalPopup(context: context, builder: (context){
-      return CupertinoActionSheet(
-        
-        actions: <Widget>[
-          CupertinoActionSheetAction(onPressed: (){
-            Navigator.of(context).pop();
-            showCupertinoDialog(context: context, builder: (context){
-              return CupertinoAlertDialog(
-                
-                content: Column(
-                  children: <Widget>[
-                    Text('Мобильное приложение для взаимодействия с функциями КАСКАДа'),
-                    SizedBox(height: 5,),
-                    Text('Версия ${Data.version}', style: TextStyle(color: Colors.black54),)
-                  ],
-                ),
-                actions: <Widget>[
-                  CupertinoDialogAction(child: Text('OK'), onPressed: () => Navigator.of(context).pop(),)
-                ],
-              );
-            });
-          }, child: Text('О приложении'))
-        ],
-        cancelButton: CupertinoActionSheetAction(isDestructiveAction: true, onPressed: (){Profile.logOut(context);}, child: Text('Выход')),
-      );
-    });
+    showCupertinoModalPopup(
+        context: context,
+        builder: (context) {
+          return CupertinoActionSheet(
+            actions: <Widget>[
+              CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    showCupertinoDialog(
+                        context: context,
+                        builder: (context) {
+                          return CupertinoAlertDialog(
+                            content: Column(
+                              children: <Widget>[
+                                Text(
+                                    'Мобильное приложение для взаимодействия с функциями КАСКАДа'),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  'Версия ${Data.version}',
+                                  style: TextStyle(color: Colors.black54),
+                                )
+                              ],
+                            ),
+                            actions: <Widget>[
+                              CupertinoDialogAction(
+                                child: Text('OK'),
+                                onPressed: () => Navigator.of(context).pop(),
+                              )
+                            ],
+                          );
+                        });
+                  },
+                  child: Text('О приложении'))
+            ],
+            cancelButton: CupertinoActionSheetAction(
+                isDestructiveAction: true,
+                onPressed: () {
+                  Profile.logOut(context);
+                },
+                child: Text('Выход')),
+          );
+        });
     // showModalBottomSheet(
     //   isDismissible: true,
     //   backgroundColor: Colors.transparent,
     //   clipBehavior: Clip.antiAlias,
     //   context: context, builder: (context){
     //   return Container(
-        
+
     //     height: MediaQuery.of(context).size.height/3,
     //     decoration: BoxDecoration(
     //       color: Colors.white,
@@ -235,8 +317,8 @@ class _MainPageState extends State<MainPage> {
     //       Row(children: <Widget>[
     //         CupertinoButton(color: ColorMain, child: Text('О приложении'), onPressed: (){},),
     //         CupertinoButton(color: ColorMain, child: Text('Выход'), onPressed: (){},)
-    //       ],) 
-          
+    //       ],)
+
     //     ],),
     //   );
     // });

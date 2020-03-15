@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:async_redux/async_redux.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,16 @@ class _KontragentListState extends State<KontragentList> {
   List list = [];
   bool loading = false;
   Timer timer;
+
+  @override
+  void initState() {
+    
+    FeatureDiscovery.discoverFeatures(
+      context,
+      <String>{kontragenTutt[0]},
+    );
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -101,16 +112,44 @@ class _KontragentListState extends State<KontragentList> {
               title: Text('Контрагенты'),
               centerTitle: true,
               actions: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () {
-                      setState(() {
-                        searchMode = true;
-                      });
-                      Timer(Duration(milliseconds: 100), () {
-                        FocusScope.of(context).requestFocus(focusNode);
-                      });
-                    })
+                DescribedFeatureOverlay(
+                  featureId: kontragenTutt[0],
+                  tapTarget: Icon(Icons.search),
+                  backgroundColor: ColorMain,
+                  title: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Контрагенты',
+                        textAlign: TextAlign.right,
+                      )),
+                  description: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        'Здесь отображаются избранные контрагенты. Они доступны даже без подключения к сети.',
+                        style: TextStyle(fontSize: 14),
+                        textAlign: TextAlign.right,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Информацию по всем контрагентам можно получить по поиску. Нажмите на кнопку поиска для поиска контрагентов.',
+                        style: TextStyle(fontSize: 14),
+                        textAlign: TextAlign.right,
+                      ),
+                    ],
+                  ),
+                  onComplete: () async {
+                    _openSearch(context);
+                    return true;
+                  },
+                  child: IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        _openSearch(context);
+                      }),
+                )
               ],
             ),
       body: StoreConnector<AppState, List<Kontragent>>(
@@ -118,11 +157,14 @@ class _KontragentListState extends State<KontragentList> {
           builder: (context, kontragents) {
             if (searchMode) {
               if (filter.text.length < 2) {
-                return Center(
-                  child: Text(
-                    'Введите наименование, инн или код контрагента',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text(
+                      'Введите наименование, инн или код контрагента',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.black45),
+                    ),
                   ),
                 );
               }
@@ -140,6 +182,10 @@ class _KontragentListState extends State<KontragentList> {
                   ),
                 );
               }
+              FeatureDiscovery.discoverFeatures(
+                context,
+                <String>{kontragenTutt[1]},
+              );
               return Scrollbar(
                 child: ListView.builder(
                   itemCount: list.length,
@@ -150,10 +196,10 @@ class _KontragentListState extends State<KontragentList> {
                         orElse: () => null);
                     bool active = cashedKontragent != null;
                     return ItemCard(
-                      cashedKontragent: cashedKontragent,
-                      kontragent: kontragent,
-                      active: active,
-                    );
+                        cashedKontragent: cashedKontragent,
+                        kontragent: kontragent,
+                        active: active,
+                        showTut: index == 0);
                   },
                 ),
               );
@@ -193,6 +239,15 @@ class _KontragentListState extends State<KontragentList> {
           }),
     );
   }
+
+  void _openSearch(BuildContext context) {
+    setState(() {
+      searchMode = true;
+    });
+    Timer(Duration(milliseconds: 100), () {
+      FocusScope.of(context).requestFocus(focusNode);
+    });
+  }
 }
 
 class ItemCard extends StatefulWidget {
@@ -201,13 +256,15 @@ class ItemCard extends StatefulWidget {
       @required this.kontragent,
       @required this.cashedKontragent,
       @required this.active,
-      this.showStar = true})
+      this.showStar = true,
+      this.showTut})
       : super(key: key);
 
   final Kontragent kontragent;
   final Kontragent cashedKontragent;
   final bool active;
   final bool showStar;
+  final bool showTut;
 
   @override
   _ItemCardState createState() => _ItemCardState();
@@ -290,7 +347,34 @@ class _ItemCardState extends State<ItemCard> {
                                         Icons.star,
                                         color: ColorMain,
                                       )
-                                    : Icon(Icons.star_border),
+                                    : DescribedFeatureOverlay(
+                                        featureId: widget.showTut
+                                            ? kontragenTutt[1]
+                                            : 'NAN',
+                                        tapTarget: Icon(Icons.star_border),
+                                        backgroundColor: ColorMain,
+                                        contentLocation: ContentLocation.below,
+                                        title: Text('Избранное'),
+                                        onComplete: () async {
+                                          setState(() {
+                                            loading = true;
+                                          });
+                                          StoreProvider.dispatchFuture(
+                                                  context,
+                                                  AddKontragent(
+                                                      widget.kontragent))
+                                              .then((val) {
+                                            setState(() {
+                                              loading = false;
+                                            });
+                                          });
+                                          return true;
+                                        },
+                                        description: Text(
+                                          'Нажмите для добавления контрагента в избранное, информация по контрагенту будет доступна даже без подключения к сети.',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                        child: Icon(Icons.star_border)),
                                 onPressed: () async {
                                   setState(() {
                                     loading = true;

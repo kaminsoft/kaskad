@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +17,7 @@ import 'Pages/auth.dart';
 class MyRouteObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPush(Route route, Route previousRoute) {
-    if (Data.curUser != null) {
+    if (Data.curUser != null && route.settings.name != null) {
       Data.analytics.logEvent(
           name: 'open_screen', parameters: {'name': route.settings.name});
     }
@@ -54,36 +55,38 @@ class MyApp extends StatelessWidget {
     ]);
     return StoreProvider<AppState>(
       store: store,
-      child: MaterialApp(
-        theme: ThemeData(
-          primaryColor: Colors.white,
-          //fontFamily: 'SF Pro Display',
-          appBarTheme: AppBarTheme(
-            color: ColorGray,
-            elevation: 0,
+      child: FeatureDiscovery(
+        child: MaterialApp(
+          theme: ThemeData(
+            primaryColor: Colors.white,
+            //fontFamily: 'SF Pro Display',
+            appBarTheme: AppBarTheme(
+              color: ColorGray,
+              elevation: 0,
+            ),
+            scaffoldBackgroundColor: ColorGray,
+            textTheme: TextTheme(
+                headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+                title: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                body1: TextStyle(fontSize: 12),
+                display1: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+                display2: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.red)),
           ),
-          scaffoldBackgroundColor: ColorGray,
-          textTheme: TextTheme(
-              headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-              title: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              body1: TextStyle(fontSize: 12),
-              display1: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-              display2: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.red)),
+          title: 'КАСКАД',
+          debugShowCheckedModeBanner: false,
+          home: StoreConnector<AppState, User>(
+              converter: (store) => store.state.user,
+              builder: (context, user) {
+                if (user == null) {
+                  return AuthPage();
+                }
+                return MainPage();
+              }),
+          navigatorObservers: [MyRouteObserver()],
         ),
-        title: 'КАСКАД',
-        debugShowCheckedModeBanner: false,
-        home: StoreConnector<AppState, User>(
-            converter: (store) => store.state.user,
-            builder: (context, user) {
-              if (user == null) {
-                return AuthPage();
-              }
-              return MainPage();
-            }),
-        navigatorObservers: [MyRouteObserver()],
       ),
     );
   }

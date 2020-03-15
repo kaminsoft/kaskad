@@ -74,6 +74,8 @@ List<Intro> introList = [
       image: 'assets/img/intro04.svg'),
 ];
 
+List<String> mainPageTutt = ['mp01','mp02'];
+List<String> kontragenTutt = ['kont01','kont02'];
 
 void call (String phone) {
   if (phone != null && phone.isNotEmpty) {
