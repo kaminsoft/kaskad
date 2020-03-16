@@ -45,7 +45,7 @@ class Message {
     if (diff.inDays == 0 && now.day == date.day) {
       return DateFormat("HH:mm").format(date);
     }
-    else if (diff.inDays == 1 || diff.inDays == 0 && now.day-1 == date.day) {
+    else if ((diff.inDays == 1 || diff.inDays == 0) && now.day-1 == date.day) {
       return "Вчера";
     }
     initializeDateFormatting();
@@ -58,7 +58,7 @@ class Message {
      if (diff.inDays == 0 && now.day == date.day) {
       return "Сегодня";
     }
-    else if (diff.inDays == 1 || diff.inDays == 0 && now.day-1 == date.day) {
+    else if ((diff.inDays == 1 || diff.inDays == 0) && now.day-1 == date.day) {
       return "Вчера";
     }
     initializeDateFormatting();
