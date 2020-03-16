@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>357298474996-k93a88b5rdnotdqfv1ck77mi77vjunh0.apps.googleusercontent.com</string>
+	<string>357298474996-8ohpaah8vfqeeqhahtrab2evsgqp2ul9.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.357298474996-k93a88b5rdnotdqfv1ck77mi77vjunh0</string>
+	<string>com.googleusercontent.apps.357298474996-8ohpaah8vfqeeqhahtrab2evsgqp2ul9</string>
 	<key>API_KEY</key>
 	<string>AIzaSyAqxyF5ZZLhxXTkDbnSvBoiNJDVoNbn7Xo</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.kamin.kaskad</string>
+	<string>com.kamin.kaskad.beta</string>
 	<key>PROJECT_ID</key>
 	<string>kaskad-mobile</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:357298474996:ios:61c6756dfacfc7acbf33a1</string>
+	<string>1:357298474996:ios:ce0a68f20ecfc9f4bf33a1</string>
 	<key>DATABASE_URL</key>
 	<string>https://kaskad-mobile.firebaseio.com</string>
 </dict>
