@@ -93,7 +93,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                           ? BoxDecoration(
                               color: CupertinoDynamicColor.withBrightness(
                                 color: CupertinoColors.white,
-                                darkColor: CupertinoColors.black,
+                                darkColor: CupertinoColors.white,
                               ),
                               border: Border(
                                 top: kDefaultRoundedBorderSideError,
@@ -107,7 +107,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                           : BoxDecoration(
                               color: CupertinoDynamicColor.withBrightness(
                                 color: CupertinoColors.white,
-                                darkColor: CupertinoColors.black,
+                                darkColor: CupertinoColors.white,
                               ),
                               border: Border(
                                 top: kDefaultRoundedBorderSideSuccess,

@@ -111,6 +111,7 @@ class _AuthNamePageState extends State<AuthNamePage> {
   CupertinoTextField usernameInput(
       AsyncSnapshot<List<User>> snapshot, BuildContext context) {
     return CupertinoTextField(
+      
       focusNode: _usernameFocusNode,
       onChanged: (text) {
         setState(() {
@@ -131,7 +132,7 @@ class _AuthNamePageState extends State<AuthNamePage> {
       decoration: BoxDecoration(
         color: CupertinoDynamicColor.withBrightness(
           color: CupertinoColors.white,
-          darkColor: CupertinoColors.black,
+          darkColor: CupertinoColors.white,
         ),
         border: Border(
           top: kDefaultRoundedBorderSideSuccess,
