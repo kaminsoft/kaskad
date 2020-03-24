@@ -330,7 +330,7 @@ class _RecipientListState extends State<RecipientList> {
               decoration: BoxDecoration(
                 color: CupertinoDynamicColor.withBrightness(
                   color: CupertinoColors.white,
-                  darkColor: CupertinoColors.black,
+                  darkColor: CupertinoColors.white,
                 ),
                 border: Border(
                   top: kDefaultRoundedBorderSideSuccess,

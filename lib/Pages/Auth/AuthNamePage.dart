@@ -131,7 +131,7 @@ class _AuthNamePageState extends State<AuthNamePage> {
       decoration: BoxDecoration(
         color: CupertinoDynamicColor.withBrightness(
           color: CupertinoColors.white,
-          darkColor: CupertinoColors.black,
+          darkColor: CupertinoColors.white,
         ),
         border: Border(
           top: kDefaultRoundedBorderSideSuccess,
