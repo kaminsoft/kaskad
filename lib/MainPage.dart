@@ -220,33 +220,37 @@ class _MainPageState extends State<MainPage> {
                               ),
                             ],
                           ),
-                          child: StoreConnector<AppState, NewMessageCount>(
-                            converter: (store) => store.state.messageCount,
-                            builder: (context, messages) {
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Expanded(
-                                      child: MessageButton(
-                                    count: messages.message,
-                                    onPressed: () =>
-                                        Post.openList(context, false),
-                                    text: 'сообщения',
-                                  )),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                      child: MessageButton(
-                                    count: messages.post,
-                                    onPressed: () =>
-                                        Post.openList(context, true),
-                                    text: 'объявления',
-                                  )),
-                                ],
-                              );
-                            },
+                          child: SafeArea(
+                            bottom: true,
+                            top: false,
+                            child: StoreConnector<AppState, NewMessageCount>(
+                              converter: (store) => store.state.messageCount,
+                              builder: (context, messages) {
+                                return Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Expanded(
+                                        child: MessageButton(
+                                      count: messages.message,
+                                      onPressed: () =>
+                                          Post.openList(context, false),
+                                      text: 'сообщения',
+                                    )),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                        child: MessageButton(
+                                      count: messages.post,
+                                      onPressed: () =>
+                                          Post.openList(context, true),
+                                      text: 'объявления',
+                                    )),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                 )

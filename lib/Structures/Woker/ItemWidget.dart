@@ -25,6 +25,7 @@ class _ItemWidgetState extends State<ItemWidget> {
         _labeledWidget(widget.woker.subdivision,'Подразделение'),
         _labeledWidget(widget.woker.position,'Должность'),
         _labeledWidget(widget.woker.getBirthdayString(),'Дата рождения'),
+        _labeledWidget(widget.woker.workPhone,'Внутренний телефон'),
         InkWell(
               onTap: () => call(widget.woker.mobilePhone),
               child: _labeledWidget(widget.woker.mobilePhone, 'Телефон')),
