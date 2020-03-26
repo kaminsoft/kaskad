@@ -36,7 +36,7 @@ class _KontragentListState extends State<KontragentList> {
 
   @override
   void initState() {
-    
+    //FeatureDiscovery.clearPreferences(context, kontragenTutt);
     FeatureDiscovery.discoverFeatures(
       context,
       <String>{kontragenTutt[0]},
@@ -116,6 +116,10 @@ class _KontragentListState extends State<KontragentList> {
                   featureId: kontragenTutt[0],
                   tapTarget: Icon(Icons.search),
                   backgroundColor: ColorMain,
+                  onDismiss: () async {
+                    FeatureDiscovery.completeCurrentStep(context);
+                    return true;
+                  },
                   title: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
@@ -368,6 +372,11 @@ class _ItemCardState extends State<ItemCard> {
                                               loading = false;
                                             });
                                           });
+                                          return true;
+                                        },
+                                        onDismiss: () async {
+                                          FeatureDiscovery.completeCurrentStep(
+                                              context);
                                           return true;
                                         },
                                         description: Text(
