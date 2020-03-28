@@ -35,10 +35,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
-      FeatureDiscovery.discoverFeatures(
-        context,
-        mainPageTutt
-      );
+      FeatureDiscovery.discoverFeatures(context, mainPageTutt);
     });
     super.initState();
     Data.analytics.logLogin();
@@ -136,10 +133,10 @@ class _MainPageState extends State<MainPage> {
                                       editMode = true;
                                     });
                                     vibrate();
-                                    Timer(Duration(milliseconds: 500), ()=>FeatureDiscovery.discoverFeatures(
-                                      context,
-                                      mainPageTutt
-                                    ));
+                                    Timer(
+                                        Duration(milliseconds: 500),
+                                        () => FeatureDiscovery.discoverFeatures(
+                                            context, mainPageTutt));
                                   }
                                 },
                                 child: FeatureCard(
@@ -161,8 +158,7 @@ class _MainPageState extends State<MainPage> {
                           featureId: mainPageTutt[1],
                           tapTarget: Text('OK',
                               style: TextStyle(fontWeight: FontWeight.bold)),
-                              backgroundColor: ColorMain,
-                          
+                          backgroundColor: ColorMain,
                           title: Text('Редактирование'),
                           description: Column(
                             children: <Widget>[
@@ -182,7 +178,6 @@ class _MainPageState extends State<MainPage> {
                               ),
                             ],
                           ),
-                          
                           child: SizedBox(
                             width: double.infinity,
                             child: MessageButton(
@@ -203,7 +198,6 @@ class _MainPageState extends State<MainPage> {
                           tapTarget: Text('OK',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           backgroundColor: ColorMain,
-                          
                           title: Text('Добро пожаловать!'),
                           description: Column(
                             children: <Widget>[
@@ -295,7 +289,15 @@ class _MainPageState extends State<MainPage> {
                           );
                         });
                   },
-                  child: Text('О приложении'))
+                  child: Text('О приложении')),
+              CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      editMode = true;
+                    });
+                  },
+                  child: Text('Изменить рабочий стол'))
             ],
             cancelButton: CupertinoActionSheetAction(
                 isDestructiveAction: true,
@@ -379,7 +381,7 @@ class FeatureCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(24),
                         splashColor: ColorMain,
                         onTap: editMode
-                            ? null
+                            ? () => toogleFeature(context, feature)
                             : () => feature.onPressed(context,
                                 feature: feature.name),
                         child: Padding(
@@ -454,15 +456,7 @@ class FeatureCard extends StatelessWidget {
                                                     fontSize: 16),
                                               )),
                                               onTap: () {
-                                                if (feature.enabled) {
-                                                  StoreProvider.dispatchFuture(
-                                                      context,
-                                                      RemoveFeature(feature));
-                                                } else {
-                                                  StoreProvider.dispatchFuture(
-                                                      context,
-                                                      AddFeature(feature));
-                                                }
+                                                toogleFeature(context, feature);
                                               },
                                             ),
                                           ),
@@ -479,6 +473,18 @@ class FeatureCard extends StatelessWidget {
             ),
           );
         });
+  }
+
+  void toogleFeature(BuildContext context, Feature feature) {
+    if (feature.enabled) {
+      StoreProvider.dispatchFuture(
+          context,
+          RemoveFeature(feature));
+    } else {
+      StoreProvider.dispatchFuture(
+          context,
+          AddFeature(feature));
+    }
   }
 }
 

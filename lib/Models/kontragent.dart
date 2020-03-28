@@ -81,8 +81,10 @@ class KontaktPerson {
   String position;
   String phone;
   String workPhone;
+  String email;
+  bool expanded;
 
-  KontaktPerson({this.name, this.position, this.phone, this.workPhone});
+  KontaktPerson({this.name, this.position, this.phone, this.workPhone, this.email, this.expanded = false});
 
   factory KontaktPerson.fromJSON(Map<String, dynamic> json) {
     return KontaktPerson(
@@ -90,6 +92,7 @@ class KontaktPerson {
       position: json["position"],
       phone: json["phone"],
       workPhone: json["workPhone"],
+      email: json["email"],
     );
   }
 
@@ -98,6 +101,7 @@ class KontaktPerson {
         "position": position,
         "phone": phone,
         "workPhone": workPhone,
+        "email": email,
     };
 
 }

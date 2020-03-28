@@ -87,6 +87,12 @@ void call (String phone) {
   }
 }
 
+void mailto (String mail) {
+  if (mail != null && mail.isNotEmpty) {
+    launch("mailto:$mail");
+  }
+}
+
 GlobalKey<ScaffoldState> mainWidgetKey = GlobalKey();
 
 class OnMessageEvent {
