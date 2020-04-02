@@ -11,6 +11,8 @@ import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 
+import 'package:package_info/package_info.dart';
+
 import 'Data/Consts.dart';
 import 'Pages/auth.dart';
 
@@ -38,6 +40,9 @@ class MyRouteObserver extends RouteObserver<PageRoute<dynamic>> {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+    Data.version = packageInfo.version;
+  });
   final store = Store<AppState>(initialState: await AppState.initState());
   runApp(MyApp(store: store));
 }
@@ -66,7 +71,8 @@ class MyApp extends StatelessWidget {
             ),
             scaffoldBackgroundColor: ColorGray,
             textTheme: TextTheme(
-                headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+                headline:
+                    TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
                 title: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 body1: TextStyle(fontSize: 12),
                 display1: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),

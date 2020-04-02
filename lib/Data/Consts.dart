@@ -11,7 +11,8 @@ class Data {
   static User curUser;
   static String messageId;
   static FirebaseAnalytics analytics = FirebaseAnalytics();
-  static String version = '0.0.1 (beta)';
+  static String version = '';
+  static bool showNews = false;
 }
 
 const Color ColorGray = Color(0xFFEEEEEE);

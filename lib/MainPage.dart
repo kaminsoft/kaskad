@@ -13,6 +13,7 @@ import 'package:mobile_kaskad/Data/fcm.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
+import 'package:mobile_kaskad/Structures/News/news.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
 import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 import 'package:reorderables/reorderables.dart';
@@ -34,10 +35,10 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
+    super.initState();
     SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
       FeatureDiscovery.discoverFeatures(context, mainPageTutt);
     });
-    super.initState();
     Data.analytics.logLogin();
   }
 
@@ -60,6 +61,9 @@ class _MainPageState extends State<MainPage> {
         StoreProvider.dispatchFuture(context, UpdateMessageCount());
       }
     });
+    if (Data.showNews) {
+      Timer(Duration(seconds: 1), ()=>News.openItem(context));
+    }
     return StoreConnector<AppState, User>(
         converter: (store) => store.state.user,
         builder: (context, user) {
@@ -263,33 +267,9 @@ class _MainPageState extends State<MainPage> {
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    showCupertinoDialog(
-                        context: context,
-                        builder: (context) {
-                          return CupertinoAlertDialog(
-                            content: Column(
-                              children: <Widget>[
-                                Text(
-                                    'Мобильное приложение для взаимодействия с функциями КАСКАДа'),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  'Версия ${Data.version}',
-                                  style: TextStyle(color: Colors.black54),
-                                )
-                              ],
-                            ),
-                            actions: <Widget>[
-                              CupertinoDialogAction(
-                                child: Text('OK'),
-                                onPressed: () => Navigator.of(context).pop(),
-                              )
-                            ],
-                          );
-                        });
+                    News.openItem(context);
                   },
-                  child: Text('О приложении')),
+                  child: Text('Что нового')),
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -307,27 +287,6 @@ class _MainPageState extends State<MainPage> {
                 child: Text('Выход')),
           );
         });
-    // showModalBottomSheet(
-    //   isDismissible: true,
-    //   backgroundColor: Colors.transparent,
-    //   clipBehavior: Clip.antiAlias,
-    //   context: context, builder: (context){
-    //   return Container(
-
-    //     height: MediaQuery.of(context).size.height/3,
-    //     decoration: BoxDecoration(
-    //       color: Colors.white,
-    //       borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))
-    //     ),
-    //     child: Column(children: <Widget>[
-    //       Row(children: <Widget>[
-    //         CupertinoButton(color: ColorMain, child: Text('О приложении'), onPressed: (){},),
-    //         CupertinoButton(color: ColorMain, child: Text('Выход'), onPressed: (){},)
-    //       ],)
-
-    //     ],),
-    //   );
-    // });
   }
 }
 

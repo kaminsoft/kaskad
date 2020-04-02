@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
@@ -18,6 +19,13 @@ class DBProvider {
     // if _database is null we instantiate it
     _database = await initDB();
     return _database;
+  }
+
+  void update002(Database db) async { // added fields to worker
+    await db.execute("ALTER TABLE Woker ADD COLUMN homePhone TEXT");
+    await db.execute("ALTER TABLE Woker ADD COLUMN internalPhone TEXT");
+    await db.execute("ALTER TABLE Woker ADD COLUMN email TEXT");
+    await db.execute("ALTER TABLE Woker ADD COLUMN workEmail TEXT");
   }
 
   initDB() async {
@@ -67,21 +75,16 @@ class DBProvider {
             "subdivision TEXT,"
             "mobilePhone TEXT,"
             "birthday TEXT,"
-            "workPhone TEXT,"
-            "homePhone TEXT,"
-            "internalPhone TEXT,"
-            "email TEXT,"
-            "workEmail TEXT"
+            "workPhone TEXT"
             ")");
+        if(version >= 2) {
+          update002(db);
+        }
       },
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
-        print('upgading');
+        Data.showNews = true;
         if (oldVersion < 2) {
-          // added fields to worker
-          await db.execute("ALTER TABLE Woker ADD COLUMN homePhone TEXT");
-          await db.execute("ALTER TABLE Woker ADD COLUMN internalPhone TEXT");
-          await db.execute("ALTER TABLE Woker ADD COLUMN email TEXT");
-          await db.execute("ALTER TABLE Woker ADD COLUMN workEmail TEXT");
+          update002(db);
         }
       },
     );
