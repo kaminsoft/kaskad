@@ -62,24 +62,36 @@ class MyApp extends StatelessWidget {
       store: store,
       child: FeatureDiscovery(
         child: MaterialApp(
-          theme: ThemeData(
-            primaryColor: Colors.white,
-            //fontFamily: 'SF Pro Display',
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
             appBarTheme: AppBarTheme(
+              brightness: Brightness.dark,
               color: ColorGray,
               elevation: 0,
+              iconTheme: IconThemeData(
+                color: Colors.black
+              )
+            ),
+            textTheme: TextTheme(
+                title: Theme.of(context).textTheme.title.copyWith(color: Colors.black)
+              ),
+              
+            scaffoldBackgroundColor: ColorGray,
+          ),
+          theme: ThemeData(
+            brightness: Brightness.light,
+            appBarTheme: AppBarTheme(
+              brightness: Brightness.light,
+              color: ColorGray,
+              textTheme: TextTheme(
+                title: Theme.of(context).textTheme.title.copyWith(color: Colors.black)
+              ),
+              elevation: 0,
+              iconTheme: IconThemeData(
+                color: Colors.black
+              )
             ),
             scaffoldBackgroundColor: ColorGray,
-            textTheme: TextTheme(
-                headline:
-                    TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-                title: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                body1: TextStyle(fontSize: 12),
-                display1: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-                display2: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.red)),
           ),
           title: 'КАСКАД',
           debugShowCheckedModeBanner: false,
