@@ -15,6 +15,7 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
 import 'package:mobile_kaskad/Structures/News/news.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 import 'package:reorderables/reorderables.dart';
 
@@ -269,7 +270,7 @@ class _MainPageState extends State<MainPage> {
                     Navigator.of(context).pop();
                     News.openItem(context);
                   },
-                  child: Text('Что нового')),
+                  child: Text('Что нового')),              
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();

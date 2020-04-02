@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Models/intro.dart';
+import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:vibrate/vibrate.dart';
@@ -13,6 +14,7 @@ class Data {
   static FirebaseAnalytics analytics = FirebaseAnalytics();
   static String version = '';
   static bool showNews = false;
+  static Settings settings;
 }
 
 const Color ColorGray = Color(0xFFEEEEEE);

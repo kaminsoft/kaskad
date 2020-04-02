@@ -4,6 +4,7 @@ import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -34,7 +35,9 @@ class DBProvider {
     return await openDatabase(
       path,
       version: 2,
-      onOpen: (db) {},
+      onOpen: (db) async {
+        Data.settings = await Preferences.getSettings();
+      },
       onCreate: (Database db, int version) async {
         await db.execute("CREATE TABLE User ("
             "id INTEGER PRIMARY KEY,"
@@ -83,6 +86,7 @@ class DBProvider {
       },
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         Data.showNews = true;
+        
         if (oldVersion < 2) {
           update002(db);
         }
