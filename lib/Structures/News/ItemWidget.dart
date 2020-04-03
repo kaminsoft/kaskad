@@ -116,7 +116,7 @@ class _ItemWidgetState extends State<ItemWidget> {
               ),
               Text(
                 text,
-                style: TextStyle(fontSize: 14, color: Colors.black54),
+                style: TextStyle(fontSize: 14, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
               ),
             ],
           ))

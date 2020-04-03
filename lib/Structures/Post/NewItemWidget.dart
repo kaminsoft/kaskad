@@ -92,7 +92,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
             
             appBar: AppBar(
               title: DropdownButton<String>(
-                  style: TextStyle(fontSize: 20, color: Colors.black),
+                  style: TextStyle(fontSize: 20, color: Theme.of(context).textTheme.body1.color),
                   value: (isPublicate ? 'Объявление' : 'Сообщение'),
                   underline: Container(),
                   items: <String>['Сообщение','Объявление'].map<DropdownMenuItem<String>>((String value){
@@ -156,7 +156,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                               ? Text(
                                   "Выбрать получателей",
                                   style: TextStyle(
-                                      color: ColorMain,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       decoration: TextDecoration.underline),
                                 )
                               : Container(),
@@ -171,7 +171,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                                   return Chip(
                                       label: Text(rcp.name),
                                       avatar: CircleAvatar(
-                                          backgroundColor: ColorMain,
+                                          backgroundColor: Theme.of(context).colorScheme.onSurface,
                                           child: rcp.isGroup
                                               ? Icon(
                                                   Icons.folder,
@@ -304,6 +304,7 @@ class _RecipientListState extends State<RecipientList> {
               padding: EdgeInsets.all(10),
               textAlign: TextAlign.center,
               placeholder: "Поиск",
+              style: Theme.of(context).textTheme.body1,
               onChanged: (text) {
                 if (filter.text.isNotEmpty) {
                   setState(() {
@@ -319,10 +320,11 @@ class _RecipientListState extends State<RecipientList> {
                   });
                 }
               },
+              
               decoration: BoxDecoration(
                 color: CupertinoDynamicColor.withBrightness(
                   color: CupertinoColors.white,
-                  darkColor: CupertinoColors.white,
+                  darkColor: ColorMiddle,
                 ),
                 border: Border(
                   top: kDefaultRoundedBorderSideSuccess,

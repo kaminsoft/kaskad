@@ -19,7 +19,11 @@ class Data {
 }
 
 const Color ColorGray = Color(0xFFEEEEEE);
+const Color ColorMiddle = Color(0xFF232227);
+const Color ColorDark = Color(0xFF303135);
 const Color ColorMain = Color(0xFF5167DC);
+const Color ColorMainLight = Color(0xFF9FB0FE);
+
 
 const BorderSide kDefaultRoundedBorderSideError = BorderSide(
   color: CupertinoDynamicColor.withBrightness(

@@ -114,7 +114,7 @@ class _KontragentListState extends State<KontragentList> {
               actions: <Widget>[
                 DescribedFeatureOverlay(
                   featureId: kontragenTutt[0],
-                  tapTarget: Icon(Icons.search),
+                  tapTarget: Icon(Icons.search, color: Theme.of(context).textTheme.body1.color,),
                   backgroundColor: ColorMain,
                   onDismiss: () async {
                     FeatureDiscovery.completeCurrentStep(context);
@@ -167,7 +167,7 @@ class _KontragentListState extends State<KontragentList> {
                     child: Text(
                       'Введите наименование, инн или код контрагента',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.black45),
+                      style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.body1.color.withAlpha(200),),
                     ),
                   ),
                 );
@@ -182,7 +182,7 @@ class _KontragentListState extends State<KontragentList> {
                   child: Text(
                     'Нет данных для отображения',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
+                    style: TextStyle(fontSize: 16, color:Theme.of(context).textTheme.body1.color.withAlpha(200)),
                   ),
                 );
               }
@@ -216,7 +216,7 @@ class _KontragentListState extends State<KontragentList> {
                   child: Text(
                     'В избранном нет контрагентов\n Для добавления в избранное перейдите в поиск',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.black45),
+                    style: Theme.of(context).textTheme.body1,
                   ),
                 ),
               );
@@ -291,7 +291,7 @@ class _ItemCardState extends State<ItemCard> {
           caption: 'Убрать',
           icon: Icons.star_border,
           color: Colors.transparent,
-          foregroundColor: ColorMain,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           onTap: () {
             deleteKontragent(widget.kontragent);
           },
@@ -314,7 +314,7 @@ class _ItemCardState extends State<ItemCard> {
                     quarterTurns: -1,
                     child: Text(
                       '${widget.kontragent.code}',
-                      style: TextStyle(color: Colors.black45, fontSize: 12),
+                      style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150), fontSize: 12),
                     ),
                   ),
                 ),
@@ -332,7 +332,7 @@ class _ItemCardState extends State<ItemCard> {
                       ),
                       Text(
                         '$inn',
-                        style: TextStyle(color: Colors.black45, fontSize: 12),
+                        style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150), fontSize: 12),
                       )
                     ],
                   ),
@@ -349,7 +349,7 @@ class _ItemCardState extends State<ItemCard> {
                                 icon: widget.active
                                     ? Icon(
                                         Icons.star,
-                                        color: ColorMain,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       )
                                     : DescribedFeatureOverlay(
                                         featureId: widget.showTut
@@ -397,7 +397,7 @@ class _ItemCardState extends State<ItemCard> {
                                     loading = false;
                                   });
                                 })
-                        : Icon(Icons.chevron_right, color: Colors.black45),
+                        : Icon(Icons.chevron_right,),
                   ],
                 )
               ],
@@ -437,7 +437,7 @@ Future deleteKontragent(Kontragent kontragent) async {
     isDismissible: true,
     duration: Duration(seconds: 7),
     dismissDirection: FlushbarDismissDirection.HORIZONTAL,
-    icon: Icon(Icons.close, color: ColorMain),
+    icon: Icon(Icons.close, color: Theme.of(kontragentListKey.currentContext).colorScheme.onSurface),
     // Show it with a cascading operator
   )..show(kontragentListKey.currentContext);
   // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Контрагент удален'),action: SnackBarAction(label: 'Отменить', onPressed: (){

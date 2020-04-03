@@ -91,7 +91,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                       icon: active
                           ? Icon(
                               Icons.star,
-                              color: ColorMain,
+                              color: Theme.of(context).colorScheme.onSurface,
                             )
                           : Icon(Icons.star_border),
                       onPressed: () async {
@@ -111,9 +111,9 @@ class _ItemWidgetState extends State<ItemWidget> {
           ),
           body: _getWidget(kontragents),
           bottomNavigationBar: BottomNavigationBar(
-              backgroundColor: ColorGray,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               elevation: 0,
-              selectedItemColor: ColorMain,
+              selectedItemColor: Theme.of(context).colorScheme.onSurface,
               currentIndex: currentIndex,
               onTap: (index) {
                 setState(() {
@@ -184,7 +184,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                         padding: const EdgeInsets.only(left: 8, top: 8),
                         child: Icon(
                           Icons.lock,
-                          color: Colors.black38,
+                          color: Theme.of(context).textTheme.body1.color.withAlpha(150),
                         ),
                       ),
                       Padding(
@@ -251,14 +251,14 @@ class _ItemWidgetState extends State<ItemWidget> {
                 Icon(
                   CupertinoIcons.person_solid,
                   size: 48,
-                  color: Colors.black26,
+                  color: Theme.of(context).textTheme.body1.color.withAlpha(150),
                 ),
                 SizedBox(
                   height: 5,
                 ),
                 Text(
                   'Нет контактных лиц'.toUpperCase(),
-                  style: TextStyle(fontSize: 14, color: Colors.black45),
+                  style: TextStyle(fontSize: 14, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
                 ),
               ],
             ),
@@ -355,7 +355,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                     child: Icon(
                       CupertinoIcons.person_solid,
                       size: 36,
-                      color: Colors.black38,
+                      color: Theme.of(context).textTheme.body1.color.withAlpha(150),
                     ),
                   ),
                   Expanded(
@@ -379,7 +379,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                                 ? 'Должность не указана'
                                 : person.position,
                             style:
-                                TextStyle(fontSize: 14, color: Colors.black45),
+                                TextStyle(fontSize: 14, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
                           ),
                         ),
                       ],
@@ -462,7 +462,7 @@ class _DogovorWidgetState extends State<DogovorWidget> {
           child: Text(
         'Нет действующих договоров',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16, color: Colors.black45),
+        style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
       ));
     }
 
@@ -557,7 +557,7 @@ class _ProductWidgetState extends State<ProductWidget> {
           child: Text(
         'Нет продуктов, ИТС и сервисов',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16, color: Colors.black45),
+        style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
       ));
     }
 
@@ -638,10 +638,10 @@ class _ProductWidgetState extends State<ProductWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            Text(element['regNumber'], style: TextStyle(color: Colors.black45),),
-            element['summ'] > 0 ? Text("Платный", style: TextStyle(color: ColorMain),) : Text("Бесплатный", style: TextStyle(color: Colors.black45),),
+            Text(element['regNumber'], style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150)),),
+            element['summ'] > 0 ? Text("Платный", style: TextStyle(color: Theme.of(context).colorScheme.onSurface),) : Text("Бесплатный", style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150)),),
             Text(element['status']),
-            Text(element['sotrudnik']),
+            //Text(element['sotrudnik']),
           ],
         ),
       ),
@@ -649,7 +649,7 @@ class _ProductWidgetState extends State<ProductWidget> {
   }
 
   Widget _getTypeText(type) {
-    TextStyle _style = TextStyle(color: Colors.black54, fontSize: 16);
+    TextStyle _style = TextStyle(color:Theme.of(context).textTheme.body1.color.withAlpha(150), fontSize: 16);
     if (type == 'product') {
       return Text(
         'Продукты',
@@ -767,7 +767,7 @@ class PhoneWidget extends StatelessWidget {
         },
         onPressed: () => call(item),
         child: Text(item),
-        textColor: ColorMain,
+        textColor: Theme.of(context).colorScheme.onSurface,
       ));
     }
 
@@ -800,7 +800,7 @@ class MailToWidget extends StatelessWidget {
         },
         onPressed: () => mailto(item),
         child: Text(item),
-        textColor: ColorMain,
+        textColor: Theme.of(context).colorScheme.onSurface,
       ));
     }
 

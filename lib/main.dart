@@ -68,24 +68,32 @@ class MyApp extends StatelessWidget {
       child: FeatureDiscovery(
         child: MaterialApp(
           darkTheme: ThemeData(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              //onPrimary: ColorDark,
+              onSecondary: ColorMiddle,
+              onSurface: ColorMainLight
+            ),
             brightness: Brightness.dark,
             appBarTheme: AppBarTheme(
               brightness: Brightness.dark,
-              color: ColorGray,
+              color: ColorDark,
               elevation: 0,
               iconTheme: IconThemeData(
-                color: Colors.black
+                color: Colors.white
               )
             ),
             textTheme: TextTheme(
-                title: Theme.of(context).textTheme.title.copyWith(color: Colors.black)
+                title: Theme.of(context).textTheme.title.copyWith(color: Colors.white)
               ),
-              
-            scaffoldBackgroundColor: ColorGray,
+            scaffoldBackgroundColor: ColorDark,
           ),
           theme: ThemeData(
+             colorScheme: Theme.of(context).colorScheme.copyWith(
+               //onPrimary: ColorGray,
+               onSecondary: Color(0xFFDADDEB),
+               onSurface: ColorMain
+            ),
             brightness: Brightness.light,
-            
             appBarTheme: AppBarTheme(
               brightness: Brightness.light,
               color: ColorGray,
