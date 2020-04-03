@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -20,53 +22,76 @@ class DBProvider {
     return _database;
   }
 
+  void update002(Database db) async { // added fields to worker
+    await db.execute("ALTER TABLE Woker ADD COLUMN homePhone TEXT");
+    await db.execute("ALTER TABLE Woker ADD COLUMN internalPhone TEXT");
+    await db.execute("ALTER TABLE Woker ADD COLUMN email TEXT");
+    await db.execute("ALTER TABLE Woker ADD COLUMN workEmail TEXT");
+  }
+
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "kaskad.db");
-    return await openDatabase(path, version: 1, onOpen: (db) {},
-        onCreate: (Database db, int version) async {
-      await db.execute("CREATE TABLE User ("
-          "id INTEGER PRIMARY KEY,"
-          "username TEXT,"
-          "firstname TEXT,"
-          "lastname TEXT,"
-          "password TEXT,"
-          "avatar TEXT"
-          ")");
-      await db.execute("CREATE TABLE Feature ("
-          "id INTEGER PRIMARY KEY,"
-          "name TEXT,"
-          "enabled INTEGER"
-          ")");
-      await db.execute("CREATE TABLE Kontragent ("
-          "id INTEGER PRIMARY KEY,"
-          "guid TEXT,"
-          "code TEXT,"
-          "name TEXT,"
-          "fullName TEXT,"
-          "inn TEXT,"
-          "kpp TEXT,"
-          "adressLegal TEXT,"
-          "adressActual TEXT,"
-          "email TEXT,"
-          "orientir TEXT,"
-          "phone TEXT,"
-          "persons TEXT,"
-          "secrets TEXT"
-          ")");
-      await db.execute("CREATE TABLE Woker ("
-          "id INTEGER PRIMARY KEY,"
-          "guid TEXT,"
-          "name TEXT,"
-          "shortName TEXT,"
-          "sex INTEGER,"
-          "position TEXT,"
-          "subdivision TEXT,"
-          "mobilePhone TEXT,"
-          "birthday TEXT,"
-          "workPhone TEXT"
-          ")");
-    });
+    return await openDatabase(
+      path,
+      version: 2,
+      onOpen: (db) async {
+        Data.settings = await Preferences.getSettings();
+      },
+      onCreate: (Database db, int version) async {
+        await db.execute("CREATE TABLE User ("
+            "id INTEGER PRIMARY KEY,"
+            "username TEXT,"
+            "firstname TEXT,"
+            "lastname TEXT,"
+            "password TEXT,"
+            "avatar TEXT"
+            ")");
+        await db.execute("CREATE TABLE Feature ("
+            "id INTEGER PRIMARY KEY,"
+            "name TEXT,"
+            "enabled INTEGER"
+            ")");
+        await db.execute("CREATE TABLE Kontragent ("
+            "id INTEGER PRIMARY KEY,"
+            "guid TEXT,"
+            "code TEXT,"
+            "name TEXT,"
+            "fullName TEXT,"
+            "inn TEXT,"
+            "kpp TEXT,"
+            "adressLegal TEXT,"
+            "adressActual TEXT,"
+            "email TEXT,"
+            "orientir TEXT,"
+            "phone TEXT,"
+            "persons TEXT,"
+            "secrets TEXT"
+            ")");
+        await db.execute("CREATE TABLE Woker ("
+            "id INTEGER PRIMARY KEY,"
+            "guid TEXT,"
+            "name TEXT,"
+            "shortName TEXT,"
+            "sex INTEGER,"
+            "position TEXT,"
+            "subdivision TEXT,"
+            "mobilePhone TEXT,"
+            "birthday TEXT,"
+            "workPhone TEXT"
+            ")");
+        if(version >= 2) {
+          update002(db);
+        }
+      },
+      onUpgrade: (Database db, int oldVersion, int newVersion) async {
+        Data.showNews = true;
+        
+        if (oldVersion < 2) {
+          update002(db);
+        }
+      },
+    );
   }
 
   Future<bool> hasUser() async {
@@ -105,7 +130,7 @@ class DBProvider {
     if (res.isEmpty) {
       return tmp;
     }
-    
+
     var list = getInitialFeatureList();
     for (var item in res) {
       var ftr = list.where((t) => t.name == item['name']).first;
@@ -179,5 +204,4 @@ class DBProvider {
       await db.insert("Woker", item.toJson());
     }
   }
-
 }

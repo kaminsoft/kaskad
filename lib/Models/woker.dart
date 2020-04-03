@@ -9,11 +9,15 @@ class Woker {
   int sex;
   String position;
   String subdivision;
-  String mobilePhone;
   DateTime birthday;
+  String mobilePhone;
   String workPhone;
+  String internalPhone;
+  String email;
+  String workEmail;
+  String homePhone;
   
-  Woker({this.guid, this.name, this.shortName, this.sex, this.position, this.subdivision, this.mobilePhone, this.birthday, this.workPhone});
+  Woker({this.guid, this.name, this.shortName, this.sex, this.position, this.subdivision, this.mobilePhone, this.birthday, this.workPhone, this.email, this.internalPhone, this.workEmail, this.homePhone});
 
   bool operator ==(other)  => other.guid == guid;
 
@@ -33,6 +37,10 @@ class Woker {
       mobilePhone: json["mobilePhone"],
       birthday: DateTime.parse(json["birthday"]),
       workPhone: json["workPhone"],
+      internalPhone: json["internalPhone"],
+      email: json["email"],
+      workEmail: json["workEmail"],
+      homePhone: json["homePhone"],
     );
   }
 
@@ -46,5 +54,9 @@ class Woker {
         "mobilePhone": mobilePhone,
         "birthday": birthday.toIso8601String(),
         "workPhone": workPhone,
+        "internalPhone": internalPhone,
+        "email": email,
+        "workEmail": workEmail,
+        "homePhone": homePhone,
     };
 }

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Models/intro.dart';
+import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:vibrate/vibrate.dart';
@@ -11,7 +12,10 @@ class Data {
   static User curUser;
   static String messageId;
   static FirebaseAnalytics analytics = FirebaseAnalytics();
-  static String version = '0.0.1 (beta)';
+  static String version = '';
+  static bool showNews = false;
+  static Settings settings;
+  static String token = "";
 }
 
 const Color ColorGray = Color(0xFFEEEEEE);
@@ -60,7 +64,7 @@ List<Intro> introList = [
   Intro(
       title: 'Контрагенты',
       description:
-          'Просматривайте информацию по контрагентам: контактная инфомрация, контакты, продукты и многое другое всегда под рукой',
+          'Просматривайте информацию по контрагентам: контактная информация, контакты, продукты и многое другое всегда под рукой',
       image: 'assets/img/intro02.svg'),
   Intro(
       title: 'Сотрудники',
@@ -84,6 +88,12 @@ void call (String phone) {
     num = num.replaceAll(')', '');
     num = num.replaceAll(' ', '');
     launch("tel:$num");
+  }
+}
+
+void mailto (String mail) {
+  if (mail != null && mail.isNotEmpty) {
+    launch("mailto:$mail");
   }
 }
 

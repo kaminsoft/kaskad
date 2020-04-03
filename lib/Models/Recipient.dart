@@ -11,6 +11,12 @@ class Recipient {
 
   bool operator ==(other)  => other.guid == guid;
 
+  static List<Recipient> getDevs() {
+    var res = List<Recipient>();
+    res.add(Recipient(guid: "0668986c-13d9-11e4-5693-0025900ed684", name: "Разработчики КАСКАДА", isGroup: false));
+    return res;
+  }
+
   factory Recipient.fromJSON(Map<String, dynamic> json) {
     return Recipient(
       guid: json["guid"],

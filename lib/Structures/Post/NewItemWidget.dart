@@ -80,7 +80,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: CupertinoActivityIndicator(),
                   ),
                   Text("Отправка"),
@@ -133,14 +133,6 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                     child: Text(
                       "Отправить",
                     ))
-                // IconButton(
-                //     icon: Icon(Icons.record_voice_over,
-                //         color: isPublicate ? ColorMain : IconTheme.of(context).color),
-                //     onPressed: () {
-                //       setState(() {
-                //         isPublicate = !isPublicate;
-                //       });
-                //     })
               ],
             ),
             body: Form(
@@ -148,7 +140,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
               child: Column(
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: GestureDetector(
                       onTap: () {
                         openUserChoiser(context);
@@ -216,7 +208,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                   Divider(),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
                       child: Scrollbar(
                         child: TextFormField(
                           autofocus: widget.text != null ? widget.text.isNotEmpty : false,
@@ -306,7 +298,7 @@ class _RecipientListState extends State<RecipientList> {
       children: <Widget>[
         Text("Кому", style: TextStyle(fontSize: 18)),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: CupertinoTextField(
               controller: filter,
               padding: EdgeInsets.all(10),

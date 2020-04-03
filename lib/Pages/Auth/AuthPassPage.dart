@@ -81,7 +81,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                       child: Text(
                         "Для продолжения введите свой пароль",
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.display1,
+                        style: Theme.of(context).textTheme.body1,
                       ),
                     ),
                     CupertinoTextField(

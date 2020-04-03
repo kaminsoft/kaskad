@@ -1,11 +1,13 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
+import 'package:toast/toast.dart';
 
 var dogovors;
 var products;
@@ -151,7 +153,7 @@ class _ItemWidgetState extends State<ItemWidget> {
             _getAdresses(),
             _getINNKPP(),
             _getKontacts(),
-            _getContactUsers(),
+            _getPersons(),
             _getSecrets()
           ],
         ),
@@ -208,35 +210,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget _getContactUsers() {
     if (kontragent.persons.isEmpty) {
-      return Column(
-        children: <Widget>[
-          Divider(),
-          SizedBox(
-            height: 115,
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    CupertinoIcons.person_solid,
-                    size: 48,
-                    color: Colors.black26,
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    'Нет контактных лиц'.toUpperCase(),
-                    style: TextStyle(fontSize: 14, color: Colors.black45),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Divider(),
-        ],
-      );
+      return _emptyPersons();
     }
     return Column(
       children: <Widget>[
@@ -257,6 +231,38 @@ class _ItemWidgetState extends State<ItemWidget> {
               ),
             ),
           ],
+        ),
+        Divider(),
+      ],
+    );
+  }
+
+  Widget _emptyPersons() {
+    return Column(
+      children: <Widget>[
+        Divider(),
+        SizedBox(
+          height: 115,
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  CupertinoIcons.person_solid,
+                  size: 48,
+                  color: Colors.black26,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  'Нет контактных лиц'.toUpperCase(),
+                  style: TextStyle(fontSize: 14, color: Colors.black45),
+                ),
+              ],
+            ),
+          ),
         ),
         Divider(),
       ],
@@ -322,6 +328,98 @@ class _ItemWidgetState extends State<ItemWidget> {
           _labeledWidget(kontragent.email, 'Email')
         ],
       ),
+    );
+  }
+
+  Widget _getPersons() {
+    if (kontragent.persons.isEmpty) {
+      return _emptyPersons();
+    }
+
+    return ExpansionPanelList(
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          kontragent.persons[index].expanded = !isExpanded;
+        });
+      },
+      children: kontragent.persons.map<ExpansionPanel>((KontaktPerson person) {
+        return ExpansionPanel(
+          canTapOnHeader: true,
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return Padding(
+              padding: EdgeInsets.symmetric(),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8, left: 8),
+                    child: Icon(
+                      CupertinoIcons.person_solid,
+                      size: 36,
+                      color: Colors.black38,
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 15),
+                          child: Text(
+                            person.name,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Text(
+                            person.position.isEmpty
+                                ? 'Должность не указана'
+                                : person.position,
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black45),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
+          // body: Container(),
+          body: SizedBox(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: PhoneWidget(
+                    phone: person.phone,
+                  ),
+                ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: PhoneWidget(
+                    phone: person.workPhone,
+                  ),
+                ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: MailToWidget(
+                    mail: person.email,
+                  ),
+                )
+              ],
+            ),
+          ),
+          isExpanded: person.expanded,
+        );
+      }).toList(),
     );
   }
 }
@@ -463,11 +561,9 @@ class _ProductWidgetState extends State<ProductWidget> {
       ));
     }
 
-
     String curType = '';
     return Scrollbar(
       child: ListView.separated(
-
         itemCount: _allProducts.length,
         separatorBuilder: (BuildContext context, int index) {
           var element = _allProducts[index];
@@ -507,8 +603,7 @@ class _ProductWidgetState extends State<ProductWidget> {
       return Card(
         child: ListTile(
           title: Text(element['name']),
-          subtitle:
-              Text('${element["periodFrom"]} - ${element["periodTo"]}'),
+          subtitle: Text('${element["periodFrom"]} - ${element["periodTo"]}'),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -520,16 +615,33 @@ class _ProductWidgetState extends State<ProductWidget> {
         ),
       );
     }
+    
+    return serviceCard(element);
+  }
+
+  Widget serviceCard(element) {
     return Card(
       child: ListTile(
         title: Text(element['vid']),
-        subtitle: Text('${element["dateFrom"]} - ${element["dateTo"]}'),
+        isThreeLine: true,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text('Период: ${element["dateFrom"]} - ${element["dateTo"]}'),
+            element['hasLicense'] == true
+                ? Text(
+                    'Лицензия: ${element["dateFromLicense"]} - ${element["dateToLicense"]}')
+                : Container()
+          ],
+        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
+            Text(element['regNumber'], style: TextStyle(color: Colors.black45),),
+            element['summ'] > 0 ? Text("Платный", style: TextStyle(color: ColorMain),) : Text("Бесплатный", style: TextStyle(color: Colors.black45),),
+            Text(element['status']),
             Text(element['sotrudnik']),
-            Text(element['status'])
           ],
         ),
       ),
@@ -648,6 +760,11 @@ class PhoneWidget extends StatelessWidget {
     List<Widget> children = List<Widget>();
     for (var item in phones) {
       children.add(FlatButton(
+        onLongPress: () {
+          Clipboard.setData(ClipboardData(text: item));
+          Toast.show('Телефон скопирован в буфер обмена', context,
+              backgroundColor: ColorMain, gravity: Toast.BOTTOM, duration: 5);
+        },
         onPressed: () => call(item),
         child: Text(item),
         textColor: ColorMain,
@@ -655,6 +772,41 @@ class PhoneWidget extends StatelessWidget {
     }
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: children,
+    );
+  }
+}
+
+class MailToWidget extends StatelessWidget {
+  final String mail;
+
+  const MailToWidget({Key key, this.mail}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (mail == null) {
+      return Container();
+    }
+    var mails = mail.split(new RegExp(r'[,;]'));
+    List<Widget> children = List<Widget>();
+    for (var item in mails) {
+      children.add(FlatButton(
+        onLongPress: () {
+          Clipboard.setData(ClipboardData(text: item));
+          Toast.show('Почта скопирована в буфер обмена', context,
+              backgroundColor: ColorMain, gravity: Toast.BOTTOM, duration: 5);
+        },
+        onPressed: () => mailto(item),
+        child: Text(item),
+        textColor: ColorMain,
+      ));
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: children,
     );
   }
