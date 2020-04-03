@@ -208,7 +208,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                   Divider(),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Scrollbar(
                         child: TextFormField(
                           autofocus: widget.text != null ? widget.text.isNotEmpty : false,
