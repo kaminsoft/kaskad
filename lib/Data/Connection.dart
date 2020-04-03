@@ -11,7 +11,7 @@ import 'package:mobile_kaskad/Models/woker.dart';
 
 class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
-  static int timeOut = 5;
+  static int timeOut = 10;
 
   static String get url => isProduction ? 'http://62.148.143.24:81/kaskad/hs/mobile' : 'http://62.148.143.24:81/kaskadfb/hs/mobile';
 
