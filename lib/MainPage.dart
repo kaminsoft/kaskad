@@ -9,13 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
+import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Data/fcm.dart';
+import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
 import 'package:mobile_kaskad/Structures/News/news.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
-import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 import 'package:reorderables/reorderables.dart';
 
@@ -63,7 +64,7 @@ class _MainPageState extends State<MainPage> {
       }
     });
     if (Data.showNews) {
-      Timer(Duration(seconds: 1), ()=>News.openItem(context));
+      Timer(Duration(seconds: 1), () => News.openItem(context));
     }
     return StoreConnector<AppState, User>(
         converter: (store) => store.state.user,
@@ -270,7 +271,18 @@ class _MainPageState extends State<MainPage> {
                     Navigator.of(context).pop();
                     News.openItem(context);
                   },
-                  child: Text('Что нового')),              
+                  child: Text('Что нового')),
+              CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Post.newItem(
+                      context,
+                      title: "Ошибка мобильного КАСКАДа",
+                      text: Logger.getLog(),
+                      to: Recipient.getDevs()
+                    );
+                  },
+                  child: Text('Сообщить об ошибке')),
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -437,13 +449,9 @@ class FeatureCard extends StatelessWidget {
 
   void toogleFeature(BuildContext context, Feature feature) {
     if (feature.enabled) {
-      StoreProvider.dispatchFuture(
-          context,
-          RemoveFeature(feature));
+      StoreProvider.dispatchFuture(context, RemoveFeature(feature));
     } else {
-      StoreProvider.dispatchFuture(
-          context,
-          AddFeature(feature));
+      StoreProvider.dispatchFuture(context, AddFeature(feature));
     }
   }
 }

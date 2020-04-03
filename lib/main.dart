@@ -5,6 +5,7 @@ import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 
 import 'package:mobile_kaskad/MainPage.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -43,6 +44,10 @@ void main() async {
   PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
     Data.version = packageInfo.version;
   });
+  Logger.root.level = Level.ALL; // defaults to Level.INFO
+    Logger.root.onRecord.listen((record) {
+      print('${record.level.name}: ${record.time}: ${record.message}');
+    });
   final store = Store<AppState>(initialState: await AppState.initState());
   runApp(MyApp(store: store));
 }

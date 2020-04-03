@@ -15,6 +15,7 @@ class Data {
   static String version = '';
   static bool showNews = false;
   static Settings settings;
+  static String token = "";
 }
 
 const Color ColorGray = Color(0xFFEEEEEE);

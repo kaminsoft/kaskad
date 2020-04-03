@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_kaskad/Data/Consts.dart';
+import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
@@ -13,15 +14,20 @@ class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
   static int timeOut = 10;
 
-  static String get url => isProduction ? 'http://62.148.143.24:81/kaskad/hs/mobile' : 'http://62.148.143.24:81/kaskadfb/hs/mobile';
+  static String get url => isProduction
+      ? 'http://62.148.143.24:81/kaskad/hs/mobile'
+      : 'http://62.148.143.24:81/kaskadfb/hs/mobile';
 
   static FutureOr<http.Response> onTimeout() {
+    Logger.log('time out');
+
     return http.Response('time out', 504);
   }
 
   static Future<List<User>> getAuthList() async {
     List<User> users = List<User>();
-    print('${DateTime.now()} getting auth list');
+
+    Logger.log('getting auth list');
     try {
       final response = await http.get(
         '$url/users/auth/list',
@@ -38,31 +44,47 @@ class Connection {
         });
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return users;
   }
 
-  static sendToken(String token) async {
+  static sendToken() async {
     User user = Data.curUser;
     try {
       final response = await http.get(
-        '$url/auth?token=$token',
+        '$url/auth?token=${Data.token}',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
-        print('token sent');
+        Logger.log('token sent');
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
+    }
+  }
+
+  static logOut() async {
+    User user = Data.curUser;
+    try {
+      final response = await http.get(
+        '$url/auth/logout?token=${Data.token}',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        Logger.log('logouted');
+      }
+    } catch (e) {
+      Logger.warning(e);
     }
   }
 
   static Future<List<Message>> getMessageList(bool isPublicate,
       {String lastNum, String firstNum}) async {
-    print('${DateTime.now()} getting messages');
+    Logger.log('getting messages');
     List<Message> msgs = List<Message>();
     User user = Data.curUser;
     String _lastNum = lastNum == null ? '' : '&lastNum=$lastNum';
@@ -80,7 +102,7 @@ class Connection {
         });
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return msgs;
@@ -88,14 +110,12 @@ class Connection {
 
   static Future<NewMessageCount> getMessageCount() async {
     NewMessageCount count = NewMessageCount();
-    print('${DateTime.now()} getting message count');
+    User user = Data.curUser;
+    Logger.log("getting message count");
     try {
       final response = await http.get(
         '$url/message_count',
-        headers: {
-          HttpHeaders.authorizationHeader:
-              "Basic 0JzQsNCy0YDQuNC9INCQLtCQLjo3NDUyNzc="
-        },
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
@@ -104,7 +124,7 @@ class Connection {
         count.post = parsedres['post'];
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return count;
@@ -112,7 +132,7 @@ class Connection {
 
   static Future<Message> getMessage(String guid) async {
     Message msg = Message();
-    print('${DateTime.now()} getting message');
+    Logger.log('getting message');
     User user = Data.curUser;
     try {
       final response = await http.get(
@@ -124,7 +144,7 @@ class Connection {
         msg = Message.fromJSON(json.decode(response.body));
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return msg;
@@ -142,7 +162,7 @@ class Connection {
         return true;
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return false;
@@ -151,7 +171,7 @@ class Connection {
   static Future<List<Recipient>> getRecipientList() async {
     List<Recipient> list = List<Recipient>();
     User user = Data.curUser;
-    print('${DateTime.now()} getting recipient list');
+    Logger.log('getting recipient list');
     try {
       final response = await http.get(
         '$url/message/users',
@@ -164,7 +184,7 @@ class Connection {
         });
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return list;
@@ -189,7 +209,7 @@ class Connection {
         return true;
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return false;
@@ -198,7 +218,7 @@ class Connection {
   static Future<List<Kontragent>> searchKontragent(String query) async {
     List<Kontragent> list = List<Kontragent>();
     User user = Data.curUser;
-    print('${DateTime.now()} searching Kontragent');
+    Logger.log('searching Kontragent');
     try {
       final response = await http.get(
         '$url/searchpartner?query=$query',
@@ -210,12 +230,11 @@ class Connection {
         parsedList.forEach((item) {
           list.add(Kontragent.fromJSON(item));
         });
-      }
-      else {
-        print(response.body);
+      } else {
+        Logger.warning(response.body);
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return list;
@@ -224,7 +243,7 @@ class Connection {
   static Future<Kontragent> getKontragent(String id) async {
     User user = Data.curUser;
     Kontragent kontr;
-    print('${DateTime.now()} getting Kontragent');
+    Logger.log('getting Kontragent');
     try {
       final response = await http.get(
         '$url/partner/$id',
@@ -235,7 +254,7 @@ class Connection {
         kontr = Kontragent.fromJSON(json.decode(response.body));
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return kontr;
@@ -244,7 +263,7 @@ class Connection {
   static Future<List<dynamic>> getKontragentDogovors(String id) async {
     User user = Data.curUser;
     var result;
-    print('${DateTime.now()} getting Dogovors');
+    Logger.log('getting Dogovors');
     try {
       final response = await http.get(
         '$url/partner/$id/dogovors',
@@ -255,7 +274,7 @@ class Connection {
         result = json.decode(response.body);
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return result;
@@ -264,7 +283,7 @@ class Connection {
   static Future<List<dynamic>> getKontragentProducts(String id) async {
     User user = Data.curUser;
     var result;
-    print('${DateTime.now()} getting Products');
+    Logger.log('getting Products');
     try {
       final response = await http.get(
         '$url/partner/$id/products',
@@ -275,7 +294,7 @@ class Connection {
         result = json.decode(response.body);
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return result;
@@ -284,7 +303,7 @@ class Connection {
   static Future<List<Woker>> getWorkers() async {
     List<Woker> list = List<Woker>();
     User user = Data.curUser;
-    print('${DateTime.now()} getting Workers');
+    Logger.log('getting Workers');
     try {
       final response = await http.get(
         '$url/users',
@@ -296,15 +315,13 @@ class Connection {
         parsedList.forEach((item) {
           list.add(Woker.fromJSON(item));
         });
-      }
-      else {
-        print(response.body);
+      } else {
+        Logger.warning(response.body);
       }
     } catch (e) {
-      print(e);
+      Logger.warning(e);
     }
 
     return list;
   }
-
 }

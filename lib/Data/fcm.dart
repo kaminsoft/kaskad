@@ -33,9 +33,8 @@ class FirebaseNotifications {
   void firebaseCloudMessagingListeners(BuildContext context) async {
     if (Platform.isIOS) iOSPermission();
 
-    var token = await _firebaseMessaging.getToken();
-    await Connection.sendToken(token);
-    print(token);
+    Data.token = await _firebaseMessaging.getToken();
+    await Connection.sendToken();
 
     if (!_isConfigured) {
       _firebaseMessaging.configure(

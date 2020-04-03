@@ -331,6 +331,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.12"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.22.6"
+  sensors:
+    dependency: transitive
+    description:
+      name: sensors
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.1+10"
+  shake_event:
+    dependency: "direct main"
+    description:
+      name: shake_event
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -478,4 +499,4 @@ packages:
     version: "3.5.0"
 sdks:
   dart: ">=2.7.0-dev <3.0.0"
-  flutter: ">=1.12.13+hotfix.4 <2.0.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
