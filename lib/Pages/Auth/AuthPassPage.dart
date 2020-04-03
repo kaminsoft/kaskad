@@ -56,7 +56,6 @@ class _AuthPassPageState extends State<AuthPassPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorGray,
       body: _isLoading
           ? Center(child: CupertinoActivityIndicator())
           : SafeArea(
@@ -85,6 +84,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                       ),
                     ),
                     CupertinoTextField(
+                      style: Theme.of(context).textTheme.body2,
                       textAlign: TextAlign.center,
                       placeholder: 'Пароль',
                       autofocus: true,
@@ -93,7 +93,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                           ? BoxDecoration(
                               color: CupertinoDynamicColor.withBrightness(
                                 color: CupertinoColors.white,
-                                darkColor: CupertinoColors.white,
+                                darkColor: ColorMiddle,
                               ),
                               border: Border(
                                 top: kDefaultRoundedBorderSideError,
@@ -107,7 +107,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                           : BoxDecoration(
                               color: CupertinoDynamicColor.withBrightness(
                                 color: CupertinoColors.white,
-                                darkColor: CupertinoColors.white,
+                                darkColor: ColorMiddle,
                               ),
                               border: Border(
                                 top: kDefaultRoundedBorderSideSuccess,
@@ -126,7 +126,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                         padding: const EdgeInsets.only(left: 10),
                         child: Icon(
                           Icons.vpn_key,
-                          color: Colors.black12,
+                          color: Theme.of(context).textTheme.body2.color,
                           size: 12,
                         ),
                       ),
@@ -145,7 +145,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                       child: Text(
                         "Неправильный пароль",
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.display2,
+                        style: Theme.of(context).textTheme.body2.copyWith(color: Colors.red),
                       ),
                     ),
                   

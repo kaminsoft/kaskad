@@ -163,7 +163,9 @@ class _MainPageState extends State<MainPage> {
                       ? DescribedFeatureOverlay(
                           featureId: mainPageTutt[1],
                           tapTarget: Text('OK',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                              style: Theme.of(context).textTheme.body1.copyWith(
+                                fontWeight: FontWeight.bold
+                              )),
                           backgroundColor: ColorMain,
                           title: Text('Редактирование'),
                           description: Column(
@@ -331,11 +333,11 @@ class FeatureCard extends StatelessWidget {
               height: size.height / 3,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   boxShadow: [
                     BoxShadow(
                         blurRadius: 10,
-                        color: Color(0xFFDADDEB),
+                        color: Theme.of(context).colorScheme.onSecondary,
                         offset: Offset(0, 0),
                         spreadRadius: 2)
                   ]),
@@ -347,7 +349,7 @@ class FeatureCard extends StatelessWidget {
                     colorFilter: ColorFilter.mode(Colors.black87,
                         feature.enabled ? BlendMode.lighten : BlendMode.hue),
                     child: Material(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(24),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(24),
@@ -417,7 +419,7 @@ class FeatureCard extends StatelessWidget {
                                                       Radius.circular(24),
                                                   bottomRight:
                                                       Radius.circular(24)),
-                                              splashColor: Colors.white,
+                                              splashColor: Theme.of(context).cardTheme.color,
                                               child: Center(
                                                   child: Text(
                                                 feature.enabled
@@ -517,6 +519,10 @@ class MessageButton extends StatelessWidget {
             child: body(),
             onPressed: onPressed)
         : OutlineButton(
+          borderSide: BorderSide(
+            color: Theme.of(context).textTheme.body1.color.withAlpha(100)
+          ),
+            textColor: Theme.of(context).textTheme.body1.color,
             padding: EdgeInsets.all(0),
             color: ColorMain,
             child: body(),

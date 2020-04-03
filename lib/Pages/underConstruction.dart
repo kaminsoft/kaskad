@@ -12,7 +12,6 @@ class UnderConstruction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorGray,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -48,6 +47,10 @@ class UnderConstruction extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
+                textColor: Theme.of(context).textTheme.body1.color,
+                borderSide: BorderSide(
+                  color: Theme.of(context).textTheme.body1.color.withAlpha(150)
+                ),
                 color: ColorMain,
                 highlightColor: ColorMain,
                 splashColor: ColorMain,

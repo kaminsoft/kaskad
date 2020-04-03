@@ -81,7 +81,6 @@ class _AuthNamePageState extends State<AuthNamePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorGray,
       body: FutureBuilder(
         future: _futureList,
         builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
@@ -111,7 +110,7 @@ class _AuthNamePageState extends State<AuthNamePage> {
   CupertinoTextField usernameInput(
       AsyncSnapshot<List<User>> snapshot, BuildContext context) {
     return CupertinoTextField(
-      
+      style: Theme.of(context).textTheme.body2,
       focusNode: _usernameFocusNode,
       onChanged: (text) {
         setState(() {
@@ -132,7 +131,7 @@ class _AuthNamePageState extends State<AuthNamePage> {
       decoration: BoxDecoration(
         color: CupertinoDynamicColor.withBrightness(
           color: CupertinoColors.white,
-          darkColor: CupertinoColors.white,
+          darkColor: ColorMiddle,
         ),
         border: Border(
           top: kDefaultRoundedBorderSideSuccess,

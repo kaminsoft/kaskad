@@ -143,7 +143,7 @@ class _ListWidgetState extends State<ListWidget> {
             child: Text(
               'Нет данных для отображения',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.black45),
+              style: Theme.of(context).textTheme.body1,
             ),
           );
         }
@@ -157,12 +157,12 @@ class _ListWidgetState extends State<ListWidget> {
                   padding: EdgeInsets.all(8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: ColorMain,
+                      backgroundColor: Theme.of(context).colorScheme.onSurface,
                       child: Text(getAvatarLetter(woker.name)),
                     ),
                     title: Text(woker.shortName),
                     subtitle: Text("${woker.subdivision}\n${woker.position}"),
-                    trailing: Icon(Icons.chevron_right, color: Colors.black45),
+                    trailing: Icon(Icons.chevron_right,),
                     onTap: () => Wkr.openItem(context, woker),
                   ),
                 ),

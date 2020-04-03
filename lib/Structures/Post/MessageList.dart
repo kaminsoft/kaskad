@@ -132,15 +132,15 @@ Widget itemCard(BuildContext context, Message msg) {
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: itemBody(msg),
+          child: itemBody(context,msg),
         ),
       ));
 }
 
-Widget itemBody(Message msg) {
+Widget itemBody(BuildContext context, Message msg) {
   return ListTile(
     leading: CircleAvatar(
-      backgroundColor: ColorMain,
+      backgroundColor: Theme.of(context).colorScheme.onSurface,
       child: Text(msg.getAvatarLetter()),
     ),
     title: Text(

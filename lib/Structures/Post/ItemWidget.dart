@@ -81,7 +81,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                         Chip(
                           label: Text(msg.from.name),
                           avatar: CircleAvatar(
-                            backgroundColor: ColorMain,
+                            backgroundColor: Theme.of(context).colorScheme.onSurface,
                             child: Text(
                               msg.getAvatarLetter(),
                               style: TextStyle(fontSize: 10),
@@ -140,7 +140,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                                 Chip(
                                   label: Text(msg.to.length.toString()),
                                   avatar: CircleAvatar(
-                                    backgroundColor: ColorMain,
+                                    backgroundColor: Theme.of(context).colorScheme.onSurface,
                                     child: Icon(
                                       Icons.people,
                                       size: 12,
