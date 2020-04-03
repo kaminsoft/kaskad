@@ -26,13 +26,19 @@ class _ItemWidgetState extends State<ItemWidget> {
           ],
         ),
       ),
-      body: new002(),
+      body: ListView(
+        children: <Widget>[
+          newImage(),
+          new002(),
+        ],
+      ),
     );
   }
 
   Widget new002({bool showTitle = false}) {
-    return ListView(
-      children: <Widget>[
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Visibility(
           visible: showTitle,
           child: Padding(
@@ -62,11 +68,28 @@ class _ItemWidgetState extends State<ItemWidget> {
             "Контактные лица, которые помечены как неактивные, теперь не отображаются"),
         newLine("Обучающие подсказки",
             "Подсказка больше не появится, если ее не выполнить, а нажать в любое другое место"),
+      ]);
+  }
+
+  Widget newImage() {
+    return Column(
+      children: <Widget>[
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height/4,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: Image.asset('assets/img/news.png'),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
       ],
     );
   }
 
-  Padding newLine(String title, String text) {
+  Widget newLine(String title, String text) {
     return Padding(
       padding: const EdgeInsets.only(top: 5, right: 8, bottom: 5),
       child: Row(
@@ -101,7 +124,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget newTitle() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.only(left: 32),
       child: Text(
         'НОВЫЕ ФУНКЦИИ',
         style: TextStyle(
@@ -112,7 +135,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget bugTitle() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.only(left: 32),
       child: Text(
         'ИСПРАВЛЕНИЯ',
         style: TextStyle(
