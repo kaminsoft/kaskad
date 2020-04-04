@@ -14,7 +14,6 @@ class Data {
   static FirebaseAnalytics analytics = FirebaseAnalytics();
   static String version = '';
   static bool showNews = false;
-  static Settings settings;
   static String token = "";
 }
 
@@ -99,6 +98,10 @@ void mailto (String mail) {
   if (mail != null && mail.isNotEmpty) {
     launch("mailto:$mail");
   }
+}
+
+void openURL (String url) {
+  launch(url);
 }
 
 GlobalKey<ScaffoldState> mainWidgetKey = GlobalKey();

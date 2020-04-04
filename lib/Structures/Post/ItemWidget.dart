@@ -99,7 +99,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                                   builder: (ctx) {
                                     return Container(
                                       decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: Theme.of(context).scaffoldBackgroundColor,
                                           borderRadius: BorderRadius.vertical(
                                               top: Radius.circular(20))),
                                       child: Column(

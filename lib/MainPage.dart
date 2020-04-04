@@ -13,10 +13,12 @@ import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Data/fcm.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
 import 'package:mobile_kaskad/Structures/News/news.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 import 'package:reorderables/reorderables.dart';
 
@@ -158,7 +160,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: EdgeInsets.only(left: 5, right: 5),
                   color: Colors.transparent,
                   child: editMode
                       ? DescribedFeatureOverlay(
@@ -224,39 +226,48 @@ class _MainPageState extends State<MainPage> {
                               ),
                             ],
                           ),
-                          child: SafeArea(
-                            bottom: true,
-                            top: false,
-                            child: StoreConnector<AppState, NewMessageCount>(
-                              converter: (store) => store.state.messageCount,
-                              builder: (context, messages) {
-                                return Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    Expanded(
-                                        child: MessageButton(
-                                      count: messages.message,
-                                      onPressed: () =>
-                                          Post.openList(context, false),
-                                      text: 'сообщения',
-                                    )),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Expanded(
-                                        child: MessageButton(
-                                      count: messages.post,
-                                      onPressed: () =>
-                                          Post.openList(context, true),
-                                      text: 'объявления',
-                                    )),
-                                  ],
+                          child: StoreConnector<AppState, Settings>(
+                            converter: (store) => store.state.settings,
+                            builder: (context, settings) {
+                              if (settings.bottomBar) {
+                                return SafeArea(
+                                  bottom: true,
+                                  top: false,
+                                  child:
+                                      StoreConnector<AppState, NewMessageCount>(
+                                    converter: (store) =>
+                                        store.state.messageCount,
+                                    builder: (context, messages) {
+                                      return Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: <Widget>[
+                                          Expanded(
+                                              child: MessageButton(
+                                            count: messages.message,
+                                            onPressed: () =>
+                                                Post.openList(context, false),
+                                            text: 'сообщения',
+                                          )),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Expanded(
+                                              child: MessageButton(
+                                            count: messages.post,
+                                            onPressed: () =>
+                                                Post.openList(context, true),
+                                            text: 'объявления',
+                                          )),
+                                        ],
+                                      );
+                                    },
+                                  ),
                                 );
-                              },
-                            ),
-                          ),
-                        ),
+                              }
+                              return Container();
+                            },
+                          )),
                 )
               ],
             ),
@@ -273,18 +284,9 @@ class _MainPageState extends State<MainPage> {
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    News.openItem(context);
+                    Preferences.openItem(context);
                   },
-                  child: Text('Что нового')),
-              CupertinoActionSheetAction(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Post.newItem(context,
-                        title: "Ошибка мобильного КАСКАДа",
-                        text: Logger.getLog(),
-                        to: Recipient.getDevs());
-                  },
-                  child: Text('Сообщить об ошибке')),
+                  child: Text('Настройки')),
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();

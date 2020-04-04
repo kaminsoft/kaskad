@@ -36,7 +36,7 @@ class DBProvider {
       path,
       version: 2,
       onOpen: (db) async {
-        Data.settings = await Preferences.getSettings();
+        
       },
       onCreate: (Database db, int version) async {
         await db.execute("CREATE TABLE User ("

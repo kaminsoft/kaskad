@@ -1,6 +1,6 @@
 class Settings {
-  int timeOut;
-  bool useProductionServer;
+  bool bottomBar;
+  String theme;
 
-  Settings({this.timeOut, this.useProductionServer});
+  Settings({this.bottomBar, this.theme});
 }

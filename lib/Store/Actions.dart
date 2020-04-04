@@ -6,9 +6,69 @@ import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
+
+
+// Settings
+class SetBottomBar extends ReduxAction<AppState> {
+  final bool bottomBar;
+
+  SetBottomBar(this.bottomBar);
+
+  @override
+  FutureOr<AppState> reduce() async{
+    AppState newState = AppState.copy(state);
+    newState.settings.bottomBar = bottomBar;
+     for (var feature in newState.features) {
+        if (feature.isMessage || feature.isPublicate) {
+          feature.enabled = !bottomBar;
+        }
+      }
+      DBProvider.db.saveFeatures(newState.features);
+    Preferences.saveSettings(newState.settings);
+    return newState;
+  }
+}
+
+class SetTheme extends ReduxAction<AppState> {
+  final String theme;
+
+  SetTheme(this.theme);
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    newState.settings.theme = theme;
+    Preferences.saveSettings(newState.settings);
+    return newState;
+  }
+}
+
+class SetSettings extends ReduxAction<AppState> {
+  final Settings settings;
+
+  SetSettings(this.settings);
+
+  @override
+  AppState reduce()  {
+    AppState newState = AppState.copy(state);
+    newState.settings = settings;
+    if (state.settings.bottomBar != settings.bottomBar) {
+      for (var feature in newState.features) {
+        if (feature.isMessage || feature.isPublicate) {
+          feature.enabled = !settings.bottomBar;
+        }
+      }
+      DBProvider.db.saveFeatures(newState.features);
+    }
+    Preferences.saveSettings(settings);
+    return newState;
+  }
+}
 
 class LogIn extends ReduxAction<AppState> {
   final User user;
