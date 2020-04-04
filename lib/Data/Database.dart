@@ -140,7 +140,6 @@ class DBProvider {
     if (list.length != tmp.length) {
       for (var item in list) {
         if (!tmp.contains(item)) {
-          item.isNew = true;
           tmp.insert(0, item);
         }
       }

@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           darkTheme: ThemeData(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-              //onPrimary: ColorDark,
+              primary: ColorMainLight,
               onSecondary: ColorMiddle,
               onSurface: ColorMainLight
             ),
@@ -89,7 +89,7 @@ class MyApp extends StatelessWidget {
           ),
           theme: ThemeData(
              colorScheme: Theme.of(context).colorScheme.copyWith(
-               //onPrimary: ColorGray,
+               primary: ColorMain,
                onSecondary: Color(0xFFDADDEB),
                onSurface: ColorMain
             ),

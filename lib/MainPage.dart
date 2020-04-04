@@ -129,22 +129,23 @@ class _MainPageState extends State<MainPage> {
                             StoreProvider.dispatchFuture(
                                 context, ReorderFeatures(oldIndex, newIndex));
                           },
-                          needsLongPressDraggable: !editMode,
+                          needsLongPressDraggable: true,
                           children:
                               List<Widget>.generate(list.length, (int index) {
                             return GestureDetector(
-                                onLongPress: () {
-                                  if (!editMode) {
-                                    setState(() {
-                                      editMode = true;
-                                    });
-                                    vibrate();
-                                    Timer(
-                                        Duration(milliseconds: 500),
-                                        () => FeatureDiscovery.discoverFeatures(
-                                            context, mainPageTutt));
-                                  }
-                                },
+                                onLongPress: editMode
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          editMode = true;
+                                        });
+                                        vibrate();
+                                        Timer(
+                                            Duration(milliseconds: 500),
+                                            () => FeatureDiscovery
+                                                .discoverFeatures(
+                                                    context, mainPageTutt));
+                                      },
                                 child: FeatureCard(
                                   feature: list[index],
                                   index: index,
@@ -163,9 +164,10 @@ class _MainPageState extends State<MainPage> {
                       ? DescribedFeatureOverlay(
                           featureId: mainPageTutt[1],
                           tapTarget: Text('OK',
-                              style: Theme.of(context).textTheme.body1.copyWith(
-                                fontWeight: FontWeight.bold
-                              )),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .body1
+                                  .copyWith(fontWeight: FontWeight.bold)),
                           backgroundColor: ColorMain,
                           title: Text('Редактирование'),
                           description: Column(
@@ -277,12 +279,10 @@ class _MainPageState extends State<MainPage> {
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    Post.newItem(
-                      context,
-                      title: "Ошибка мобильного КАСКАДа",
-                      text: Logger.getLog(),
-                      to: Recipient.getDevs()
-                    );
+                    Post.newItem(context,
+                        title: "Ошибка мобильного КАСКАДа",
+                        text: Logger.getLog(),
+                        to: Recipient.getDevs());
                   },
                   child: Text('Сообщить об ошибке')),
               CupertinoActionSheetAction(
@@ -343,102 +343,142 @@ class FeatureCard extends StatelessWidget {
                   ]),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: NewBanner(
-                  visible: feature.isNew,
-                  child: ColorFiltered(
-                    colorFilter: ColorFilter.mode(Colors.black87,
-                        feature.enabled ? BlendMode.lighten : BlendMode.hue),
-                    child: Material(
-                      color: Theme.of(context).cardColor,
+                child: ColorFiltered(
+                  colorFilter: ColorFilter.mode(Colors.black87,
+                      feature.enabled ? BlendMode.lighten : BlendMode.hue),
+                  child: Material(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(24),
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(24),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(24),
-                        splashColor: ColorMain,
-                        onTap: editMode
-                            ? () => toogleFeature(context, feature)
-                            : () => feature.onPressed(context,
-                                feature: feature.name),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Stack(
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 20),
-                                    child: Text(
-                                      feature.name.toUpperCase(),
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 16),
+                      splashColor: ColorMain,
+                      onTap: editMode
+                          ? () => toogleFeature(context, feature)
+                          : () =>
+                              feature.onPressed(context, feature: feature.name),
+                      child: Stack(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 20),
+                                  child: Text(
+                                    feature.name.toUpperCase(),
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16),
+                                  ),
+                                ),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(24)),
+                                  child: SizedBox(
+                                    width: size.width / 2 - 15,
+                                    height: size.height / 5,
+                                    child: FittedBox(
+                                      alignment: Alignment.bottomLeft,
+                                      fit: BoxFit.contain,
+                                      child: Image.asset(feature.image),
                                     ),
                                   ),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(24)),
-                                    child: SizedBox(
-                                      width: size.width / 2 - 15,
-                                      height: size.height / 5,
-                                      child: FittedBox(
-                                        alignment: Alignment.bottomLeft,
-                                        fit: BoxFit.contain,
-                                        child: Image.asset(feature.image),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: editMode
-                                      ? Container(
-                                          height: 50,
-                                          decoration: BoxDecoration(
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  blurRadius: 5,
-                                                  color: Colors.black38,
-                                                  offset: Offset(2, 0),
-                                                  spreadRadius: 2)
-                                            ],
-                                            borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius.circular(24),
-                                                bottomRight:
-                                                    Radius.circular(24)),
-                                            color: ColorMain,
-                                          ),
-                                          child: Material(
-                                            color: ColorMain,
-                                            child: InkWell(
-                                              borderRadius: BorderRadius.only(
-                                                  bottomLeft:
-                                                      Radius.circular(24),
-                                                  bottomRight:
-                                                      Radius.circular(24)),
-                                              splashColor: Theme.of(context).cardTheme.color,
-                                              child: Center(
-                                                  child: Text(
-                                                feature.enabled
-                                                    ? 'выключить'
-                                                    : 'включить',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 16),
-                                              )),
-                                              onTap: () {
-                                                toogleFeature(context, feature);
-                                              },
-                                            ),
-                                          ),
-                                        )
-                                      : Container())
-                            ],
+                                )
+                              ],
+                            ),
                           ),
-                        ),
+                          feature.isMessage
+                              ? StoreConnector<AppState, NewMessageCount>(
+                                  converter: (store) =>
+                                      store.state.messageCount,
+                                  builder: (context, messages) {
+                                    if (messages.message == 0) {
+                                      return Container();
+                                    }
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 10, left: 10),
+                                      child: Badge(
+                                        padding: EdgeInsets.all(8),
+                                        badgeColor: ColorMain,
+                                        badgeContent: Text(
+                                          '${messages.message}',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(),
+                          feature.isPublicate
+                              ? StoreConnector<AppState, NewMessageCount>(
+                                  converter: (store) =>
+                                      store.state.messageCount,
+                                  builder: (context, messages) {
+                                    if (messages.post == 0) {
+                                      return Container();
+                                    }
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 10, left: 10),
+                                      child: Badge(
+                                        padding: EdgeInsets.all(8),
+                                        badgeColor: ColorMain,
+                                        badgeContent: Text(
+                                          '${messages.post}',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(),
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: editMode
+                                  ? Container(
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 5,
+                                              color: Colors.black38,
+                                              offset: Offset(2, 0),
+                                              spreadRadius: 2)
+                                        ],
+                                        borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(24),
+                                            bottomRight: Radius.circular(24)),
+                                        color: ColorMain,
+                                      ),
+                                      child: Material(
+                                        color: ColorMain,
+                                        child: InkWell(
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(24),
+                                              bottomRight: Radius.circular(24)),
+                                          splashColor:
+                                              Theme.of(context).cardTheme.color,
+                                          child: Center(
+                                              child: Text(
+                                            feature.enabled
+                                                ? 'выключить'
+                                                : 'включить',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16),
+                                          )),
+                                          onTap: () {
+                                            toogleFeature(context, feature);
+                                          },
+                                        ),
+                                      ),
+                                    )
+                                  : Container())
+                        ],
                       ),
                     ),
                   ),
@@ -455,27 +495,6 @@ class FeatureCard extends StatelessWidget {
     } else {
       StoreProvider.dispatchFuture(context, AddFeature(feature));
     }
-  }
-}
-
-class NewBanner extends StatelessWidget {
-  final bool visible;
-  final Widget child;
-
-  const NewBanner({Key key, this.visible, this.child}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return visible
-        ? Banner(
-            message: "NEW",
-            color: ColorMain,
-            location: BannerLocation.topStart,
-            child: child,
-          )
-        : Container(
-            child: child,
-          );
   }
 }
 
@@ -519,9 +538,8 @@ class MessageButton extends StatelessWidget {
             child: body(),
             onPressed: onPressed)
         : OutlineButton(
-          borderSide: BorderSide(
-            color: Theme.of(context).textTheme.body1.color.withAlpha(100)
-          ),
+            borderSide: BorderSide(
+                color: Theme.of(context).textTheme.body1.color.withAlpha(100)),
             textColor: Theme.of(context).textTheme.body1.color,
             padding: EdgeInsets.all(0),
             color: ColorMain,

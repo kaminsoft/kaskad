@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Pages/underConstruction.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
+import 'package:mobile_kaskad/Structures/Post/Post.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 typedef PressCallback = void Function(BuildContext context, {String feature});
@@ -15,7 +16,8 @@ class Feature {
   final Color color;
   final String image;
   bool enabled;
-  bool isNew;
+  bool isMessage;
+  bool isPublicate;
 
   final PressCallback onPressed;
 
@@ -27,7 +29,8 @@ class Feature {
       this.onPressed,
       this.image,
       this.enabled = false,
-      this.isNew = false});
+      this.isMessage = false,
+      this.isPublicate = false});
 
   Map<String, dynamic> toJson() => {
         "name": name,
@@ -52,33 +55,33 @@ List<Feature> getInitialFeatureList() {
     Feature(
         enabled: true,
         name: 'Контрагенты',
-        icon: CupertinoIcons.group_solid,
-        color: Color(0xff5972F3),
         image: 'assets/img/cards/kontragent.png',
         onPressed: (ctx, {feature}) => Kontr.openList(ctx)),
     Feature(
         enabled: true,
         name: 'Сотрудники',
-        icon: CupertinoIcons.person_solid,
-        color: Color(0xff5972F3),
         image: 'assets/img/cards/sotrudnik.png',
         onPressed: (ctx, {feature}) => Wkr.openList(ctx)),
     Feature(
+        name: 'Сообщения',
+        image: 'assets/img/cards/post01.png',
+        isMessage: true,
+        onPressed: (ctx, {feature}) => Post.openList(ctx, false)),
+    Feature(
+        name: 'Объявления',
+        image: 'assets/img/cards/post02.png',
+        isPublicate: true,
+        onPressed: (ctx, {feature}) => Post.openList(ctx, true,)),
+    Feature(
         name: 'Задачи',
-        icon: Icons.playlist_add_check,
-        color: Color(0xff5972F3),
         image: 'assets/img/cards/task.png',
         onPressed: _wip),
     Feature(
         name: 'Контакты',
-        icon: Icons.playlist_add_check,
-        color: Color(0xff5972F3),
         image: 'assets/img/cards/contact.png',
         onPressed: _wip),
     Feature(
         name: 'Проекты',
-        icon: Icons.playlist_add_check,
-        color: Color(0xff5972F3),
         image: 'assets/img/cards/project.png',
         onPressed: _wip),
   ];
