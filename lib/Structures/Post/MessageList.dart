@@ -1,6 +1,8 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
@@ -21,8 +23,33 @@ class MessageList extends StatefulWidget {
 class _MessageListState extends State<MessageList> {
   bool _isLoading = false;
   bool _built = false;
+  double _fabOpacity = 1;
+  bool _fabVisibility = true;
+  bool justNew = false;
+  bool sent = false;
   RefreshController _refreshController = RefreshController(
       initialRefresh: false, initialLoadStatus: LoadStatus.loading);
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    _scrollController.addListener(() {
+      
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward && _fabOpacity == 0) {
+        setState(() {
+          _fabOpacity = 1;
+          _fabVisibility = true;
+        });
+      } else if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse  && _fabOpacity == 1) {
+         setState(() {
+          _fabOpacity = 0;
+        });
+      }
+    });
+    super.initState();
+  }
 
   void _updateList() async {
     _isLoading = true;
@@ -53,7 +80,7 @@ class _MessageListState extends State<MessageList> {
               child: CupertinoActivityIndicator(),
             ),
           );
-        } else if (!_built){
+        } else if (!_built) {
           _built = true;
           StoreProvider.dispatchFuture(
               context, UpdateMessages(widget.isPublicate, addBefore: true));
@@ -70,12 +97,34 @@ class _MessageListState extends State<MessageList> {
                   icon: Icon(Icons.add))
             ],
           ),
+          floatingActionButton: AnimatedOpacity(
+            duration: Duration(milliseconds: 250),
+            opacity: _fabOpacity,
+            onEnd: (){
+              if (_fabOpacity == 0) {
+                setState(() {
+                  _fabVisibility = false;
+                });
+              }
+            },
+            child: Visibility(
+              visible: _fabVisibility,
+              child: FloatingActionButton(
+                  onPressed: () {},
+                  child: Icon(
+                    FontAwesomeIcons.filter,
+                    size: 18,
+                  )),
+            ),
+          ),
           body: Scrollbar(
             child: NotificationListener<ScrollNotification>(
               onNotification: (ScrollNotification scrollInfo) {
                 if (!_isLoading &&
                     scrollInfo.metrics.pixels >=
-                        scrollInfo.metrics.maxScrollExtent - 200 && scrollInfo.metrics.pixels <= scrollInfo.metrics.maxScrollExtent) {
+                        scrollInfo.metrics.maxScrollExtent - 200 &&
+                    scrollInfo.metrics.pixels <=
+                        scrollInfo.metrics.maxScrollExtent) {
                   _updateList();
                   return true;
                 }
@@ -93,6 +142,7 @@ class _MessageListState extends State<MessageList> {
                   releaseText: 'Отпустите для обновления',
                 ),
                 child: ListView.builder(
+                  controller: _scrollController,
                   itemCount: messages.length,
                   itemBuilder: (BuildContext context, int index) {
                     Message msg = messages[index];
@@ -132,7 +182,7 @@ Widget itemCard(BuildContext context, Message msg) {
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: itemBody(context,msg),
+          child: itemBody(context, msg),
         ),
       ));
 }

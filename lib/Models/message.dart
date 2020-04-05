@@ -25,7 +25,7 @@ class Message {
   }
 
   bool isRead() {
-    return status == "Прочитано";
+    return status == "Прочитано" || status.isEmpty;
   }
 
   String getAvatarLetter() {

@@ -157,6 +157,8 @@ class Connection {
 
       if (response.statusCode == 200) {
         msg = Message.fromJSON(json.decode(response.body));
+      } else {
+        Logger.error(response.body);
       }
     } catch (e) {
       Logger.warning(e);

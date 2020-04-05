@@ -100,6 +100,9 @@ class MyApp extends StatelessWidget {
 
   ThemeData lightTheme(BuildContext context) {
     return ThemeData(
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: ColorMain
+      ),
       cupertinoOverrideTheme: CupertinoThemeData(
         brightness: Brightness.light
       ),
@@ -125,6 +128,10 @@ class MyApp extends StatelessWidget {
 
   ThemeData darkTheme(BuildContext context) {
     return ThemeData(
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: ColorMain,
+        foregroundColor: Colors.white
+      ),
       cupertinoOverrideTheme: CupertinoThemeData(
         brightness: Brightness.dark
       ),
