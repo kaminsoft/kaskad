@@ -284,12 +284,6 @@ class _MainPageState extends State<MainPage> {
               CupertinoActionSheetAction(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    Preferences.openItem(context);
-                  },
-                  child: Text('Настройки')),
-              CupertinoActionSheetAction(
-                  onPressed: () {
-                    Navigator.of(context).pop();
                     setState(() {
                       editMode = true;
                     });
@@ -297,11 +291,11 @@ class _MainPageState extends State<MainPage> {
                   child: Text('Изменить рабочий стол'))
             ],
             cancelButton: CupertinoActionSheetAction(
-                isDestructiveAction: true,
                 onPressed: () {
-                  Profile.logOut(context);
+                  Navigator.of(context).pop();
+                    Preferences.openItem(context);
                 },
-                child: Text('Выход')),
+                child: Text('Настройки')),
           );
         });
   }

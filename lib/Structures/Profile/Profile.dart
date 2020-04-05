@@ -9,10 +9,12 @@ class Profile {
     await StoreProvider.dispatchFuture(context, LogIn(user));
   }
 
-  static void logOut(context) async {
+  static void logOut(context, {bool close = true}) async {
     Data.analytics.logEvent(name: 'logout');
     Connection.logOut();
     await StoreProvider.dispatchFuture(context, LogOut());
-    Navigator.of(context).pop();
+    if (close) {
+      Navigator.of(context).pop();
+    }
   }
 }

@@ -3,12 +3,14 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_kaskad/Data/Consts.dart';
+import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
+import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 
 class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
@@ -60,6 +62,19 @@ class Connection {
 
       if (response.statusCode == 200) {
         Logger.log('token sent');
+        var userFields = json.decode(response.body);
+        user.firstname = userFields["firstname"];
+        user.lastname = userFields["lastname"];
+        user.secondname = userFields["secondname"];
+        user.position = userFields["position"];
+        user.subdivision = userFields["subdivision"];
+        DBProvider.db.updateUser(user);
+      }
+      else if (response.statusCode == 401) {
+        Profile.logOut(mainWidgetKey.currentContext, close: false);
+      }
+      else {
+        Logger.error(response.body);
       }
     } catch (e) {
       Logger.warning(e);

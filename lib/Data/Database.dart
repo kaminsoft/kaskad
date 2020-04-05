@@ -22,11 +22,17 @@ class DBProvider {
     return _database;
   }
 
-  void update002(Database db) async { // added fields to worker
+  void _update002(Database db) async { // added fields to worker
     await db.execute("ALTER TABLE Woker ADD COLUMN homePhone TEXT");
     await db.execute("ALTER TABLE Woker ADD COLUMN internalPhone TEXT");
     await db.execute("ALTER TABLE Woker ADD COLUMN email TEXT");
     await db.execute("ALTER TABLE Woker ADD COLUMN workEmail TEXT");
+  }
+
+  void _update003(Database db) async { // added fields to user
+    await db.execute("ALTER TABLE User ADD COLUMN secondname TEXT");
+    await db.execute("ALTER TABLE User ADD COLUMN position TEXT");
+    await db.execute("ALTER TABLE User ADD COLUMN subdivision TEXT");
   }
 
   initDB() async {
@@ -34,7 +40,7 @@ class DBProvider {
     String path = join(documentsDirectory.path, "kaskad.db");
     return await openDatabase(
       path,
-      version: 2,
+      version: getDBVersion(),
       onOpen: (db) async {
         
       },
@@ -81,14 +87,20 @@ class DBProvider {
             "workPhone TEXT"
             ")");
         if(version >= 2) {
-          update002(db);
+          _update002(db);
+        }
+        if (version >= 3) {
+          _update003(db);
         }
       },
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         Data.showNews = true;
         
         if (oldVersion < 2) {
-          update002(db);
+          _update002(db);
+        }
+        if (oldVersion < 3) {
+          _update003(db);
         }
       },
     );
@@ -118,6 +130,12 @@ class DBProvider {
   Future<int> addUser(User newUser) async {
     final db = await database;
     var res = await db.insert("User", newUser.toJson());
+    return res;
+  }
+
+  Future<int> updateUser(User user) async {
+    final db = await database;
+    var res = await db.update("User", user.toJson(),where: "username = ?",whereArgs: [user.username]);
     return res;
   }
 

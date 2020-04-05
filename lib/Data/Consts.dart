@@ -13,8 +13,20 @@ class Data {
   static String messageId;
   static FirebaseAnalytics analytics = FirebaseAnalytics();
   static String version = '';
+  static int dbVersion = 1;
   static bool showNews = false;
   static String token = "";
+}
+
+int getDBVersion() {
+  var nums = Data.version.split(".");
+  String tmp = "";
+  for (var item in nums) {
+    if (item != "0") {
+      tmp += item;
+    }
+  }
+  return int.parse(tmp);
 }
 
 const Color ColorGray = Color(0xFFEEEEEE);
