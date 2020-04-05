@@ -11,6 +11,93 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'Post.dart';
 
+typedef FilterChanged = void Function(bool sent, bool justNew);
+
+class MessageFilter extends StatefulWidget {
+  final bool sent;
+  final bool justNew;
+  final FilterChanged onFilterChanged;
+
+  const MessageFilter(
+      {Key key,
+      @required this.sent,
+      @required this.justNew,
+      @required this.onFilterChanged})
+      : super(key: key);
+  @override
+  _MessageFilterState createState() => _MessageFilterState(sent: sent ? 1 : 0, justNew: justNew ? 1 : 0);
+}
+
+class _MessageFilterState extends State<MessageFilter> {
+  int sent;
+  int justNew;
+
+  _MessageFilterState({this.sent, this.justNew});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 5),
+          child: Text("Настройки",  style: Theme.of(context).textTheme.title,),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
+          child: SizedBox(
+            width: double.infinity,
+            child: CupertinoSlidingSegmentedControl(
+              
+              groupValue: justNew,
+              onValueChanged: (val) {
+                setState(() {
+                  justNew = val;
+                });
+              },
+              children: {
+                0: Text("все"),
+                1: Text("новые"),
+              },
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 10),
+          child: SizedBox(
+            width: double.infinity,
+            child: CupertinoSlidingSegmentedControl(
+              groupValue: sent,
+              onValueChanged: (val) {
+                setState(() {
+                  sent = val;
+                });
+              },
+              children: {
+                0: Text("входящие"),
+                1: Text("отправленные"),
+              },
+            ),
+          ),
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CupertinoButton(
+              onPressed: () {
+                widget.onFilterChanged(
+                    sent == 1 ? true : false, justNew == 1 ? true : false);
+              },
+              color: ColorMain,
+              child: Text("Готово"),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
 class MessageList extends StatefulWidget {
   final bool isPublicate;
 
@@ -27,6 +114,7 @@ class _MessageListState extends State<MessageList> {
   bool _fabVisibility = true;
   bool justNew = false;
   bool sent = false;
+
   RefreshController _refreshController = RefreshController(
       initialRefresh: false, initialLoadStatus: LoadStatus.loading);
   ScrollController _scrollController = ScrollController();
@@ -34,16 +122,17 @@ class _MessageListState extends State<MessageList> {
   @override
   void initState() {
     _scrollController.addListener(() {
-      
       if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.forward && _fabOpacity == 0) {
+              ScrollDirection.forward &&
+          _fabOpacity == 0) {
         setState(() {
           _fabOpacity = 1;
           _fabVisibility = true;
         });
       } else if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.reverse  && _fabOpacity == 1) {
-         setState(() {
+              ScrollDirection.reverse &&
+          _fabOpacity == 1) {
+        setState(() {
           _fabOpacity = 0;
         });
       }
@@ -62,6 +151,32 @@ class _MessageListState extends State<MessageList> {
     await StoreProvider.dispatchFuture(
         context, LoadMessages(widget.isPublicate));
     _refreshController.refreshCompleted();
+  }
+
+  void _openFilter(BuildContext context) {
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (ctx) {
+          return Container(
+            height: 200,
+            decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+            child: StatefulBuilder(builder: (BuildContext context, StateSetter setModalState){
+              return MessageFilter(
+                sent: sent,
+                justNew: justNew,
+                onFilterChanged: (_sent, _justNew) {
+                  setState(() {
+                    sent = _sent;
+                    justNew = _justNew;
+                  });
+                  Navigator.of(context).pop();
+                });
+            }),
+          );
+        });
   }
 
   @override
@@ -88,7 +203,21 @@ class _MessageListState extends State<MessageList> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(widget.isPublicate ? 'Объявления' : 'Сообщения'),
+            title: Column(
+              children: <Widget>[
+                Text(
+                  widget.isPublicate ? 'Объявления' : 'Сообщения',
+                  style: Theme.of(context).textTheme.subtitle,
+                ),
+                Text(
+                  sent ? 'отправленные' : 'входящие',
+                  style: Theme.of(context)
+                      .textTheme
+                      .subhead
+                      .copyWith(fontSize: 12),
+                ),
+              ],
+            ),
             centerTitle: true,
             actions: <Widget>[
               IconButton(
@@ -100,7 +229,7 @@ class _MessageListState extends State<MessageList> {
           floatingActionButton: AnimatedOpacity(
             duration: Duration(milliseconds: 250),
             opacity: _fabOpacity,
-            onEnd: (){
+            onEnd: () {
               if (_fabOpacity == 0) {
                 setState(() {
                   _fabVisibility = false;
@@ -110,7 +239,7 @@ class _MessageListState extends State<MessageList> {
             child: Visibility(
               visible: _fabVisibility,
               child: FloatingActionButton(
-                  onPressed: () {},
+                  onPressed: () => _openFilter(context),
                   child: Icon(
                     FontAwesomeIcons.filter,
                     size: 18,
