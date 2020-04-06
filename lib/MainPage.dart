@@ -66,6 +66,7 @@ class _MainPageState extends State<MainPage> {
       }
     });
     if (Data.showNews) {
+      Data.showNews = false;
       Timer(Duration(seconds: 1), () => News.openItem(context));
     }
     return StoreConnector<AppState, User>(
