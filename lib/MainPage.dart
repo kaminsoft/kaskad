@@ -163,48 +163,53 @@ class _MainPageState extends State<MainPage> {
                   padding: EdgeInsets.only(left: 5, right: 5),
                   color: Colors.transparent,
                   child: editMode
-                      ? DescribedFeatureOverlay(
-                          featureId: mainPageTutt[1],
-                          tapTarget: Text('OK',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .body1
-                                  .copyWith(fontWeight: FontWeight.bold)),
-                          backgroundColor: ColorMain,
-                          title: Text('Редактирование'),
-                          description: Column(
-                            children: <Widget>[
-                              Text(
-                                'В этом режиме можно менять местами карточки разделов, включать и выключать их.',
-                                style: TextStyle(fontSize: 14),
+                      ? SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 5),
+                          child: DescribedFeatureOverlay(
+                              featureId: mainPageTutt[1],
+                              tapTarget: Text('OK',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .body1
+                                      .copyWith(fontWeight: FontWeight.bold)),
+                              backgroundColor: ColorMain,
+                              title: Text('Редактирование'),
+                              description: Column(
+                                children: <Widget>[
+                                  Text(
+                                    'В этом режиме можно менять местами карточки разделов, включать и выключать их.',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    'Чтобы упорядочить разделы просто нажмите на один из них и переместите на удобное вам место.',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  SizedBox(
+                                    height: 30,
+                                  ),
+                                ],
                               ),
-                              SizedBox(
-                                height: 10,
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: MessageButton(
+                                    filed: true,
+                                    count: 0,
+                                    text: 'Завершить редактированиe',
+                                    onPressed: () {
+                                      setState(() {
+                                        editMode = false;
+                                      });
+                                      StoreProvider.dispatchFuture(
+                                          context, AfterEditFeatures());
+                                    }),
                               ),
-                              Text(
-                                'Чтобы упорядочить разделы просто нажмите на один из них и переместите на удобное вам место.',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              SizedBox(
-                                height: 30,
-                              ),
-                            ],
-                          ),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: MessageButton(
-                                filed: true,
-                                count: 0,
-                                text: 'Завершить редактированиe',
-                                onPressed: () {
-                                  setState(() {
-                                    editMode = false;
-                                  });
-                                  StoreProvider.dispatchFuture(
-                                      context, AfterEditFeatures());
-                                }),
-                          ),
-                        )
+                            ),
+                        ),
+                      )
                       : DescribedFeatureOverlay(
                           featureId: mainPageTutt[0],
                           tapTarget: Text('OK',

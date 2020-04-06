@@ -33,7 +33,6 @@ class _ItemWidgetState extends State<ItemWidget> {
                   'Ошибка',
                 ),
                 centerTitle: true,
-                brightness: Brightness.light,
               ),
               body: Center(
                 child: Text(
@@ -53,7 +52,6 @@ class _ItemWidgetState extends State<ItemWidget> {
                   msg.isPublicite ? 'Объявление' : 'Cообщение',
                 ),
                 centerTitle: true,
-                brightness: Brightness.light,
                 actions: <Widget>[
                   IconButton(
                       icon: Icon(Icons.more_vert),
