@@ -219,7 +219,6 @@ class _MessageListState extends State<MessageList> {
             StoreProvider.dispatchFuture(context,
                 LoadMessages(widget.isPublicate, sent: sent, justNew: justNew));
             return Scaffold(
-              backgroundColor: ColorGray,
               body: Center(
                 child: CupertinoActivityIndicator(),
               ),
@@ -285,7 +284,6 @@ class _MessageListState extends State<MessageList> {
                 )
               : _isUpdating
                   ? Scaffold(
-                      backgroundColor: ColorGray,
                       body: Center(
                         child: CupertinoActivityIndicator(),
                       ),
