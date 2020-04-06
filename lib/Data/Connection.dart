@@ -98,23 +98,31 @@ class Connection {
   }
 
   static Future<List<Message>> getMessageList(bool isPublicate,
-      {String lastNum, String firstNum}) async {
+      {String lastNum, String firstNum, bool justNew, bool sent}) async {
     Logger.log('getting messages');
     List<Message> msgs = List<Message>();
     User user = Data.curUser;
     String _lastNum = lastNum == null ? '' : '&lastNum=$lastNum';
     String _firstNum = firstNum == null ? '' : '&firstNum=$firstNum';
+    String _justNew = justNew == null ? '' : '&justNew=$justNew';
+    String _sent = sent == null ? '' : '&sent=$sent';
     try {
       final response = await http.get(
-        '$url/messages/inbox?isPublicate=$isPublicate' + _lastNum + _firstNum,
+        '$url/messages/inbox?isPublicate=$isPublicate' + _lastNum + _firstNum + _justNew + _sent,
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
-        var parsedUsersList = json.decode(response.body);
-        parsedUsersList.forEach((msg) {
-          msgs.add(Message.fromJSON(msg));
-        });
+        
+        if (response.body != "[]"){
+          var parsedUsersList = json.decode(response.body);
+          parsedUsersList.forEach((msg) {
+            msgs.add(Message.fromJSON(msg));
+          });
+        }
+      }
+      else {
+        Logger.error(response.body);
       }
     } catch (e) {
       Logger.warning(e);

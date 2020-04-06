@@ -25,7 +25,8 @@ class MessageFilter extends StatefulWidget {
       @required this.onFilterChanged})
       : super(key: key);
   @override
-  _MessageFilterState createState() => _MessageFilterState(sent: sent ? 1 : 0, justNew: justNew ? 1 : 0);
+  _MessageFilterState createState() =>
+      _MessageFilterState(sent: sent ? 1 : 0, justNew: justNew ? 1 : 0);
 }
 
 class _MessageFilterState extends State<MessageFilter> {
@@ -40,29 +41,13 @@ class _MessageFilterState extends State<MessageFilter> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 5),
-          child: Text("Настройки",  style: Theme.of(context).textTheme.title,),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
-          child: SizedBox(
-            width: double.infinity,
-            child: CupertinoSlidingSegmentedControl(
-              
-              groupValue: justNew,
-              onValueChanged: (val) {
-                setState(() {
-                  justNew = val;
-                });
-              },
-              children: {
-                0: Text("все"),
-                1: Text("новые"),
-              },
-            ),
+          child: Text(
+            "Настройки",
+            style: Theme.of(context).textTheme.title,
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 10),
+          padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
           child: SizedBox(
             width: double.infinity,
             child: CupertinoSlidingSegmentedControl(
@@ -70,12 +55,37 @@ class _MessageFilterState extends State<MessageFilter> {
               onValueChanged: (val) {
                 setState(() {
                   sent = val;
+                  if (val == 1) {
+                    justNew = 0;
+                  }
                 });
               },
               children: {
                 0: Text("входящие"),
-                1: Text("отправленные"),
+                1: Text("исходящие"),
               },
+            ),
+          ),
+        ),
+        Opacity(
+          opacity: sent == 1 ? 0 : 1,
+          child: Padding(
+            padding:
+                const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 10),
+            child: SizedBox(
+              width: double.infinity,
+              child: CupertinoSlidingSegmentedControl(
+                groupValue: justNew,
+                onValueChanged: (val) {
+                  setState(() {
+                    justNew = val;
+                  });
+                },
+                children: {
+                  0: Text("все"),
+                  1: Text("новые"),
+                },
+              ),
             ),
           ),
         ),
@@ -109,6 +119,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   bool _isLoading = false;
+  bool _isUpdating = false;
   bool _built = false;
   double _fabOpacity = 1;
   bool _fabVisibility = true;
@@ -140,16 +151,24 @@ class _MessageListState extends State<MessageList> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    if (sent || justNew) {
+      StoreProvider.dispatchFuture(mainWidgetKey.currentContext, ClearMessages(widget.isPublicate));
+    }
+    super.dispose();
+  }
+
   void _updateList() async {
     _isLoading = true;
-    await StoreProvider.dispatchFuture(
-        context, UpdateMessages(widget.isPublicate));
+    await StoreProvider.dispatchFuture(context,
+        UpdateMessages(widget.isPublicate, sent: sent, justNew: justNew));
     _isLoading = false;
   }
 
   void _onRefresh() async {
-    await StoreProvider.dispatchFuture(
-        context, LoadMessages(widget.isPublicate));
+    await StoreProvider.dispatchFuture(context,
+        LoadMessages(widget.isPublicate, sent: sent, justNew: justNew));
     _refreshController.refreshCompleted();
   }
 
@@ -163,17 +182,26 @@ class _MessageListState extends State<MessageList> {
             decoration: BoxDecoration(
                 color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-            child: StatefulBuilder(builder: (BuildContext context, StateSetter setModalState){
+            child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setModalState) {
               return MessageFilter(
-                sent: sent,
-                justNew: justNew,
-                onFilterChanged: (_sent, _justNew) {
-                  setState(() {
-                    sent = _sent;
-                    justNew = _justNew;
+                  sent: sent,
+                  justNew: justNew,
+                  onFilterChanged: (_sent, _justNew) async {
+                    setState(() {
+                      sent = _sent;
+                      justNew = _justNew;
+                      _isUpdating = true;
+                    });
+                    Navigator.of(context).pop();
+                    await StoreProvider.dispatchFuture(
+                        context,
+                        LoadMessages(widget.isPublicate,
+                            sent: sent, justNew: justNew));
+                    setState(() {
+                      _isUpdating = false;
+                    });
                   });
-                  Navigator.of(context).pop();
-                });
             }),
           );
         });
@@ -185,20 +213,23 @@ class _MessageListState extends State<MessageList> {
       converter: (store) => store.state,
       builder: (BuildContext context, state) {
         var messages = widget.isPublicate ? state.messagesP : state.messages;
-
-        if (messages.length == 0) {
-          StoreProvider.dispatchFuture(
-              context, LoadMessages(widget.isPublicate));
-          return Scaffold(
-            backgroundColor: ColorGray,
-            body: Center(
-              child: CupertinoActivityIndicator(),
-            ),
-          );
-        } else if (!_built) {
+        if (!_built) {
           _built = true;
-          StoreProvider.dispatchFuture(
-              context, UpdateMessages(widget.isPublicate, addBefore: true));
+          if (messages.length == 0) {
+            StoreProvider.dispatchFuture(context,
+                LoadMessages(widget.isPublicate, sent: sent, justNew: justNew));
+            return Scaffold(
+              backgroundColor: ColorGray,
+              body: Center(
+                child: CupertinoActivityIndicator(),
+              ),
+            );
+          } else {
+            StoreProvider.dispatchFuture(
+                context,
+                UpdateMessages(widget.isPublicate,
+                    addBefore: true, sent: sent, justNew: justNew));
+          }
         }
 
         return Scaffold(
@@ -210,7 +241,7 @@ class _MessageListState extends State<MessageList> {
                   style: Theme.of(context).textTheme.subtitle,
                 ),
                 Text(
-                  sent ? 'отправленные' : 'входящие',
+                  sent ? 'исходящие' : 'входящие',
                   style: Theme.of(context)
                       .textTheme
                       .subhead
@@ -246,52 +277,65 @@ class _MessageListState extends State<MessageList> {
                   )),
             ),
           ),
-          body: Scrollbar(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scrollInfo) {
-                if (!_isLoading &&
-                    scrollInfo.metrics.pixels >=
-                        scrollInfo.metrics.maxScrollExtent - 200 &&
-                    scrollInfo.metrics.pixels <=
-                        scrollInfo.metrics.maxScrollExtent) {
-                  _updateList();
-                  return true;
-                }
-                //print(scrollInfo.metrics.maxScrollExtent);
-                return false;
-              },
-              child: SmartRefresher(
-                controller: _refreshController,
-                onRefresh: _onRefresh,
-                header: ClassicHeader(
-                  completeText: 'Готово',
-                  failedText: 'Ошибка обновления',
-                  idleText: 'Потяните для обновления',
-                  refreshingText: 'Обновление',
-                  releaseText: 'Отпустите для обновления',
-                ),
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: messages.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    Message msg = messages[index];
-                    if (index == 0 ||
-                        messages[index].getSeparatorText() !=
-                            messages[index - 1].getSeparatorText()) {
-                      return Column(
-                        children: <Widget>[
-                          Text(messages[index].getSeparatorText()),
-                          itemCard(context, msg)
-                        ],
-                      );
-                    } else {
-                      return itemCard(context, msg);
-                    }
-                  },
-                ),
-              ),
-            ),
-          ),
+          body: messages.length == 0
+              ? Center(
+                  child: justNew
+                      ? Text("Нет новых сообщений")
+                      : Text("Нет данных для отображения"),
+                )
+              : _isUpdating
+                  ? Scaffold(
+                      backgroundColor: ColorGray,
+                      body: Center(
+                        child: CupertinoActivityIndicator(),
+                      ),
+                    )
+                  : Scrollbar(
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (!_isLoading &&
+                              scrollInfo.metrics.pixels >=
+                                  scrollInfo.metrics.maxScrollExtent - 200 &&
+                              scrollInfo.metrics.pixels <=
+                                  scrollInfo.metrics.maxScrollExtent) {
+                            _updateList();
+                            return true;
+                          }
+                          //print(scrollInfo.metrics.maxScrollExtent);
+                          return false;
+                        },
+                        child: SmartRefresher(
+                          controller: _refreshController,
+                          onRefresh: _onRefresh,
+                          header: ClassicHeader(
+                            completeText: 'Готово',
+                            failedText: 'Ошибка обновления',
+                            idleText: 'Потяните для обновления',
+                            refreshingText: 'Обновление',
+                            releaseText: 'Отпустите для обновления',
+                          ),
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            itemCount: messages.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              Message msg = messages[index];
+                              if (index == 0 ||
+                                  messages[index].getSeparatorText() !=
+                                      messages[index - 1].getSeparatorText()) {
+                                return Column(
+                                  children: <Widget>[
+                                    Text(messages[index].getSeparatorText()),
+                                    itemCard(context, msg)
+                                  ],
+                                );
+                              } else {
+                                return itemCard(context, msg);
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
         );
       },
     );
@@ -320,14 +364,14 @@ Widget itemBody(BuildContext context, Message msg) {
   return ListTile(
     leading: CircleAvatar(
       backgroundColor: Theme.of(context).colorScheme.onSurface,
-      child: Text(msg.getAvatarLetter()),
+      child: msg.toCount > 0 ? Icon(Icons.mail_outline) : Text(msg.getAvatarLetter()),
     ),
     title: Text(
       msg.getTittle(),
       style: TextStyle(
           fontWeight: msg.isRead() ? FontWeight.normal : FontWeight.w800),
     ),
-    subtitle: Text(msg.from.name),
+    subtitle: msg.toCount > 0 ? Text("Получателей: ${msg.toCount}") : Text(msg.from.name),
     trailing: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[

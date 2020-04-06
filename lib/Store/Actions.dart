@@ -12,7 +12,6 @@ import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
 import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 
-
 // Settings
 class SetBottomBar extends ReduxAction<AppState> {
   final bool bottomBar;
@@ -20,15 +19,15 @@ class SetBottomBar extends ReduxAction<AppState> {
   SetBottomBar(this.bottomBar);
 
   @override
-  FutureOr<AppState> reduce() async{
+  FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
     newState.settings.bottomBar = bottomBar;
-     for (var feature in newState.features) {
-        if (feature.isMessage || feature.isPublicate) {
-          feature.enabled = !bottomBar;
-        }
+    for (var feature in newState.features) {
+      if (feature.isMessage || feature.isPublicate) {
+        feature.enabled = !bottomBar;
       }
-      DBProvider.db.saveFeatures(newState.features);
+    }
+    DBProvider.db.saveFeatures(newState.features);
     Preferences.saveSettings(newState.settings);
     return newState;
   }
@@ -54,7 +53,7 @@ class SetSettings extends ReduxAction<AppState> {
   SetSettings(this.settings);
 
   @override
-  AppState reduce()  {
+  AppState reduce() {
     AppState newState = AppState.copy(state);
     newState.settings = settings;
     if (state.settings.bottomBar != settings.bottomBar) {
@@ -134,15 +133,19 @@ class SetMessageRead extends ReduxAction<AppState> {
 
 class LoadMessages extends ReduxAction<AppState> {
   final bool isPublicate;
-  LoadMessages(this.isPublicate);
+  final bool justNew;
+  final bool sent;
+  LoadMessages(this.isPublicate, {this.justNew = false, this.sent = false});
 
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
     if (isPublicate) {
-      newState.messagesP = await Connection.getMessageList(true);
+      newState.messagesP =
+          await Connection.getMessageList(true, justNew: justNew, sent: sent);
     } else {
-      newState.messages = await Connection.getMessageList(false);
+      newState.messages =
+          await Connection.getMessageList(false, justNew: justNew, sent: sent);
     }
     return newState;
   }
@@ -151,8 +154,10 @@ class LoadMessages extends ReduxAction<AppState> {
 class UpdateMessages extends ReduxAction<AppState> {
   final bool isPublicate;
   final bool addBefore;
+  final bool justNew;
+  final bool sent;
 
-  UpdateMessages(this.isPublicate, {this.addBefore = false});
+  UpdateMessages(this.isPublicate, {this.addBefore = false, this.justNew = false, this.sent = false});
 
   @override
   FutureOr<AppState> reduce() async {
@@ -163,6 +168,7 @@ class UpdateMessages extends ReduxAction<AppState> {
         return null;
       }
       var msgs = await Connection.getMessageList(isPublicate,
+          justNew: justNew, sent: sent,
           lastNum: addBefore ? null : newState.messagesP.last.number,
           firstNum: newState.messagesP.first.number);
       if (addBefore) {
@@ -175,6 +181,7 @@ class UpdateMessages extends ReduxAction<AppState> {
         return null;
       }
       var msgs = await Connection.getMessageList(isPublicate,
+          justNew: justNew, sent: sent,
           lastNum: addBefore ? null : newState.messages.last.number,
           firstNum: newState.messages.first.number);
       if (addBefore) {
@@ -182,7 +189,6 @@ class UpdateMessages extends ReduxAction<AppState> {
       } else {
         newState.messages.addAll(msgs);
       }
-      
     }
     return newState;
   }
@@ -196,6 +202,23 @@ class AddMessage extends ReduxAction<AppState> {
   FutureOr<AppState> reduce() {
     AppState newState = AppState.copy(state);
     newState.messages.insert(0, message);
+    return newState;
+  }
+}
+
+class ClearMessages extends ReduxAction<AppState> {
+  final bool isPublicate;
+  
+  ClearMessages(this.isPublicate);
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    if (isPublicate) {
+      newState.messagesP.clear();
+    } else {
+      newState.messages.clear();
+    }
     return newState;
   }
 }
@@ -291,14 +314,14 @@ class AddKontragent extends ReduxAction<AppState> {
     } else {
       newKontr = kontragent;
     }
-    
+
     if (newKontr == null) {
-     return null;
+      return null;
     } else {
       newState.kontragents.removeWhere((k) => k.guid == newKontr.guid);
       newState.kontragents.add(newKontr);
     }
-    newState.kontragents.sort((a,b) => a.name.compareTo(b.name) );
+    newState.kontragents.sort((a, b) => a.name.compareTo(b.name));
     DBProvider.db.saveKontragents(newState.kontragents);
     return newState;
   }

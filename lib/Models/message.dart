@@ -13,6 +13,7 @@ class Message {
   bool isPublicite;
   String status;
   List<LinkItem> to;
+  int toCount;
 
   bool operator ==(other)  => other.guid == guid;
 
@@ -74,7 +75,8 @@ class Message {
       this.from,
       this.isPublicite,
       this.status,
-      this.to});
+      this.to,
+      this.toCount});
 
   factory Message.fromJSON(Map<String, dynamic> _json) {
     List<dynamic> _to = _json['to'];
@@ -95,6 +97,7 @@ class Message {
       isPublicite: _json['isPublicite'],
       status: _json['status'],
       to: to,
+      toCount: _json['toCount'] ?? 0,
     );
   }
 
@@ -108,6 +111,7 @@ class Message {
         "isPublicite": isPublicite ?? '',
         "status": status ?? '',
         "to": to.map((t) => t.toJson()).toList(),
+        "toCount": toCount ?? 0,
       };
 }
 
