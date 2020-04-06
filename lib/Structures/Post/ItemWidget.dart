@@ -81,7 +81,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                         Chip(
                           label: Text(msg.from.name),
                           avatar: CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.onSurface,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.onSurface,
                             child: Text(
                               msg.getAvatarLetter(),
                               style: TextStyle(fontSize: 10),
@@ -99,7 +100,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                                   builder: (ctx) {
                                     return Container(
                                       decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
                                           borderRadius: BorderRadius.vertical(
                                               top: Radius.circular(20))),
                                       child: Column(
@@ -140,7 +142,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                                 Chip(
                                   label: Text(msg.to.length.toString()),
                                   avatar: CircleAvatar(
-                                    backgroundColor: Theme.of(context).colorScheme.onSurface,
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.onSurface,
                                     child: Icon(
                                       Icons.people,
                                       size: 12,
@@ -150,7 +153,28 @@ class _ItemWidgetState extends State<ItemWidget> {
                               ],
                             ),
                           )
-                        : Container(),
+                        : msg.to.first != msg.from
+                            ? Row(
+                                children: <Widget>[
+                                  Text(
+                                    "Кому: ",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  Chip(
+                                    label: Text(msg.to.first.name),
+                                    avatar: CircleAvatar(
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      child: Text(
+                                        getAvatarLetter(msg.to.first.name),
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Container(),
 
                     Divider(),
                     // SizedBox(

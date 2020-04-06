@@ -3,8 +3,11 @@ import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppState {
 
@@ -17,15 +20,18 @@ class AppState {
 
   List<Feature> features;
   List<Kontragent> kontragents;
+
+  Settings settings;
   
   static Future<AppState> initState() async{
     var user = await DBProvider.db.getUser();
+    Settings prefs = await Preferences.getSettings();
     var ftrs = user == null ? List<Feature>() : await DBProvider.db.getFeatures();
     var kontr = user == null ? List<Kontragent>() : await DBProvider.db.getKontragents();
     Data.curUser = user;
-    return AppState(messages: List<Message>(), messagesP: List<Message>(), user: user, features: ftrs, messageCount: NewMessageCount(), kontragents: kontr);
+    return AppState(messages: List<Message>(), messagesP: List<Message>(), user: user, features: ftrs, messageCount: NewMessageCount(), kontragents: kontr, settings: prefs);
   }
-  AppState({this.user, this.messages, this.messagesP, this.messageCount, this.features, this.kontragents});
+  AppState({this.user, this.messages, this.messagesP, this.messageCount, this.features, this.kontragents, this.settings});
     
   AppState.copy(AppState other) {
     messages            = List<Message>.from(other.messages);
@@ -34,6 +40,7 @@ class AppState {
     kontragents         = List<Kontragent>.from(other.kontragents);
     messageCount        = other.messageCount;
     user                = other.user;
+    settings            = other.settings;
   }
 
 }

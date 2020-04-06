@@ -7,15 +7,15 @@ class Preferences {
   static Future<Settings> getSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return Settings(
-      timeOut: prefs.getInt("timeOut") ?? 5,
-      useProductionServer: prefs.getBool("useProductionServer") ?? false
+      bottomBar: prefs.getBool("hideButtomBar") ?? true,
+      theme: prefs.getString("theme") ?? "Системная",
     );
   }
 
   static void saveSettings(Settings settings) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt("timeOut", settings.timeOut);
-    prefs.setBool("useProductionServer", settings.useProductionServer);
+    prefs.setBool("hideButtomBar", settings.bottomBar);
+    prefs.setString("theme", settings.theme);
   }
 
   static void openItem(BuildContext context) {

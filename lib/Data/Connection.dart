@@ -3,16 +3,18 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_kaskad/Data/Consts.dart';
+import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
+import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 
 class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
-  static int timeOut = 10;
+  static int timeOut = 5;
 
   static String get url => isProduction
       ? 'http://62.148.143.24:81/kaskad/hs/mobile'
@@ -60,6 +62,19 @@ class Connection {
 
       if (response.statusCode == 200) {
         Logger.log('token sent');
+        var userFields = json.decode(response.body);
+        user.firstname = userFields["firstname"];
+        user.lastname = userFields["lastname"];
+        user.secondname = userFields["secondname"];
+        user.position = userFields["position"];
+        user.subdivision = userFields["subdivision"];
+        DBProvider.db.updateUser(user);
+      }
+      else if (response.statusCode == 401) {
+        Profile.logOut(mainWidgetKey.currentContext, close: false);
+      }
+      else {
+        Logger.error(response.body);
       }
     } catch (e) {
       Logger.warning(e);
@@ -83,23 +98,31 @@ class Connection {
   }
 
   static Future<List<Message>> getMessageList(bool isPublicate,
-      {String lastNum, String firstNum}) async {
+      {String lastNum, String firstNum, bool justNew, bool sent}) async {
     Logger.log('getting messages');
     List<Message> msgs = List<Message>();
     User user = Data.curUser;
     String _lastNum = lastNum == null ? '' : '&lastNum=$lastNum';
     String _firstNum = firstNum == null ? '' : '&firstNum=$firstNum';
+    String _justNew = justNew == null ? '' : '&justNew=$justNew';
+    String _sent = sent == null ? '' : '&sent=$sent';
     try {
       final response = await http.get(
-        '$url/messages/inbox?isPublicate=$isPublicate' + _lastNum + _firstNum,
+        '$url/messages/inbox?isPublicate=$isPublicate' + _lastNum + _firstNum + _justNew + _sent,
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
-        var parsedUsersList = json.decode(response.body);
-        parsedUsersList.forEach((msg) {
-          msgs.add(Message.fromJSON(msg));
-        });
+        
+        if (response.body != "[]"){
+          var parsedUsersList = json.decode(response.body);
+          parsedUsersList.forEach((msg) {
+            msgs.add(Message.fromJSON(msg));
+          });
+        }
+      }
+      else {
+        Logger.error(response.body);
       }
     } catch (e) {
       Logger.warning(e);
@@ -142,6 +165,8 @@ class Connection {
 
       if (response.statusCode == 200) {
         msg = Message.fromJSON(json.decode(response.body));
+      } else {
+        Logger.error(response.body);
       }
     } catch (e) {
       Logger.warning(e);
