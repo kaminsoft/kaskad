@@ -188,7 +188,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
+                        padding: const EdgeInsets.only(left: 8.0, right: 10),
                         child: Text(secret.type.trim()),
                       ),
                     ],
@@ -304,7 +304,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget _getINNKPP() {
     return SizedBox(
-      height: 50,
+      height: 50*MediaQuery.of(context).textScaleFactor,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: <Widget>[
@@ -318,7 +318,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget _getKontacts() {
     return SizedBox(
-      height: 50,
+      height: 50*MediaQuery.of(context).textScaleFactor,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: <Widget>[
