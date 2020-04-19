@@ -69,11 +69,9 @@ class Connection {
         user.position = userFields["position"];
         user.subdivision = userFields["subdivision"];
         DBProvider.db.updateUser(user);
-      }
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         Profile.logOut(mainWidgetKey.currentContext, close: false);
-      }
-      else {
+      } else {
         Logger.error(response.body);
       }
     } catch (e) {
@@ -108,20 +106,22 @@ class Connection {
     String _sent = sent == null ? '' : '&sent=$sent';
     try {
       final response = await http.get(
-        '$url/messages/inbox?isPublicate=$isPublicate' + _lastNum + _firstNum + _justNew + _sent,
+        '$url/messages/inbox?isPublicate=$isPublicate' +
+            _lastNum +
+            _firstNum +
+            _justNew +
+            _sent,
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
-        
-        if (response.body != "[]"){
+        if (response.body != "[]") {
           var parsedUsersList = json.decode(response.body);
           parsedUsersList.forEach((msg) {
             msgs.add(Message.fromJSON(msg));
           });
         }
-      }
-      else {
+      } else {
         Logger.error(response.body);
       }
     } catch (e) {
@@ -180,6 +180,24 @@ class Connection {
     try {
       final response = await http.get(
         '$url/messages/read/$guid',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return false;
+  }
+
+  static Future<bool> setReadAll(bool isPublicate) async {
+    User user = Data.curUser;
+    try {
+      final response = await http.get(
+        '$url/messages/read/all?isPublicate=$isPublicate',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 

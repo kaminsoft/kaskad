@@ -107,8 +107,6 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                     });
                   }),
               centerTitle: true,
-              
-              brightness: Brightness.light,
               actions: <Widget>[
                 FlatButton(
                     disabledTextColor: Colors.grey,

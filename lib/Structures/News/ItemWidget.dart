@@ -130,6 +130,13 @@ class _ItemWidgetState extends State<ItemWidget> {
   bool showAll = false;
 
   var versions = [
+    NewVersion(version: "0.0.4", features: [
+      FeatureDescriber("Сообщения",
+          "Добавлена возможность прочтения сразу всех сообщений или объявлений")
+    ], bugs: [
+      FeatureDescriber("Контрагенты",
+          "Исправлено отображение информации контрагенты при большом размере текста")
+    ]),
     NewVersion(version: "0.0.3", features: [
       FeatureDescriber("Настройки",
           "Добавлены настройки приложения. В настройки перемещена информация о новых функциях, возможность отправки сообщения разработчику"),

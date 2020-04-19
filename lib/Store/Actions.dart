@@ -131,6 +131,27 @@ class SetMessageRead extends ReduxAction<AppState> {
   }
 }
 
+class SetReadAll extends ReduxAction<AppState> {
+  final bool isPublicate;
+
+  SetReadAll(this.isPublicate);
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    await Connection.setReadAll(isPublicate);
+    newState.messageCount.message = 0;
+    newState.messageCount.post = 0;
+    
+    if (isPublicate) {
+      newState.messagesP.where((m) => m.status != 'Прочитано').forEach((m) => m.status = 'Прочитано');
+    } else {
+      newState.messages.where((m) => m.status != 'Прочитано').forEach((m) => m.status = 'Прочитано');
+    }
+    return newState;
+  }
+}
+
 class LoadMessages extends ReduxAction<AppState> {
   final bool isPublicate;
   final bool justNew;

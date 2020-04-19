@@ -154,7 +154,8 @@ class _MessageListState extends State<MessageList> {
   @override
   void dispose() {
     if (sent || justNew) {
-      StoreProvider.dispatchFuture(mainWidgetKey.currentContext, ClearMessages(widget.isPublicate));
+      StoreProvider.dispatchFuture(
+          mainWidgetKey.currentContext, ClearMessages(widget.isPublicate));
     }
     super.dispose();
   }
@@ -213,6 +214,9 @@ class _MessageListState extends State<MessageList> {
       converter: (store) => store.state,
       builder: (BuildContext context, state) {
         var messages = widget.isPublicate ? state.messagesP : state.messages;
+        bool hasNewMessages = widget.isPublicate
+            ? state.messageCount.post > 0
+            : state.messageCount.message > 0;
         if (!_built) {
           _built = true;
           if (messages.length == 0) {
@@ -256,26 +260,7 @@ class _MessageListState extends State<MessageList> {
                   icon: Icon(Icons.add))
             ],
           ),
-          floatingActionButton: AnimatedOpacity(
-            duration: Duration(milliseconds: 250),
-            opacity: _fabOpacity,
-            onEnd: () {
-              if (_fabOpacity == 0) {
-                setState(() {
-                  _fabVisibility = false;
-                });
-              }
-            },
-            child: Visibility(
-              visible: _fabVisibility,
-              child: FloatingActionButton(
-                  onPressed: () => _openFilter(context),
-                  child: Icon(
-                    FontAwesomeIcons.filter,
-                    size: 18,
-                  )),
-            ),
-          ),
+          floatingActionButton: fab(context, hasNewMessages),
           body: messages.length == 0
               ? Center(
                   child: justNew
@@ -338,6 +323,47 @@ class _MessageListState extends State<MessageList> {
       },
     );
   }
+
+  Widget fab(BuildContext context, bool hasNewMessages) {
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 250),
+      opacity: _fabOpacity,
+      onEnd: () {
+        if (_fabOpacity == 0) {
+          setState(() {
+            _fabVisibility = false;
+          });
+        }
+      },
+      child: Visibility(
+        visible: _fabVisibility,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            FloatingActionButton(
+              heroTag: "filter",
+                onPressed: () => _openFilter(context),
+                child: Icon(
+                  FontAwesomeIcons.filter,
+                  size: 18,
+                )),
+            SizedBox(
+              width: hasNewMessages ? 10 : 0,
+            ),
+            Visibility(
+                visible: hasNewMessages,
+                child: FloatingActionButton(
+                  heroTag: "readAll",
+                  onPressed: () {
+                    StoreProvider.dispatchFuture(context, SetReadAll(widget.isPublicate));
+                  },
+                  child: Icon(Icons.check_circle_outline),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 Widget itemCard(BuildContext context, Message msg) {
@@ -362,14 +388,18 @@ Widget itemBody(BuildContext context, Message msg) {
   return ListTile(
     leading: CircleAvatar(
       backgroundColor: Theme.of(context).colorScheme.onSurface,
-      child: msg.toCount > 0 ? Icon(Icons.mail_outline) : Text(msg.getAvatarLetter()),
+      child: msg.toCount > 0
+          ? Icon(Icons.mail_outline)
+          : Text(msg.getAvatarLetter()),
     ),
     title: Text(
       msg.getTittle(),
       style: TextStyle(
           fontWeight: msg.isRead() ? FontWeight.normal : FontWeight.w800),
     ),
-    subtitle: msg.toCount > 0 ? Text("Получателей: ${msg.toCount}") : Text(msg.from.name),
+    subtitle: msg.toCount > 0
+        ? Text("Получателей: ${msg.toCount}")
+        : Text(msg.from.name),
     trailing: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
