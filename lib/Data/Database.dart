@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -174,6 +175,8 @@ class DBProvider {
     }
   }
 
+  // kontragents
+
   Future<List<Kontragent>> getKontragents() async {
     List<Kontragent> tmp = List<Kontragent>();
     final db = await database;
@@ -198,6 +201,8 @@ class DBProvider {
     }
   }
 
+  // workers
+
   Future<List<Woker>> getWorkers() async {
     List<Woker> tmp = List<Woker>();
     final db = await database;
@@ -212,6 +217,18 @@ class DBProvider {
       }
     }
     return tmp;
+  }
+
+  Future<Woker> getWorker(String id) async {
+    Woker tmp = Woker();
+    final db = await database;
+    var res = await db.query("Woker", where: "guid = ?",whereArgs: [id] );
+    if (res.isEmpty) {
+      List<Woker> workers = await Connection.getWorkers();
+      saveWorkers(workers);
+      return workers.firstWhere((e) => e.guid == id);
+    }
+    return Woker.fromJSON(res.first);
   }
 
   saveWorkers(List<Woker> list) async {

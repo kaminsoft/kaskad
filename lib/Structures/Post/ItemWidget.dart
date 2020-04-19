@@ -5,9 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
+import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 class ItemWidget extends StatefulWidget {
   final String id;
@@ -120,13 +122,16 @@ class _ItemWidgetState extends State<ItemWidget> {
                 "От: ",
                 style: TextStyle(fontSize: 14),
               ),
-              Chip(
-                label: Text(inMsg.from.name),
-                avatar: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.onSurface,
-                  child: Text(
-                    inMsg.getAvatarLetter(),
-                    style: TextStyle(fontSize: 10),
+              GestureDetector(
+                onTap: () => Wkr.openItemById(context, inMsg.from.guid),
+                child: Chip(
+                  label: Text(inMsg.from.name),
+                  avatar: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.onSurface,
+                    child: Text(
+                      inMsg.getAvatarLetter(),
+                      style: TextStyle(fontSize: 10),
+                    ),
                   ),
                 ),
               )
@@ -161,6 +166,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                                       itemBuilder:
                                           (BuildContext context, int index) {
                                         return ListTile(
+                                          onTap: () => Wkr.openItemById(context, inMsg.to[index].guid),
                                           title: Text(inMsg.to[index].name),
                                         );
                                       },
@@ -199,14 +205,19 @@ class _ItemWidgetState extends State<ItemWidget> {
                           "Кому: ",
                           style: TextStyle(fontSize: 14),
                         ),
-                        Chip(
-                          label: Text(inMsg.to.first.name),
-                          avatar: CircleAvatar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.onSurface,
-                            child: Text(
-                              getAvatarLetter(inMsg.to.first.name),
-                              style: TextStyle(fontSize: 10),
+                        GestureDetector(
+                          onTap: (){
+                            Wkr.openItemById(context, inMsg.to.first.guid);
+                          },
+                          child: Chip(
+                            label: Text(inMsg.to.first.name),
+                            avatar: CircleAvatar(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.onSurface,
+                              child: Text(
+                                getAvatarLetter(inMsg.to.first.name),
+                                style: TextStyle(fontSize: 10),
+                              ),
                             ),
                           ),
                         ),

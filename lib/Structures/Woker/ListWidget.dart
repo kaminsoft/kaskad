@@ -7,10 +7,9 @@ import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 import '../../Data/Connection.dart';
-import '../../Data/Connection.dart';
+
 import '../../Data/Consts.dart';
-import '../../Data/Consts.dart';
-import '../../Data/Database.dart';
+
 import '../../Data/Database.dart';
 
 class ListWidget extends StatefulWidget {
