@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_eventemitter/flutter_eventemitter.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
+import 'package:mobile_kaskad/Data/LocalNotification.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 
 class FirebaseNotifications {
@@ -13,6 +14,7 @@ class FirebaseNotifications {
   bool _isConfigured = false;
 
   void setUpFirebase(BuildContext context) {
+    InitializeLN();
     _firebaseMessaging = FirebaseMessaging();
     firebaseCloudMessagingListeners(context);
   }
