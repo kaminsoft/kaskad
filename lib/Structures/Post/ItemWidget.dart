@@ -23,7 +23,7 @@ class _ItemWidgetState extends State<ItemWidget> {
   Message msg;
   int initIndex;
   List<Message> messages;
-  bool isPublicite = false;
+  bool isPublicite = true;
   Map<String, Widget> cacheWidgets = Map<String, Widget>();
 
   loadMessage(String guid) async {
@@ -43,31 +43,41 @@ class _ItemWidgetState extends State<ItemWidget> {
     return StoreConnector<AppState, AppState>(
         converter: (store) => store.state,
         builder: (BuildContext context, state) {
-          initIndex = state.messages.indexWhere((e) => e.guid == widget.id);
-          messages = state.messages;
+          initIndex = state.messagesP.indexWhere((e) => e.guid == widget.id);
+          messages = state.messagesP;
           if (initIndex == -1) {
-            initIndex = state.messagesP.indexWhere((e) => e.guid == widget.id);
-            messages = state.messagesP;
-            isPublicite = true;
-          }
-          if (initIndex == -1) {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Ошибка',
-                ),
-                centerTitle: true,
-              ),
-              body: Center(
-                child: Text(
-                  'Не удалось получить информацию о сообщении',
-                  style: TextStyle(color: Colors.black54),
-                ),
-              ),
-            );
+            initIndex = state.messages.indexWhere((e) => e.guid == widget.id);
+            messages = state.messages;
+            isPublicite = false;
           }
 
           loadMessage(widget.id);
+          if (initIndex == -1) {
+            // этого сообщения нет в списке, оно открыто через push, просто обновим список
+            StoreProvider.dispatchFuture(context, LoadMessages(false));
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text(
+                    isPublicite ? 'Объявление' : 'Cообщение',
+                  ),
+                  centerTitle: true,
+                  actions: <Widget>[
+                    IconButton(
+                        icon: Icon(Icons.more_vert),
+                        onPressed: () {
+                          Post.showContextMenu(context, msg);
+                        })
+                  ],
+                ),
+                body: Builder(builder: (ctx) {
+                  if (cacheWidgets.containsKey(widget.id)) {
+                    return cacheWidgets[widget.id];
+                  }
+                  return Center(
+                    child: CupertinoActivityIndicator(),
+                  );
+                }));
+          }
 
           PageController controller = PageController(initialPage: initIndex);
           return Scaffold(
@@ -89,8 +99,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                 itemCount: messages.length,
                 onPageChanged: (index) {
                   loadMessage(messages[index].guid);
-                  if (index == messages.length-1) {
-                    StoreProvider.dispatch(context, UpdateMessages(isPublicite));
+                  if (index == messages.length - 1) {
+                    StoreProvider.dispatch(
+                        context, UpdateMessages(isPublicite));
                   }
                 },
                 itemBuilder: (ctx, index) {
@@ -166,7 +177,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                                       itemBuilder:
                                           (BuildContext context, int index) {
                                         return ListTile(
-                                          onTap: () => Wkr.openItemById(context, inMsg.to[index].guid),
+                                          onTap: () => Wkr.openItemById(
+                                              context, inMsg.to[index].guid),
                                           title: Text(inMsg.to[index].name),
                                         );
                                       },
@@ -206,7 +218,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                           style: TextStyle(fontSize: 14),
                         ),
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             Wkr.openItemById(context, inMsg.to.first.guid);
                           },
                           child: Chip(

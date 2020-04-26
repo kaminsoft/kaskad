@@ -40,9 +40,7 @@ class FirebaseNotifications {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
           StoreProvider.dispatchFuture(context, UpdateMessageCount());
-
-          EventEmitter.publishSync(
-              "ShowSnakBarNewMessage", getMessageData(message));
+          EventEmitter.publishSync("ShowSnakBarNewMessage", getMessageData(message));
         },
         onResume: (Map<String, dynamic> message) async {
           StoreProvider.dispatchFuture(context, UpdateMessageCount());
