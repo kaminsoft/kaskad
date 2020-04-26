@@ -207,36 +207,6 @@ class _ItemWidgetState extends State<ItemWidget> {
       ),
     );
   }
-
-  Widget _getContactUsers() {
-    if (kontragent.persons.isEmpty) {
-      return _emptyPersons();
-    }
-    return Column(
-      children: <Widget>[
-        Divider(),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: SizedBox(
-                height: 115,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: kontragent.persons.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    var person = kontragent.persons[index];
-                    return ContactUserCard(person: person);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-        Divider(),
-      ],
-    );
-  }
-
   Widget _emptyPersons() {
     return Column(
       children: <Widget>[

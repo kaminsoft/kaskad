@@ -1,14 +1,13 @@
 import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
-import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 
 import 'package:mobile_kaskad/MainPage.dart';
-import 'package:mobile_kaskad/Models/settings.dart';
+
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
@@ -66,46 +65,40 @@ class MyApp extends StatelessWidget {
     ]);
     return StoreProvider<AppState>(
       store: store,
-      child: FeatureDiscovery(
-        child: StoreConnector<AppState, AppState>(
-            converter: (store) => store.state,
-            builder: (context, state) {
-              var mode = ThemeMode.system;
-              if (state.settings.theme == "Темная") {
-                mode = ThemeMode.dark;
-              } else if (state.settings.theme == "Светлая") {
-                mode = ThemeMode.light;
-              }
-              return MaterialApp(
-                darkTheme: darkTheme(context),
-                theme:  lightTheme(context),
-                themeMode: mode,
-                
-                title: 'КАСКАД',
-                debugShowCheckedModeBanner: false,
-                home: StoreConnector<AppState, User>(
-                    converter: (store) => store.state.user,
-                    builder: (context, user) {
-                      if (user == null) {
-                        return AuthPage();
-                      }
-                      return MainPage();
-                    }),
-                navigatorObservers: [MyRouteObserver()],
-              );
-            }),
-      ),
+      child: StoreConnector<AppState, AppState>(
+          converter: (store) => store.state,
+          builder: (context, state) {
+            var mode = ThemeMode.system;
+            if (state.settings.theme == "Темная") {
+              mode = ThemeMode.dark;
+            } else if (state.settings.theme == "Светлая") {
+              mode = ThemeMode.light;
+            }
+            return MaterialApp(
+              darkTheme: darkTheme(context),
+              theme: lightTheme(context),
+              themeMode: mode,
+              title: 'КАСКАД',
+              debugShowCheckedModeBanner: false,
+              home: StoreConnector<AppState, User>(
+                  converter: (store) => store.state.user,
+                  builder: (context, user) {
+                    if (user == null) {
+                      return AuthPage();
+                    }
+                    return MainPage();
+                  }),
+              navigatorObservers: [MyRouteObserver()],
+            );
+          }),
     );
   }
 
   ThemeData lightTheme(BuildContext context) {
     return ThemeData(
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: ColorMain
-      ),
-      cupertinoOverrideTheme: CupertinoThemeData(
-        brightness: Brightness.light
-      ),
+      floatingActionButtonTheme:
+          FloatingActionButtonThemeData(backgroundColor: ColorMain),
+      cupertinoOverrideTheme: CupertinoThemeData(brightness: Brightness.light),
       accentColor: ColorMain,
       colorScheme: Theme.of(context).colorScheme.copyWith(
           primary: ColorMain,
@@ -129,12 +122,8 @@ class MyApp extends StatelessWidget {
   ThemeData darkTheme(BuildContext context) {
     return ThemeData(
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: ColorMain,
-        foregroundColor: Colors.white
-      ),
-      cupertinoOverrideTheme: CupertinoThemeData(
-        brightness: Brightness.dark
-      ),
+          backgroundColor: ColorMain, foregroundColor: Colors.white),
+      cupertinoOverrideTheme: CupertinoThemeData(brightness: Brightness.dark),
       accentColor: ColorMainLight,
       colorScheme: Theme.of(context).colorScheme.copyWith(
           primary: ColorMainLight,

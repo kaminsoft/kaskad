@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Models/intro.dart';
-import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:vibrate/vibrate.dart';
@@ -92,9 +91,6 @@ List<Intro> introList = [
           'Получайте и выполняйте поставленные задачи, не заходя в основной КАСКАД',
       image: 'assets/img/intro04.svg'),
 ];
-
-List<String> mainPageTutt = ['mp01','mp02'];
-List<String> kontragenTutt = ['kont01','kont02'];
 
 void call (String phone) {
   if (phone != null && phone.isNotEmpty) {

@@ -3,15 +3,12 @@ import 'dart:ui';
 
 import 'package:async_redux/async_redux.dart';
 import 'package:badges/badges.dart';
-import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
-import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Data/fcm.dart';
-import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
@@ -19,7 +16,6 @@ import 'package:mobile_kaskad/Structures/Feature.dart';
 import 'package:mobile_kaskad/Structures/News/news.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
 import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
-import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 import 'package:reorderables/reorderables.dart';
 
 import 'Data/Events.dart';
@@ -40,9 +36,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
-      FeatureDiscovery.discoverFeatures(context, mainPageTutt);
-    });
     Data.analytics.logLogin();
   }
 
@@ -111,10 +104,6 @@ class _MainPageState extends State<MainPage> {
                                     setState(() {
                                       editMode = true;
                                     });
-                                    FeatureDiscovery.discoverFeatures(
-                                      context,
-                                      <String>{mainPageTutt[1]},
-                                    );
                                   },
                                   child: Text('Редактировать'))
                             ],
@@ -143,11 +132,6 @@ class _MainPageState extends State<MainPage> {
                                           editMode = true;
                                         });
                                         vibrate();
-                                        Timer(
-                                            Duration(milliseconds: 500),
-                                            () => FeatureDiscovery
-                                                .discoverFeatures(
-                                                    context, mainPageTutt));
                                       },
                                 child: FeatureCard(
                                   feature: list[index],
@@ -165,115 +149,66 @@ class _MainPageState extends State<MainPage> {
                   color: Colors.transparent,
                   child: editMode
                       ? SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 5),
-                          child: DescribedFeatureOverlay(
-                              featureId: mainPageTutt[1],
-                              tapTarget: Text('OK',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .body1
-                                      .copyWith(fontWeight: FontWeight.bold)),
-                              backgroundColor: ColorMain,
-                              title: Text('Редактирование'),
-                              description: Column(
-                                children: <Widget>[
-                                  Text(
-                                    'В этом режиме можно менять местами карточки разделов, включать и выключать их.',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    'Чтобы упорядочить разделы просто нажмите на один из них и переместите на удобное вам место.',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  SizedBox(
-                                    height: 30,
-                                  ),
-                                ],
-                              ),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: MessageButton(
-                                    filed: true,
-                                    count: 0,
-                                    text: 'Завершить редактированиe',
-                                    onPressed: () {
-                                      setState(() {
-                                        editMode = false;
-                                      });
-                                      StoreProvider.dispatchFuture(
-                                          context, AfterEditFeatures());
-                                    }),
-                              ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: MessageButton(
+                                  filed: true,
+                                  count: 0,
+                                  text: 'Завершить редактированиe',
+                                  onPressed: () {
+                                    setState(() {
+                                      editMode = false;
+                                    });
+                                    StoreProvider.dispatchFuture(
+                                        context, AfterEditFeatures());
+                                  }),
                             ),
-                        ),
-                      )
-                      : DescribedFeatureOverlay(
-                          featureId: mainPageTutt[0],
-                          tapTarget: Text('OK',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          backgroundColor: ColorMain,
-                          title: Text('Добро пожаловать!'),
-                          description: Column(
-                            children: <Widget>[
-                              Text(
-                                'Это главный экран приложения. Здесь отображаются сообщения, объявления и доступные разделы, которыми можно управлять.',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                'Чтобы убрать ненужные разделы или поменять их местами, просто зажмите палец на разделе. Откроется режим редактирования разделами.',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ],
                           ),
-                          child: StoreConnector<AppState, Settings>(
-                            converter: (store) => store.state.settings,
-                            builder: (context, settings) {
-                              if (settings.bottomBar) {
-                                return SafeArea(
-                                  bottom: true,
-                                  top: false,
-                                  child:
-                                      StoreConnector<AppState, NewMessageCount>(
-                                    converter: (store) =>
-                                        store.state.messageCount,
-                                    builder: (context, messages) {
-                                      return Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: <Widget>[
-                                          Expanded(
-                                              child: MessageButton(
-                                            count: messages.message,
-                                            onPressed: () =>
-                                                Post.openList(context, false),
-                                            text: 'сообщения',
-                                          )),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Expanded(
-                                              child: MessageButton(
-                                            count: messages.post,
-                                            onPressed: () =>
-                                                Post.openList(context, true),
-                                            text: 'объявления',
-                                          )),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                );
-                              }
-                              return Container();
-                            },
-                          )),
+                        )
+                      : StoreConnector<AppState, Settings>(
+                          converter: (store) => store.state.settings,
+                          builder: (context, settings) {
+                            if (settings.bottomBar) {
+                              return SafeArea(
+                                bottom: true,
+                                top: false,
+                                child:
+                                    StoreConnector<AppState, NewMessageCount>(
+                                  converter: (store) =>
+                                      store.state.messageCount,
+                                  builder: (context, messages) {
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        Expanded(
+                                            child: MessageButton(
+                                          count: messages.message,
+                                          onPressed: () =>
+                                              Post.openList(context, false),
+                                          text: 'сообщения',
+                                        )),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Expanded(
+                                            child: MessageButton(
+                                          count: messages.post,
+                                          onPressed: () =>
+                                              Post.openList(context, true),
+                                          text: 'объявления',
+                                        )),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                            return Container();
+                          },
+                        ),
                 )
               ],
             ),
@@ -299,7 +234,7 @@ class _MainPageState extends State<MainPage> {
             cancelButton: CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.of(context).pop();
-                    Preferences.openItem(context);
+                  Preferences.openItem(context);
                 },
                 child: Text('Настройки')),
           );

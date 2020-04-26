@@ -9,6 +9,7 @@ class Preferences {
     return Settings(
       bottomBar: prefs.getBool("hideButtomBar") ?? true,
       theme: prefs.getString("theme") ?? "Системная",
+      remindOnBirthday: prefs.getBool("remindOnBirthday") ?? true,
     );
   }
 
@@ -16,6 +17,7 @@ class Preferences {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("hideButtomBar", settings.bottomBar);
     prefs.setString("theme", settings.theme);
+    prefs.setBool("remindOnBirthday", settings.remindOnBirthday);
   }
 
   static void openItem(BuildContext context) {

@@ -5,7 +5,6 @@ import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
-import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -220,7 +219,6 @@ class DBProvider {
   }
 
   Future<Woker> getWorker(String id) async {
-    Woker tmp = Woker();
     final db = await database;
     var res = await db.query("Woker", where: "guid = ?",whereArgs: [id] );
     if (res.isEmpty) {
