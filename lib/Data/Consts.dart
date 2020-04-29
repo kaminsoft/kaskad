@@ -1,6 +1,9 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flare_flutter/asset_provider.dart';
+import 'package:flare_flutter/provider/asset_flare.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Models/intro.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -15,6 +18,11 @@ class Data {
   static int dbVersion = 1;
   static bool showNews = false;
   static String token = "";
+  static List<AssetProvider> cachedAssets = [
+  AssetFlare(bundle: rootBundle, name: 'assets/img/etc/sparks.flr'),
+  AssetFlare(bundle: rootBundle, name: 'assets/img/etc/sparks2.flr'),
+  AssetFlare(bundle: rootBundle, name: 'assets/img/etc/cakes.flr')
+];
 }
 
 int getDBVersion() {
@@ -33,7 +41,6 @@ const Color ColorMiddle = Color(0xFF232227);
 const Color ColorDark = Color(0xFF303135);
 const Color ColorMain = Color(0xFF5167DC);
 const Color ColorMainLight = Color(0xFF9FB0FE);
-
 
 const BorderSide kDefaultRoundedBorderSideError = BorderSide(
   color: CupertinoDynamicColor.withBrightness(
@@ -54,15 +61,15 @@ const BorderSide kDefaultRoundedBorderSideSuccess = BorderSide(
 );
 
 String getAvatarLetter(String name) {
-    if (name.isEmpty) {
-      return "ХЗ";
-    }
-    var ret = name.split(" ");
-    if (ret.length >= 2) {
-      return "${ret[0][0]}${ret[1][0]}";
-    }
+  if (name.isEmpty) {
     return "ХЗ";
   }
+  var ret = name.split(" ");
+  if (ret.length >= 2) {
+    return "${ret[0][0]}${ret[1][0]}";
+  }
+  return "ХЗ";
+}
 
 void vibrate() async {
   // bool canVibrate = await Vibrate.canVibrate;
@@ -92,7 +99,7 @@ List<Intro> introList = [
       image: 'assets/img/intro04.svg'),
 ];
 
-void call (String phone) {
+void call(String phone) {
   if (phone != null && phone.isNotEmpty) {
     var num = phone.replaceAll('-', '');
     num = num.replaceAll('(', '');
@@ -102,13 +109,13 @@ void call (String phone) {
   }
 }
 
-void mailto (String mail) {
+void mailto(String mail) {
   if (mail != null && mail.isNotEmpty) {
     launch("mailto:$mail");
   }
 }
 
-void openURL (String url) {
+void openURL(String url) {
   launch(url);
 }
 

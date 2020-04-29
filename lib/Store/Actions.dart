@@ -47,6 +47,22 @@ class SetTheme extends ReduxAction<AppState> {
   }
 }
 
+class SetRemindOnBirthday extends ReduxAction<AppState> {
+  final bool remindOnBirthday;
+
+  SetRemindOnBirthday(this.remindOnBirthday);
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    newState.settings.remindOnBirthday = remindOnBirthday;
+    Preferences.saveSettings(newState.settings);
+    await Connection.sendToken();
+    return newState;
+  }
+}
+
+
 class SetSettings extends ReduxAction<AppState> {
   final Settings settings;
 

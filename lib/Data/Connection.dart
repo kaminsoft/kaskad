@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:async_redux/async_redux.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
@@ -8,8 +9,10 @@ import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 
 class Connection {
@@ -54,9 +57,10 @@ class Connection {
 
   static sendToken() async {
     User user = Data.curUser;
+    Settings settings = await Preferences.getSettings();
     try {
       final response = await http.get(
-        '$url/auth?token=${Data.token}',
+        '$url/auth?token=${Data.token}&birthday=${settings.remindOnBirthday}',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 

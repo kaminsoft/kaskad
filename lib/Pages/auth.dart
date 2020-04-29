@@ -58,20 +58,22 @@ class _AuthPageState extends State<AuthPage> {
               },
             ),
           ),
-          Padding(
-              padding: EdgeInsets.all(8),
-              child: SizedBox(
-                width: double.infinity,
-                child: CupertinoButton(
-                  color: ColorMain,
-                  child: Text('ВОЙТИ'),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => AuthNamePage()),
+          SafeArea(
+            child: Padding(
+                padding: EdgeInsets.all(8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: CupertinoButton(
+                    color: ColorMain,
+                    child: Text('ВОЙТИ'),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => AuthNamePage()),
+                    ),
                   ),
-                ),
-              ))
+                )),
+          )
         ],
       ),
     ));

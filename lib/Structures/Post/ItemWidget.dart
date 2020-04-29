@@ -25,7 +25,10 @@ class _ItemWidgetState extends State<ItemWidget> {
   bool isPublicite = true;
   Map<String, Widget> cacheWidgets = Map<String, Widget>();
 
-  loadMessage(String guid) async {
+  loadMessage(String guid, {bool updateList = false}) async {
+    if (updateList) {
+      await StoreProvider.dispatchFuture(context, LoadMessages(false));
+    }
     if (!cacheWidgets.containsKey(guid)) {
       msg = await Connection.getMessage(guid);
       if (!msg.isRead()) {
@@ -50,10 +53,10 @@ class _ItemWidgetState extends State<ItemWidget> {
             isPublicite = false;
           }
 
-          loadMessage(widget.id);
           if (initIndex == -1) {
             // этого сообщения нет в списке, оно открыто через push, просто обновим список
-            StoreProvider.dispatchFuture(context, LoadMessages(false));
+            loadMessage(widget.id, updateList: true);
+
             return Scaffold(
                 appBar: AppBar(
                   title: Text(
@@ -77,6 +80,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                   );
                 }));
           }
+          loadMessage(widget.id);
 
           PageController controller = PageController(initialPage: initIndex);
           return Scaffold(

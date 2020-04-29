@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
+import 'package:flare_flutter/flare_cache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +17,12 @@ import 'package:package_info/package_info.dart';
 
 import 'Data/Consts.dart';
 import 'Pages/auth.dart';
+
+Future<void> _warmupAnimations() async {
+  for (var item in Data.cachedAssets) {
+    await cachedActor(item);
+  }
+}
 
 class MyRouteObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
@@ -49,6 +56,8 @@ void main() async {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
   final store = Store<AppState>(initialState: await AppState.initState());
+  FlareCache.doesPrune = false;
+  await _warmupAnimations();
   runApp(MyApp(store: store));
 }
 
