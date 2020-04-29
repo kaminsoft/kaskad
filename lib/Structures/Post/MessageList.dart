@@ -1,4 +1,5 @@
 import 'package:async_redux/async_redux.dart';
+import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -341,7 +342,7 @@ class _MessageListState extends State<MessageList> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             FloatingActionButton(
-              heroTag: "filter",
+                heroTag: "filter",
                 onPressed: () => _openFilter(context),
                 child: Icon(
                   FontAwesomeIcons.filter,
@@ -355,7 +356,8 @@ class _MessageListState extends State<MessageList> {
                 child: FloatingActionButton(
                   heroTag: "readAll",
                   onPressed: () {
-                    StoreProvider.dispatchFuture(context, SetReadAll(widget.isPublicate));
+                    StoreProvider.dispatchFuture(
+                        context, SetReadAll(widget.isPublicate));
                   },
                   child: Icon(Icons.check_circle_outline),
                 )),
@@ -386,6 +388,7 @@ Widget itemCard(BuildContext context, Message msg) {
 
 Widget itemBody(BuildContext context, Message msg) {
   return ListTile(
+    selected: !msg.isRead(),
     leading: CircleAvatar(
       backgroundColor: Theme.of(context).colorScheme.onSurface,
       child: msg.toCount > 0
