@@ -15,9 +15,14 @@ class NewItemWidget extends StatefulWidget {
   final List<Recipient> to;
   final bool reSend;
   final bool isPublicate;
-  
 
-  const NewItemWidget({Key key, this.title, this.text, this.to, this.reSend, this.isPublicate = false})
+  const NewItemWidget(
+      {Key key,
+      this.title,
+      this.text,
+      this.to,
+      this.reSend,
+      this.isPublicate = false})
       : super(key: key);
 
   @override
@@ -89,19 +94,21 @@ class _NewItemWidgetState extends State<NewItemWidget> {
             ),
           )
         : Scaffold(
-            
             appBar: AppBar(
               title: DropdownButton<String>(
-                  style: TextStyle(fontSize: 20, color: Theme.of(context).textTheme.body1.color),
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Theme.of(context).textTheme.body1.color),
                   value: (isPublicate ? 'Объявление' : 'Сообщение'),
                   underline: Container(),
-                  items: <String>['Сообщение','Объявление'].map<DropdownMenuItem<String>>((String value){
+                  items: <String>['Сообщение', 'Объявление']
+                      .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
                     );
                   }).toList(),
-                  onChanged: (String newValue){
+                  onChanged: (String newValue) {
                     setState(() {
                       isPublicate = newValue == 'Объявление';
                     });
@@ -154,7 +161,9 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                               ? Text(
                                   "Выбрать получателей",
                                   style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurface,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
                                       decoration: TextDecoration.underline),
                                 )
                               : Container(),
@@ -169,7 +178,9 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                                   return Chip(
                                       label: Text(rcp.name),
                                       avatar: CircleAvatar(
-                                          backgroundColor: Theme.of(context).colorScheme.onSurface,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
                                           child: rcp.isGroup
                                               ? Icon(
                                                   Icons.folder,
@@ -209,7 +220,9 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Scrollbar(
                         child: TextFormField(
-                          autofocus: widget.text != null ? widget.text.isNotEmpty : false,
+                          autofocus: widget.text != null
+                              ? widget.text.isNotEmpty
+                              : false,
                           validator: (String val) {
                             if (val.isEmpty) {
                               return 'Введите текст';
@@ -273,6 +286,7 @@ class _RecipientListState extends State<RecipientList> {
   List<Recipient> tmp;
   List<Recipient> list;
   List<Recipient> filtered;
+  bool loading = false;
 
   @override
   void initState() {
@@ -285,16 +299,23 @@ class _RecipientListState extends State<RecipientList> {
   @override
   Widget build(BuildContext context) {
     if (list == null || list.length == 0) {
-      Connection.getRecipientList().then((val) => setState(() {
-            widget.list = val;
-            filtered = List<Recipient>.from(widget.list);
-            list = List<Recipient>.from(widget.list);
-          }));
+      if (!loading) {
+        loading = true;
+        Connection.getRecipientList().then((val) => setState(() {
+              loading = false;
+              widget.list = val;
+              filtered = List<Recipient>.from(widget.list);
+              list = List<Recipient>.from(widget.list);
+            }));
+      }
       return Center(child: CupertinoActivityIndicator());
     }
     return Column(
       children: <Widget>[
-        Text("Кому", style: TextStyle(fontSize: 18)),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text("Кому", style: TextStyle(fontSize: 18)),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: CupertinoTextField(
@@ -318,7 +339,6 @@ class _RecipientListState extends State<RecipientList> {
                   });
                 }
               },
-              
               decoration: BoxDecoration(
                 color: CupertinoDynamicColor.withBrightness(
                   color: CupertinoColors.white,
@@ -342,8 +362,45 @@ class _RecipientListState extends State<RecipientList> {
                 return ListTileTheme(
                   selectedColor: Colors.green,
                   child: ListTile(
-                    leading:
-                        rcp.isGroup ? Icon(Icons.folder) : Icon(Icons.person),
+                    onLongPress: rcp.isGroup
+                        ? () {
+                            showCupertinoModalPopup(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CupertinoActionSheet(
+                                    cancelButton: CupertinoActionSheetAction(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Отмена")),
+                                    actions: <Widget>[
+                                      CupertinoActionSheetAction(
+                                        child: Text('Отметить сотрудников группы'),
+                                        onPressed: () async {
+                                          List<String> ids =
+                                              await Connection.getUsersInList(
+                                                  rcp.guid);
+                                          List<Recipient> rcps = list
+                                              .where(
+                                                  (e) => ids.contains(e.guid))
+                                              .toList();
+                                          setState(() {
+                                            tmp.addAll(rcps);
+                                            if (tmp.indexOf(rcp) != -1) {
+                                              tmp.remove(rcp);
+                                            }
+                                          });
+                                          Navigator.of(context).pop();
+                                        },
+                                      )
+                                    ],
+                                  );
+                                });
+                          }
+                        : null,
+                    leading: rcp.isGroup
+                        ? Icon(Icons.folder)
+                        : Icon(CupertinoIcons.person_solid),
                     title: Text(rcp.name),
                     selected: tmp.indexOf(rcp) != -1,
                     onTap: () {

@@ -237,6 +237,28 @@ class Connection {
     return list;
   }
 
+  static Future<List<String>> getUsersInList(String listId) async {
+    List<String> list = List<String>();
+    User user = Data.curUser;
+    Logger.log('getting users in list');
+    try {
+      final response = await http.get(
+        '$url/message/usersinlist?list_id=$listId',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+      if (response.statusCode == 200) {
+        var parsedList = json.decode(response.body);
+        parsedList.forEach((item) {
+          list.add(item);
+        });
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return list;
+  }
+
   static Future<bool> sendMessage(Message msg) async {
     User user = Data.curUser;
     var body = {
