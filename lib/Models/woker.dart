@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -26,6 +28,15 @@ class Woker {
     return DateFormat('dd MMMM yyyy', 'ru').format(birthday);
   }
 
+  static List<Woker> listFromJSONString(String jsonString) {
+    var items = jsonDecode(jsonString);
+      List<Woker> workers = List<Woker>();
+      for (var item in items) {
+        workers.add(Woker.fromJSON(item));
+      }
+      return workers;
+  }
+
   factory Woker.fromJSON(Map<String, dynamic> json) {
     return Woker(
       guid: json["guid"],
@@ -35,7 +46,7 @@ class Woker {
       position: json["position"],
       subdivision: json["subdivision"],
       mobilePhone: json["mobilePhone"],
-      birthday: DateTime.parse(json["birthday"]),
+      birthday: json["birthday"] == null ? DateTime.now() : DateTime.parse(json["birthday"]),
       workPhone: json["workPhone"],
       internalPhone: json["internalPhone"],
       email: json["email"],

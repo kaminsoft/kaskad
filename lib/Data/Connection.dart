@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:async_redux/async_redux.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
@@ -8,8 +9,10 @@ import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
+import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
 
 class Connection {
@@ -54,9 +57,10 @@ class Connection {
 
   static sendToken() async {
     User user = Data.curUser;
+    Settings settings = await Preferences.getSettings();
     try {
       final response = await http.get(
-        '$url/auth?token=${Data.token}',
+        '$url/auth?token=${Data.token}&birthday=${settings.remindOnBirthday}',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
@@ -69,11 +73,9 @@ class Connection {
         user.position = userFields["position"];
         user.subdivision = userFields["subdivision"];
         DBProvider.db.updateUser(user);
-      }
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         Profile.logOut(mainWidgetKey.currentContext, close: false);
-      }
-      else {
+      } else {
         Logger.error(response.body);
       }
     } catch (e) {
@@ -108,20 +110,22 @@ class Connection {
     String _sent = sent == null ? '' : '&sent=$sent';
     try {
       final response = await http.get(
-        '$url/messages/inbox?isPublicate=$isPublicate' + _lastNum + _firstNum + _justNew + _sent,
+        '$url/messages/inbox?isPublicate=$isPublicate' +
+            _lastNum +
+            _firstNum +
+            _justNew +
+            _sent,
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
-        
-        if (response.body != "[]"){
+        if (response.body != "[]") {
           var parsedUsersList = json.decode(response.body);
           parsedUsersList.forEach((msg) {
             msgs.add(Message.fromJSON(msg));
           });
         }
-      }
-      else {
+      } else {
         Logger.error(response.body);
       }
     } catch (e) {
@@ -193,6 +197,24 @@ class Connection {
     return false;
   }
 
+  static Future<bool> setReadAll(bool isPublicate) async {
+    User user = Data.curUser;
+    try {
+      final response = await http.get(
+        '$url/messages/read/all?isPublicate=$isPublicate',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return false;
+  }
+
   static Future<List<Recipient>> getRecipientList() async {
     List<Recipient> list = List<Recipient>();
     User user = Data.curUser;
@@ -206,6 +228,28 @@ class Connection {
         var parsedList = json.decode(response.body);
         parsedList.forEach((item) {
           list.add(Recipient.fromJSON(item));
+        });
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return list;
+  }
+
+  static Future<List<String>> getUsersInList(String listId) async {
+    List<String> list = List<String>();
+    User user = Data.curUser;
+    Logger.log('getting users in list');
+    try {
+      final response = await http.get(
+        '$url/message/usersinlist?list_id=$listId',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+      if (response.statusCode == 200) {
+        var parsedList = json.decode(response.body);
+        parsedList.forEach((item) {
+          list.add(item);
         });
       }
     } catch (e) {

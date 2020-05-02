@@ -47,6 +47,22 @@ class SetTheme extends ReduxAction<AppState> {
   }
 }
 
+class SetRemindOnBirthday extends ReduxAction<AppState> {
+  final bool remindOnBirthday;
+
+  SetRemindOnBirthday(this.remindOnBirthday);
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    newState.settings.remindOnBirthday = remindOnBirthday;
+    Preferences.saveSettings(newState.settings);
+    await Connection.sendToken();
+    return newState;
+  }
+}
+
+
 class SetSettings extends ReduxAction<AppState> {
   final Settings settings;
 
@@ -127,6 +143,27 @@ class SetMessageRead extends ReduxAction<AppState> {
       tmp = newState.messages.firstWhere((m) => m.guid == msg.guid);
     }
     tmp.status = 'Прочитано';
+    return newState;
+  }
+}
+
+class SetReadAll extends ReduxAction<AppState> {
+  final bool isPublicate;
+
+  SetReadAll(this.isPublicate);
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    await Connection.setReadAll(isPublicate);
+    newState.messageCount.message = 0;
+    newState.messageCount.post = 0;
+    
+    if (isPublicate) {
+      newState.messagesP.where((m) => m.status != 'Прочитано').forEach((m) => m.status = 'Прочитано');
+    } else {
+      newState.messages.where((m) => m.status != 'Прочитано').forEach((m) => m.status = 'Прочитано');
+    }
     return newState;
   }
 }

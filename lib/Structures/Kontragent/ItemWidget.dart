@@ -188,7 +188,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
+                        padding: const EdgeInsets.only(left: 8.0, right: 10),
                         child: Text(secret.type.trim()),
                       ),
                     ],
@@ -207,36 +207,6 @@ class _ItemWidgetState extends State<ItemWidget> {
       ),
     );
   }
-
-  Widget _getContactUsers() {
-    if (kontragent.persons.isEmpty) {
-      return _emptyPersons();
-    }
-    return Column(
-      children: <Widget>[
-        Divider(),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: SizedBox(
-                height: 115,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: kontragent.persons.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    var person = kontragent.persons[index];
-                    return ContactUserCard(person: person);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-        Divider(),
-      ],
-    );
-  }
-
   Widget _emptyPersons() {
     return Column(
       children: <Widget>[
@@ -304,7 +274,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget _getINNKPP() {
     return SizedBox(
-      height: 50,
+      height: 50*MediaQuery.of(context).textScaleFactor,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: <Widget>[
@@ -318,7 +288,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget _getKontacts() {
     return SizedBox(
-      height: 50,
+      height: 50*MediaQuery.of(context).textScaleFactor,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: <Widget>[

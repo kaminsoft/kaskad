@@ -7,10 +7,9 @@ import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 import '../../Data/Connection.dart';
-import '../../Data/Connection.dart';
+
 import '../../Data/Consts.dart';
-import '../../Data/Consts.dart';
-import '../../Data/Database.dart';
+
 import '../../Data/Database.dart';
 
 class ListWidget extends StatefulWidget {
@@ -22,6 +21,7 @@ class _ListWidgetState extends State<ListWidget> {
   List<Woker> list;
   List<Woker> searchList;
   bool searchMode = false;
+  List<Woker> birthdayWorkers = List<Woker>();
   FocusNode focusNode = FocusNode();
   TextEditingController filter = TextEditingController();
 
@@ -34,6 +34,14 @@ class _ListWidgetState extends State<ListWidget> {
   void dispose() {
     focusNode.dispose();
     super.dispose();
+  }
+
+  void updateBirtdays(List<Woker> workers) async {
+    await DBProvider.db.saveWorkers(list);
+    var blist = await Wkr.getBirthdayWorkers(allWorkers: list);
+    setState((){
+      birthdayWorkers = blist;
+    });
   }
 
   @override
@@ -50,7 +58,7 @@ class _ListWidgetState extends State<ListWidget> {
               list = wokers;
               searchList = wokers;
             });
-            DBProvider.db.saveWorkers(list);
+            updateBirtdays(list);
           }
         });
       });
@@ -77,17 +85,18 @@ class _ListWidgetState extends State<ListWidget> {
                     });
                   } else {
                     setState(() {
-                      searchList = list.where((e) => e.name
-                          .toLowerCase()
-                          .startsWith(filter.text.toLowerCase()) ||
-                          
-                          e.position
-                          .toLowerCase()
-                          .startsWith(filter.text.toLowerCase()) || 
-                          
-                          e.subdivision
-                          .toLowerCase()
-                          .startsWith(filter.text.toLowerCase())).toList();
+                      searchList = list
+                          .where((e) =>
+                              e.name
+                                  .toLowerCase()
+                                  .startsWith(filter.text.toLowerCase()) ||
+                              e.position
+                                  .toLowerCase()
+                                  .startsWith(filter.text.toLowerCase()) ||
+                              e.subdivision
+                                  .toLowerCase()
+                                  .startsWith(filter.text.toLowerCase()))
+                          .toList();
                     });
                   }
                 },
@@ -131,6 +140,13 @@ class _ListWidgetState extends State<ListWidget> {
                     })
               ],
             ),
+      floatingActionButton: Visibility(
+          visible: birthdayWorkers.length > 0,
+          child: FloatingActionButton(
+            onPressed: () => Wkr.openBirthdayWidget(context, workers: birthdayWorkers),
+            backgroundColor: ColorMain,
+            child: Icon(Icons.cake),
+          )),
       body: Builder(builder: (context) {
         List workList = searchMode ? searchList : list;
         if (workList == null) {
@@ -162,7 +178,9 @@ class _ListWidgetState extends State<ListWidget> {
                     ),
                     title: Text(woker.shortName),
                     subtitle: Text("${woker.subdivision}\n${woker.position}"),
-                    trailing: Icon(Icons.chevron_right,),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                    ),
                     onTap: () => Wkr.openItem(context, woker),
                   ),
                 ),

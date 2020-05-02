@@ -1,9 +1,7 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
-import 'package:mobile_kaskad/Models/intro.dart';
 import 'package:mobile_kaskad/Pages/Auth/AuthNamePage.dart';
 
 class AuthPage extends StatefulWidget {
@@ -60,20 +58,22 @@ class _AuthPageState extends State<AuthPage> {
               },
             ),
           ),
-          Padding(
-              padding: EdgeInsets.all(8),
-              child: SizedBox(
-                width: double.infinity,
-                child: CupertinoButton(
-                  color: ColorMain,
-                  child: Text('ВОЙТИ'),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => AuthNamePage()),
+          SafeArea(
+            child: Padding(
+                padding: EdgeInsets.all(8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: CupertinoButton(
+                    color: ColorMain,
+                    child: Text('ВОЙТИ'),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => AuthNamePage()),
+                    ),
                   ),
-                ),
-              ))
+                )),
+          )
         ],
       ),
     ));

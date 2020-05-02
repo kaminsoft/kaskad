@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Structures/News/ItemWidget.dart';
 
 class News {

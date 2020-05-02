@@ -2,13 +2,11 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:async_redux/async_redux.dart';
-import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
-import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
@@ -33,16 +31,6 @@ class _KontragentListState extends State<KontragentList> {
   List list = [];
   bool loading = false;
   Timer timer;
-
-  @override
-  void initState() {
-    //FeatureDiscovery.clearPreferences(context, kontragenTutt);
-    FeatureDiscovery.discoverFeatures(
-      context,
-      <String>{kontragenTutt[0]},
-    );
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -112,48 +100,11 @@ class _KontragentListState extends State<KontragentList> {
               title: Text('Контрагенты'),
               centerTitle: true,
               actions: <Widget>[
-                DescribedFeatureOverlay(
-                  featureId: kontragenTutt[0],
-                  tapTarget: Icon(Icons.search, color: Theme.of(context).textTheme.body1.color,),
-                  backgroundColor: ColorMain,
-                  onDismiss: () async {
-                    FeatureDiscovery.completeCurrentStep(context);
-                    return true;
-                  },
-                  title: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Контрагенты',
-                        textAlign: TextAlign.right,
-                      )),
-                  description: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        'Здесь отображаются избранные контрагенты. Они доступны даже без подключения к сети.',
-                        style: TextStyle(fontSize: 14),
-                        textAlign: TextAlign.right,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Информацию по всем контрагентам можно получить по поиску. Нажмите на кнопку поиска для поиска контрагентов.',
-                        style: TextStyle(fontSize: 14),
-                        textAlign: TextAlign.right,
-                      ),
-                    ],
-                  ),
-                  onComplete: () async {
-                    _openSearch(context);
-                    return true;
-                  },
-                  child: IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: () {
-                        _openSearch(context);
-                      }),
-                )
+                IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () {
+                      _openSearch(context);
+                    })
               ],
             ),
       body: StoreConnector<AppState, List<Kontragent>>(
@@ -167,7 +118,14 @@ class _KontragentListState extends State<KontragentList> {
                     child: Text(
                       'Введите наименование, инн или код контрагента',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.body1.color.withAlpha(200),),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context)
+                            .textTheme
+                            .body1
+                            .color
+                            .withAlpha(200),
+                      ),
                     ),
                   ),
                 );
@@ -182,14 +140,16 @@ class _KontragentListState extends State<KontragentList> {
                   child: Text(
                     'Нет данных для отображения',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color:Theme.of(context).textTheme.body1.color.withAlpha(200)),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context)
+                            .textTheme
+                            .body1
+                            .color
+                            .withAlpha(200)),
                   ),
                 );
               }
-              FeatureDiscovery.discoverFeatures(
-                context,
-                <String>{kontragenTutt[1]},
-              );
               return Scrollbar(
                 child: ListView.builder(
                   itemCount: list.length,
@@ -314,7 +274,13 @@ class _ItemCardState extends State<ItemCard> {
                     quarterTurns: -1,
                     child: Text(
                       '${widget.kontragent.code}',
-                      style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150), fontSize: 12),
+                      style: TextStyle(
+                          color: Theme.of(context)
+                              .textTheme
+                              .body1
+                              .color
+                              .withAlpha(150),
+                          fontSize: 12),
                     ),
                   ),
                 ),
@@ -332,7 +298,13 @@ class _ItemCardState extends State<ItemCard> {
                       ),
                       Text(
                         '$inn',
-                        style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150), fontSize: 12),
+                        style: TextStyle(
+                            color: Theme.of(context)
+                                .textTheme
+                                .body1
+                                .color
+                                .withAlpha(150),
+                            fontSize: 12),
                       )
                     ],
                   ),
@@ -349,41 +321,11 @@ class _ItemCardState extends State<ItemCard> {
                                 icon: widget.active
                                     ? Icon(
                                         Icons.star,
-                                        color: Theme.of(context).colorScheme.onSurface,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
                                       )
-                                    : DescribedFeatureOverlay(
-                                        featureId: widget.showTut
-                                            ? kontragenTutt[1]
-                                            : 'NAN',
-                                        tapTarget: Icon(Icons.star_border),
-                                        backgroundColor: ColorMain,
-                                        contentLocation: ContentLocation.below,
-                                        title: Text('Избранное'),
-                                        onComplete: () async {
-                                          setState(() {
-                                            loading = true;
-                                          });
-                                          StoreProvider.dispatchFuture(
-                                                  context,
-                                                  AddKontragent(
-                                                      widget.kontragent))
-                                              .then((val) {
-                                            setState(() {
-                                              loading = false;
-                                            });
-                                          });
-                                          return true;
-                                        },
-                                        onDismiss: () async {
-                                          FeatureDiscovery.completeCurrentStep(
-                                              context);
-                                          return true;
-                                        },
-                                        description: Text(
-                                          'Нажмите для добавления контрагента в избранное, информация по контрагенту будет доступна даже без подключения к сети.',
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                        child: Icon(Icons.star_border)),
+                                    : Icon(Icons.star_border),
                                 onPressed: () async {
                                   setState(() {
                                     loading = true;
@@ -397,7 +339,9 @@ class _ItemCardState extends State<ItemCard> {
                                     loading = false;
                                   });
                                 })
-                        : Icon(Icons.chevron_right,),
+                        : Icon(
+                            Icons.chevron_right,
+                          ),
                   ],
                 )
               ],
@@ -437,7 +381,9 @@ Future deleteKontragent(Kontragent kontragent) async {
     isDismissible: true,
     duration: Duration(seconds: 7),
     dismissDirection: FlushbarDismissDirection.HORIZONTAL,
-    icon: Icon(Icons.close, color: Theme.of(kontragentListKey.currentContext).colorScheme.onSurface),
+    icon: Icon(Icons.close,
+        color:
+            Theme.of(kontragentListKey.currentContext).colorScheme.onSurface),
     // Show it with a cascading operator
   )..show(kontragentListKey.currentContext);
   // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Контрагент удален'),action: SnackBarAction(label: 'Отменить', onPressed: (){

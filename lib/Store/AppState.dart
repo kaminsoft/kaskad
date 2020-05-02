@@ -7,7 +7,6 @@ import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
 import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AppState {
 

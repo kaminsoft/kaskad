@@ -12,9 +12,9 @@ class Profile {
   static void logOut(context, {bool close = true}) async {
     Data.analytics.logEvent(name: 'logout');
     Connection.logOut();
-    await StoreProvider.dispatchFuture(context, LogOut());
     if (close) {
-      Navigator.of(context).pop();
+      Navigator.of(context).popUntil(ModalRoute.withName('/'));
     }
+    await StoreProvider.dispatchFuture(context, LogOut());
   }
 }

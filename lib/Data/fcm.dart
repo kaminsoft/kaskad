@@ -26,7 +26,8 @@ class FirebaseNotifications {
     return {
       'text': msg['text'],
       'title': msg['title'],
-      'id': msg['id']
+      'id': msg['id'],
+      'action': jsonDecode(msg['action'])
     };
   }
 
@@ -39,21 +40,29 @@ class FirebaseNotifications {
     if (!_isConfigured) {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
-          StoreProvider.dispatchFuture(context, UpdateMessageCount());
-
-          EventEmitter.publishSync(
-              "ShowSnakBarNewMessage", getMessageData(message));
+          processMessage(message, context, 'onMessage');
         },
         onResume: (Map<String, dynamic> message) async {
-          StoreProvider.dispatchFuture(context, UpdateMessageCount());
-          EventEmitter.publishSync("OpenInMessage",  getMessageData(message));
+          processMessage(message, context, 'onResume');
         },
         onLaunch: (Map<String, dynamic> message) async {
-          StoreProvider.dispatchFuture(context, UpdateMessageCount());
-          EventEmitter.publishSync("ShowSnakBarNewMessage",  getMessageData(message));
+          processMessage(message, context, 'onLaunch');
         },
       );
       _isConfigured = true;
+    }
+  }
+
+  void processMessage(Map<String, dynamic> message, BuildContext context, String event) {
+    var msgData = getMessageData(message);
+    if (msgData['action']['type'] == "new_message") {
+      var eventEm = event == "onResume" ? "OpenInMessage" : "ShowSnakBarNewMessage";
+      StoreProvider.dispatchFuture(context, UpdateMessageCount());
+      EventEmitter.publishSync(eventEm,  msgData);
+    }
+    if (msgData['action']['type'] == "birthday_reminder") {
+      var eventEm = event == "onResume" ? "OpenBirthday" : "ShowSnakBarBirthday";
+      EventEmitter.publishSync(eventEm,  msgData['action']['data']);
     }
   }
 

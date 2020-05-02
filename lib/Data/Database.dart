@@ -1,10 +1,10 @@
 import 'dart:io';
+import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
-import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -174,6 +174,8 @@ class DBProvider {
     }
   }
 
+  // kontragents
+
   Future<List<Kontragent>> getKontragents() async {
     List<Kontragent> tmp = List<Kontragent>();
     final db = await database;
@@ -198,6 +200,8 @@ class DBProvider {
     }
   }
 
+  // workers
+
   Future<List<Woker>> getWorkers() async {
     List<Woker> tmp = List<Woker>();
     final db = await database;
@@ -206,12 +210,24 @@ class DBProvider {
       return tmp;
     }
     for (var item in res) {
+      
       Woker kntr = Woker.fromJSON(item);
       if (!tmp.contains(kntr)) {
         tmp.add(kntr);
       }
     }
     return tmp;
+  }
+
+  Future<Woker> getWorker(String id) async {
+    final db = await database;
+    var res = await db.query("Woker", where: "guid = ?",whereArgs: [id] );
+    if (res.isEmpty) {
+      List<Woker> workers = await Connection.getWorkers();
+      saveWorkers(workers);
+      return workers.firstWhere((e) => e.guid == id);
+    }
+    return Woker.fromJSON(res.first);
   }
 
   saveWorkers(List<Woker> list) async {
@@ -221,4 +237,5 @@ class DBProvider {
       await db.insert("Woker", item.toJson());
     }
   }
+
 }
