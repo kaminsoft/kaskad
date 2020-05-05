@@ -21,27 +21,35 @@ class ItemWidget extends StatefulWidget {
 }
 
 class _ItemWidgetState extends State<ItemWidget> {
-  Message msg;
   int initIndex;
   List<Message> messages;
   bool isPublicite = true;
   bool updated = false;
   Map<String, Widget> cacheWidgets = Map<String, Widget>();
-
+  List<Message> cacheMessages = List<Message>();
+  Widget bottomBar;
+  
   loadMessage(String guid, {bool updateList = false}) async {
     if (updateList) {
       await StoreProvider.dispatchFuture(context, LoadMessages(false));
       updated = true;
     }
     if (!cacheWidgets.containsKey(guid)) {
-      msg = await Connection.getMessage(guid);
+      Message msg = await Connection.getMessage(guid);
       if (!msg.isRead()) {
         StoreProvider.dispatchFuture(context, SetMessageRead(msg));
       }
+      cacheMessages.add(msg);
       setState(() {
         cacheWidgets.addAll({guid: msgBody(context, msg)});
+        bottomBar = getBottomBar(context, msg);
       });
+    } else {
+      //setState(() {
+       // bottomBar = getBottomBar(context, messages.firstWhere((m) => m.guid == guid));
+      //});
     }
+
   }
 
   @override
@@ -78,9 +86,10 @@ class _ItemWidgetState extends State<ItemWidget> {
                     child: CupertinoActivityIndicator(),
                   );
                 }),
-                bottomNavigationBar: getBottomBar(context),
+                bottomNavigationBar: bottomBar,
                 );
           }
+
           loadMessage(widget.id);
 
           PageController controller = PageController(initialPage: initIndex);
@@ -94,8 +103,11 @@ class _ItemWidgetState extends State<ItemWidget> {
               body: PageView.builder(
                   controller: controller,
                   itemCount: messages.length,
-                  onPageChanged: (index) {
-                    loadMessage(messages[index].guid);
+                  onPageChanged: (index) async{
+                    await loadMessage(messages[index].guid);
+                    setState(() {
+                      bottomBar = getBottomBar(context, cacheMessages.firstWhere((m)=> m.guid == messages[index].guid));
+                    });
                     if (index == messages.length - 1) {
                       StoreProvider.dispatch(
                           context, UpdateMessages(isPublicite));
@@ -109,11 +121,11 @@ class _ItemWidgetState extends State<ItemWidget> {
                       child: CupertinoActivityIndicator(),
                     );
                   }),
-              bottomNavigationBar: getBottomBar(context));
+              bottomNavigationBar: bottomBar);
         });
   }
 
-  Widget getBottomBar(BuildContext context) {
+  Widget getBottomBar(BuildContext context, Message msg) {
     if (msg == null) {
       return Container();
     }
