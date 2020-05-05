@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
+import 'package:mobile_kaskad/Models/attachment.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Structures/Post/ItemWidget.dart';
 import 'package:mobile_kaskad/Structures/Post/MessageList.dart';
@@ -20,7 +22,7 @@ class Post {
 
   static void openList(BuildContext context, bool isPublicate) {
     Navigator.of(context).push(MaterialPageRoute(
-      settings: RouteSettings(
+        settings: RouteSettings(
           name: isPublicate ? 'Объявления' : 'Сообщения',
         ),
         builder: (ctx) => MessageList(
@@ -35,7 +37,7 @@ class Post {
       bool reSend,
       bool isPublicate}) {
     Navigator.of(context).push(MaterialPageRoute(
-      settings: RouteSettings(
+        settings: RouteSettings(
           name: 'Новое сообщение',
         ),
         builder: (ctx) => NewItemWidget(
@@ -112,6 +114,54 @@ class Post {
                       child: Text("Ответить всем"))
                   : Container(),
             ],
+          );
+        });
+  }
+
+  static void showAttachments(BuildContext context, Message msg) {
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (ctx) {
+          return Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    "Вложения",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                Expanded(
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      itemCount: msg.attachments.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Attachment attachment = msg.attachments[index];
+                        Icon icon = Icon(Icons.insert_drive_file);
+                        if (attachment.type == "HTTP") {
+                          icon = Icon(Icons.insert_link);
+                        } else if (attachment.type.startsWith("Справочник")) {
+                          icon = Icon(Icons.featured_play_list);
+                        }
+                        return ListTile(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            attachment.open(context);
+                          },
+                          leading: icon,
+                          title: Text(attachment.name),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         });
   }

@@ -13,7 +13,7 @@ class Recipient {
 
   static List<Recipient> getDevs() {
     var res = List<Recipient>();
-    res.add(Recipient(guid: "0668986c-13d9-11e4-5693-0025900ed684", name: "Разработчики КАСКАДА", isGroup: false));
+    res.add(Recipient(guid: "0668986c-13d9-11e4-5693-0025900ed684", name: "Разработчики КАСКАД", isGroup: false));
     return res;
   }
 
