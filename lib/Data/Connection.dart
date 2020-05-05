@@ -393,4 +393,27 @@ class Connection {
 
     return list;
   }
+
+  static Future<Map<String, dynamic>> getCustomLink(String type, String id) async {
+    User user = Data.curUser;
+    Logger.log('getting Workers');
+    try {
+      final response = await http.get(
+        '$url/link?type=$type&id=$id',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        Logger.warning(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return null;
+  }
+
+
 }

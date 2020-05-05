@@ -66,7 +66,7 @@ class _ItemWidgetState extends State<ItemWidget> {
     );
   }
 
-  Widget _labeledWidget(String value, String lable) {
+  Widget _labeledWidget(String value, String label) {
     String _value = value == null || value.isEmpty ? 'Не указан' : value;
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -74,9 +74,9 @@ class _ItemWidgetState extends State<ItemWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Visibility(
-            visible: lable.isNotEmpty,
+            visible: label.isNotEmpty,
             child: Text(
-              lable,
+              label,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

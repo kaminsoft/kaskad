@@ -1,6 +1,7 @@
 
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_kaskad/Models/attachment.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
 
 class Message {
@@ -14,6 +15,7 @@ class Message {
   String status;
   List<LinkItem> to;
   int toCount;
+  List<Attachment> attachments;
 
   bool operator ==(other)  => other.guid == guid;
 
@@ -76,7 +78,8 @@ class Message {
       this.isPublicite,
       this.status,
       this.to,
-      this.toCount});
+      this.toCount,
+      this.attachments});
 
   factory Message.fromJSON(Map<String, dynamic> _json) {
     List<dynamic> _to = _json['to'];
@@ -84,6 +87,14 @@ class Message {
     if (_to != null) {
       for (var item in _to) {
         to.add(LinkItem.fromJSON(item));
+      }
+    }
+
+    List<dynamic> _att = _json['attachments'];
+    List<Attachment> att = List<Attachment>();
+    if (_att != null) {
+      for (var item in _att) {
+        att.add(Attachment.fromJSON(item));
       }
     }
 
@@ -98,6 +109,7 @@ class Message {
       status: _json['status'],
       to: to,
       toCount: _json['toCount'] ?? 0,
+      attachments: att,
     );
   }
 
@@ -112,6 +124,7 @@ class Message {
         "status": status ?? '',
         "to": to.map((t) => t.toJson()).toList(),
         "toCount": toCount ?? 0,
+        "attachments": attachments.map((t) => t.toJson()).toList(),
       };
 }
 

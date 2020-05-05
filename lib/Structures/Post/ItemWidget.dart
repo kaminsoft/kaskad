@@ -1,9 +1,11 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
+import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
@@ -23,11 +25,13 @@ class _ItemWidgetState extends State<ItemWidget> {
   int initIndex;
   List<Message> messages;
   bool isPublicite = true;
+  bool updated = false;
   Map<String, Widget> cacheWidgets = Map<String, Widget>();
 
   loadMessage(String guid, {bool updateList = false}) async {
     if (updateList) {
       await StoreProvider.dispatchFuture(context, LoadMessages(false));
+      updated = true;
     }
     if (!cacheWidgets.containsKey(guid)) {
       msg = await Connection.getMessage(guid);
@@ -55,7 +59,9 @@ class _ItemWidgetState extends State<ItemWidget> {
 
           if (initIndex == -1) {
             // этого сообщения нет в списке, оно открыто через push, просто обновим список
-            loadMessage(widget.id, updateList: true);
+            if (!updated) {
+              loadMessage(widget.id, updateList: true);
+            }
 
             return Scaffold(
                 appBar: AppBar(
@@ -63,13 +69,6 @@ class _ItemWidgetState extends State<ItemWidget> {
                     isPublicite ? 'Объявление' : 'Cообщение',
                   ),
                   centerTitle: true,
-                  actions: <Widget>[
-                    IconButton(
-                        icon: Icon(Icons.more_vert),
-                        onPressed: () {
-                          Post.showContextMenu(context, msg);
-                        })
-                  ],
                 ),
                 body: Builder(builder: (ctx) {
                   if (cacheWidgets.containsKey(widget.id)) {
@@ -78,45 +77,103 @@ class _ItemWidgetState extends State<ItemWidget> {
                   return Center(
                     child: CupertinoActivityIndicator(),
                   );
-                }));
+                }),
+                bottomNavigationBar: getBottomBar(context),
+                );
           }
           loadMessage(widget.id);
 
           PageController controller = PageController(initialPage: initIndex);
           return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                isPublicite ? 'Объявление' : 'Cообщение',
+              appBar: AppBar(
+                title: Text(
+                  isPublicite ? 'Объявление' : 'Cообщение',
+                ),
+                centerTitle: true,
               ),
-              centerTitle: true,
-              actions: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.more_vert),
-                    onPressed: () {
-                      Post.showContextMenu(context, msg);
-                    })
-              ],
-            ),
-            body: PageView.builder(
-                controller: controller,
-                itemCount: messages.length,
-                onPageChanged: (index) {
-                  loadMessage(messages[index].guid);
-                  if (index == messages.length - 1) {
-                    StoreProvider.dispatch(
-                        context, UpdateMessages(isPublicite));
-                  }
-                },
-                itemBuilder: (ctx, index) {
-                  if (cacheWidgets.containsKey(messages[index].guid)) {
-                    return cacheWidgets[messages[index].guid];
-                  }
-                  return Center(
-                    child: CupertinoActivityIndicator(),
-                  );
-                }),
-          );
+              body: PageView.builder(
+                  controller: controller,
+                  itemCount: messages.length,
+                  onPageChanged: (index) {
+                    loadMessage(messages[index].guid);
+                    if (index == messages.length - 1) {
+                      StoreProvider.dispatch(
+                          context, UpdateMessages(isPublicite));
+                    }
+                  },
+                  itemBuilder: (ctx, index) {
+                    if (cacheWidgets.containsKey(messages[index].guid)) {
+                      return cacheWidgets[messages[index].guid];
+                    }
+                    return Center(
+                      child: CupertinoActivityIndicator(),
+                    );
+                  }),
+              bottomNavigationBar: getBottomBar(context));
         });
+  }
+
+  Widget getBottomBar(BuildContext context) {
+    if (msg == null) {
+      return Container();
+    }
+    return CupertinoTabBar(
+      onTap: (index) {
+        switch (index) {
+          case 0: // reply
+            List<Recipient> to = List<Recipient>();
+            to.add(msg.from.toRecipient());
+            Post.newItem(context,
+                text: '\n\n=== Пересылаемое сообщение === \n${msg.text}',
+                title: 'RE: ${msg.title}',
+                to: to,
+                isPublicate: msg.isPublicite);
+            break;
+          case 1: // reply all
+            List<Recipient> to = msg.to.map((e) => e.toRecipient()).toList();
+            to.add(msg.from.toRecipient());
+            Post.newItem(context,
+                text: '\n\n=== Пересылаемое сообщение === \n${msg.text}',
+                title: 'RE: ${msg.title}',
+                to: to,
+                isPublicate: msg.isPublicite);
+            break;
+          case 2: // resend
+            Post.newItem(context,
+                text: '\n\n=== Пересылаемое сообщение === \n${msg.text}',
+                title: 'FW: ${msg.title}',
+                reSend: true,
+                isPublicate: msg.isPublicite);
+            break;
+          case 3: // attachments
+            Post.showAttachments(context, msg);
+            break;
+          default:
+        }
+      },
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      activeColor: Theme.of(context).textTheme.caption.color,
+      inactiveColor: Theme.of(context).textTheme.caption.color,
+      iconSize: 24,
+      items: getBottomItems(msg),
+    );
+  }
+
+  List<BottomNavigationBarItem> getBottomItems(Message msg) {
+    List<BottomNavigationBarItem> res = [
+      BottomNavigationBarItem(
+          title: Text('Ответить'), icon: Icon(FontAwesomeIcons.reply)),
+      BottomNavigationBarItem(
+          title: Text('Ответить всем'), icon: Icon(FontAwesomeIcons.replyAll)),
+      BottomNavigationBarItem(
+          title: Text('Переслать'), icon: Icon(FontAwesomeIcons.share)),
+    ];
+
+    if (msg.attachments.length > 0) {
+      res.add(BottomNavigationBarItem(
+          title: Text('Вложения'), icon: Icon(FontAwesomeIcons.paperclip)));
+    }
+    return res;
   }
 
   Widget msgBody(BuildContext context, Message inMsg) {

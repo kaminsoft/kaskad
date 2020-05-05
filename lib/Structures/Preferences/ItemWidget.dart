@@ -93,7 +93,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                         onTap: () {
                           Post.newItem(context,
                               title: "Мобильный КАСКАД",
-                              text: Logger.getLog(),
+                              text: "",
                               to: Recipient.getDevs());
                         },
                       ),
