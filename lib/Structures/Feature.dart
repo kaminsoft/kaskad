@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Pages/underConstruction.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
+import 'package:mobile_kaskad/Structures/Tasks/Task.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 typedef PressCallback = void Function(BuildContext context, {String feature});
@@ -56,12 +57,12 @@ List<Feature> getInitialFeatureList() {
         enabled: true,
         name: 'Контрагенты',
         image: 'assets/img/cards/kontragent.png',
-        onPressed: (ctx, {feature}) => Kontr.openList(ctx)),
+        onPressed: (ctx, {feature}) => KontragentHelper.openList(ctx)),
     Feature(
         enabled: true,
         name: 'Сотрудники',
         image: 'assets/img/cards/sotrudnik.png',
-        onPressed: (ctx, {feature}) => Wkr.openList(ctx)),
+        onPressed: (ctx, {feature}) => WorkerHelper.openList(ctx)),
     Feature(
         name: 'Сообщения',
         image: 'assets/img/cards/post01.png',
@@ -75,7 +76,7 @@ List<Feature> getInitialFeatureList() {
     Feature(
         name: 'Задачи',
         image: 'assets/img/cards/task.png',
-        onPressed: _wip),
+        onPressed: (ctx, {feature}) => TaskHelper.openList(ctx)),
     Feature(
         name: 'Контакты',
         image: 'assets/img/cards/contact.png',

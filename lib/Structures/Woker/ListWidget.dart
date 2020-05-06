@@ -38,7 +38,7 @@ class _ListWidgetState extends State<ListWidget> {
 
   void updateBirtdays(List<Woker> workers) async {
     await DBProvider.db.saveWorkers(list);
-    var blist = await Wkr.getBirthdayWorkers(allWorkers: list);
+    var blist = await WorkerHelper.getBirthdayWorkers(allWorkers: list);
     setState((){
       birthdayWorkers = blist;
     });
@@ -143,7 +143,7 @@ class _ListWidgetState extends State<ListWidget> {
       floatingActionButton: Visibility(
           visible: birthdayWorkers.length > 0,
           child: FloatingActionButton(
-            onPressed: () => Wkr.openBirthdayWidget(context, workers: birthdayWorkers),
+            onPressed: () => WorkerHelper.openBirthdayWidget(context, workers: birthdayWorkers),
             backgroundColor: ColorMain,
             child: Icon(Icons.cake),
           )),
@@ -181,7 +181,7 @@ class _ListWidgetState extends State<ListWidget> {
                     trailing: Icon(
                       Icons.chevron_right,
                     ),
-                    onTap: () => Wkr.openItem(context, woker),
+                    onTap: () => WorkerHelper.openItem(context, woker),
                   ),
                 ),
               );

@@ -260,7 +260,7 @@ class _ItemCardState extends State<ItemCard> {
       child: Card(
         child: InkWell(
           onTap: () {
-            Kontr.openItem(context,
+            KontragentHelper.openItem(context,
                 widget.active ? widget.cashedKontragent : widget.kontragent);
           },
           child: Padding(

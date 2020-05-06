@@ -17,7 +17,7 @@ class Events {
 
      EventEmitter.subscribe('OpenBirthday', (data) {
       Data.analytics.logEvent(name: 'open_birthday_push');
-      Wkr.openBirthdayWidget(context, workers: Woker.listFromJSONString(data));
+      WorkerHelper.openBirthdayWidget(context, workers: Woker.listFromJSONString(data));
     });
     
     EventEmitter.subscribe('ShowSnakBarNewMessage', (data) {
@@ -74,7 +74,7 @@ class Events {
           onPressed: () {
             Data.analytics.logEvent(name: 'open_birthday_snak');
             Navigator.of(context).pop();
-            Wkr.openBirthdayWidget(context, workers: workers);
+            WorkerHelper.openBirthdayWidget(context, workers: workers);
           },
         ),
         animationDuration: Duration(milliseconds: 500),

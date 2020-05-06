@@ -8,6 +8,7 @@ import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
+import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -394,7 +395,8 @@ class Connection {
     return list;
   }
 
-  static Future<Map<String, dynamic>> getCustomLink(String type, String id) async {
+  static Future<Map<String, dynamic>> getCustomLink(
+      String type, String id) async {
     User user = Data.curUser;
     Logger.log('getting Workers');
     try {
@@ -415,5 +417,30 @@ class Connection {
     return null;
   }
 
+  static Future<List<LinkItem>> getListPiker(String type,
+      {String query="", String last="", String fields="", int length=100, LinkItem owner}) async {
+    List<LinkItem> list = List<LinkItem>();
+    User user = Data.curUser;
+    Logger.log('getting picker list');
+    String _owner = owner == null ? "" : json.encode(owner);
+    try {
+      final response = await http.get(
+        '$url/picker?query=$query&type=$type&last=$last&fields=$fields&length=$length&owner=$_owner',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
+      if (response.statusCode == 200) {
+        var parsedList = json.decode(response.body);
+        parsedList.forEach((item) {
+          list.add(LinkItem.fromJSON(item));
+        });
+      } else {
+        Logger.warning(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return list;
+  }
 }

@@ -206,7 +206,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                 style: TextStyle(fontSize: 14),
               ),
               GestureDetector(
-                onTap: () => Wkr.openItemById(context, inMsg.from.guid),
+                onTap: () => WorkerHelper.openItemById(context, inMsg.from.guid),
                 child: Chip(
                   label: Text(inMsg.from.name),
                   avatar: CircleAvatar(
@@ -249,7 +249,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                                       itemBuilder:
                                           (BuildContext context, int index) {
                                         return ListTile(
-                                          onTap: () => Wkr.openItemById(
+                                          onTap: () => WorkerHelper.openItemById(
                                               context, inMsg.to[index].guid),
                                           title: Text(inMsg.to[index].name),
                                         );
@@ -291,7 +291,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Wkr.openItemById(context, inMsg.to.first.guid);
+                            WorkerHelper.openItemById(context, inMsg.to.first.guid);
                           },
                           child: Chip(
                             label: Text(inMsg.to.first.name),
