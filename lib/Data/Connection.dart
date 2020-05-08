@@ -398,7 +398,7 @@ class Connection {
   static Future<Map<String, dynamic>> getCustomLink(
       String type, String id) async {
     User user = Data.curUser;
-    Logger.log('getting Workers');
+    Logger.log('getting $type');
     try {
       final response = await http.get(
         '$url/link?type=$type&id=$id',

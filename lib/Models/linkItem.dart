@@ -8,10 +8,13 @@ class LinkItem {
   String type;
   List<CustomField> fields;
 
-  LinkItem({this.guid, this.name, this.type, this.fields});
+  LinkItem({this.guid="", this.name="Не задано", this.type, this.fields});
 
   bool operator ==(other)  => other.guid == guid && other.type == type;
 
+  bool get isEmpty => guid.isEmpty;
+  bool get isNotEmpty => guid.isNotEmpty;
+  
   factory LinkItem.fromJSON(Map<String, dynamic> json) {
     List<dynamic> _fields = json['fields'];
     List<CustomField> fields = List<CustomField>();

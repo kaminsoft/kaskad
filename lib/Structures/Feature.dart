@@ -74,6 +74,7 @@ List<Feature> getInitialFeatureList() {
         isPublicate: true,
         onPressed: (ctx, {feature}) => Post.openList(ctx, true,)),
     Feature(
+        enabled: true,
         name: 'Задачи',
         image: 'assets/img/cards/task.png',
         onPressed: (ctx, {feature}) => TaskHelper.openList(ctx)),
