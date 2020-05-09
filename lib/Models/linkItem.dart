@@ -16,6 +16,7 @@ class LinkItem {
   bool get isNotEmpty => guid.isNotEmpty;
   
   factory LinkItem.fromJSON(Map<String, dynamic> json) {
+    if (json == null) {return LinkItem();}
     List<dynamic> _fields = json['fields'];
     List<CustomField> fields = List<CustomField>();
     if (_fields != null) {

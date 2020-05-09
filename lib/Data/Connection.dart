@@ -11,6 +11,7 @@ import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
+import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
@@ -418,7 +419,11 @@ class Connection {
   }
 
   static Future<List<LinkItem>> getListPiker(String type,
-      {String query="", String last="", String fields="", int length=100, LinkItem owner}) async {
+      {String query = "",
+      String last = "",
+      String fields = "",
+      int length = 100,
+      LinkItem owner}) async {
     List<LinkItem> list = List<LinkItem>();
     User user = Data.curUser;
     Logger.log('getting picker list');
@@ -442,5 +447,63 @@ class Connection {
     }
 
     return list;
+  }
+
+  static Future<List<Task>> getTasks(
+      {bool forMe = false,
+      String status = '',
+      String last = "",
+      LinkItem kontragent,
+      LinkItem theme,
+      LinkItem group,
+      LinkItem executer}) async {
+    List<Task> list = List<Task>();
+    User user = Data.curUser;
+    Logger.log('getting Tasks');
+    var _kontragent = kontragent == null ? '' : kontragent?.toJson();
+    var _theme = theme == null ? '' : theme?.toJson();
+    var _group = group == null ? '' : group?.toJson();
+    var _executer = executer == null ? '' : executer?.toJson();
+    try {
+      final response = await http.get(
+        '$url/tasks?forMe=$forMe&status=$status&last=$last&kontragent=$_kontragent&theme=$_theme&group=$_group&executor=$_executer',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = jsonDecode(response.body);
+        parsedList.forEach((item) {
+          list.add(Task.fromJSON(item));
+        });
+      } else {
+        Logger.warning(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e.toString());
+    }
+
+    return list;
+  }
+
+  static Future<Task> getTask(String guid) async {
+    Task task = Task();
+    Logger.log('getting task');
+    User user = Data.curUser;
+    try {
+      final response = await http.get(
+        '$url/tasks/$guid',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        task = Task.fromJSON(json.decode(response.body));
+      } else {
+        Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return task;
   }
 }
