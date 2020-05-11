@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Pages/underConstruction.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
-import 'package:mobile_kaskad/Structures/Tasks/Task.dart';
+import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 typedef PressCallback = void Function(BuildContext context, {String feature});

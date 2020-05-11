@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/attachment.dart';
 
@@ -6,22 +7,29 @@ class LinkItem {
   String guid;
   String name;
   String type;
-  List<CustomField> fields;
+  List<CustomField> fields = [];
 
-  LinkItem({this.guid="", this.name="Не задано", this.type, this.fields});
+  LinkItem({this.guid = "", this.name = "Не задано", this.type, this.fields});
 
-  bool operator ==(other)  => other.guid == guid && other.type == type;
+  bool operator ==(other) => other.guid == guid && other.type == type;
 
-  bool get isEmpty => guid.isEmpty;
-  bool get isNotEmpty => guid.isNotEmpty;
-  
+  bool get isEmpty =>
+      guid.isEmpty || guid == '00000000-0000-0000-0000-000000000000';
+  bool get isNotEmpty =>
+      guid.isNotEmpty && guid != '00000000-0000-0000-0000-000000000000';
+
   factory LinkItem.fromJSON(Map<String, dynamic> json) {
-    if (json == null) {return LinkItem();}
-    List<dynamic> _fields = json['fields'];
+    if (json == null) {
+      return LinkItem();
+    }
+
     List<CustomField> fields = List<CustomField>();
-    if (_fields != null) {
-      for (var item in _fields) {
-        fields.add(CustomField.fromJSON(item));
+    if (json['fields'] is List<dynamic>) {
+      List<dynamic> _fields = json['fields'];
+      if (_fields != null) {
+        for (var item in _fields) {
+          fields.add(CustomField.fromJSON(item));
+        }
       }
     }
 
@@ -49,8 +57,14 @@ class LinkItem {
         "guid": guid,
         "name": name,
         "type": type,
-        "fields": fields.map((t) => t.toJson()).toList(),
+        "fields":
+            fields == null ? 'null' : fields.map((t) => t.toJson()).toList(),
       };
+
+  @override
+  String toString() {
+    return name.isNotEmpty ? name : 'Не указано';
+  }
 }
 
 class CustomField {

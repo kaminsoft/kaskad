@@ -23,6 +23,7 @@ class _PickerWidgetState extends State<PickerWidget> {
   TextEditingController filter = TextEditingController();
   Timer timer;
   bool loading = true;
+  bool updating = false;
   String fields;
   LinkItem selected;
   bool listEnded = false;
@@ -53,7 +54,7 @@ class _PickerWidgetState extends State<PickerWidget> {
     if (list.length > 0) {
       last = list.last.name;
     }
-    loading = true;
+    updating = true;
     var newlist = await Connection.getListPiker(widget.type,
         fields: fields,
         query: filter.text,
@@ -66,7 +67,7 @@ class _PickerWidgetState extends State<PickerWidget> {
     setState(() {
       list.addAll(newlist);
     });
-    loading = false;
+    updating = false;
   }
 
   @override
@@ -84,7 +85,7 @@ class _PickerWidgetState extends State<PickerWidget> {
                 padding: EdgeInsets.all(10),
                 textAlign: TextAlign.center,
                 placeholder: "Поиск",
-                style: Theme.of(context).textTheme.body1,
+                style: Theme.of(context).textTheme.bodyText1,
                 onChanged: (text) {
                   if (timer != null) {
                     timer.cancel();
@@ -126,7 +127,7 @@ class _PickerWidgetState extends State<PickerWidget> {
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (ScrollNotification scrollInfo) {
                         if (!listEnded &&
-                            !loading &&
+                            !updating &&
                             scrollInfo.metrics.pixels >=
                                 scrollInfo.metrics.maxScrollExtent - 200 &&
                             scrollInfo.metrics.pixels <=

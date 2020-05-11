@@ -460,13 +460,14 @@ class Connection {
     List<Task> list = List<Task>();
     User user = Data.curUser;
     Logger.log('getting Tasks');
-    var _kontragent = kontragent == null ? '' : kontragent?.toJson();
-    var _theme = theme == null ? '' : theme?.toJson();
-    var _group = group == null ? '' : group?.toJson();
-    var _executer = executer == null ? '' : executer?.toJson();
+    var _kontragent = kontragent == null || kontragent.isEmpty ? '' : jsonEncode(kontragent?.toJson());
+    var _theme = theme == null || theme.isEmpty ? '' : jsonEncode(theme?.toJson());
+    var _group = group == null || group.isEmpty ? '' : jsonEncode(group?.toJson());
+    var _executer = executer == null || executer.isEmpty ? '' : jsonEncode(executer?.toJson());
+    status = status == 'все' ? '' : status;
     try {
       final response = await http.get(
-        '$url/tasks?forMe=$forMe&status=$status&last=$last&kontragent=$_kontragent&theme=$_theme&group=$_group&executor=$_executer',
+        '$url/tasks?forMe=$forMe&status=$status&lastNum=$last&kontragent=$_kontragent&theme=$_theme&group=$_group&executor=$_executer',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 

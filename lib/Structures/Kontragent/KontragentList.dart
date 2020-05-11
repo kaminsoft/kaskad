@@ -277,7 +277,7 @@ class _ItemCardState extends State<ItemCard> {
                       style: TextStyle(
                           color: Theme.of(context)
                               .textTheme
-                              .body1
+                              .bodyText1
                               .color
                               .withAlpha(150),
                           fontSize: 12),
@@ -301,7 +301,7 @@ class _ItemCardState extends State<ItemCard> {
                         style: TextStyle(
                             color: Theme.of(context)
                                 .textTheme
-                                .body1
+                                .bodyText1
                                 .color
                                 .withAlpha(150),
                             fontSize: 12),

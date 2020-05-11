@@ -3,6 +3,9 @@ import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerForm.dart';
 
 class ItemWidget extends StatefulWidget {
+  final String guid;
+
+  const ItemWidget({Key key, @required this.guid}) : super(key: key);
   @override
   _ItemWidgetState createState() => _ItemWidgetState();
 }

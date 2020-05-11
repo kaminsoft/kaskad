@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 
@@ -89,15 +90,40 @@ class _PikerFieldState extends State<PikerField> {
             ),
             Visibility(
               visible: value.isNotEmpty,
-              child: InkWell(
-                  onTap: () {
-                    value.open(context);
-                  },
-                  child: Icon(
-                    FontAwesomeIcons.clone,
-                    size: 15,
-                    color: Theme.of(context).iconTheme.color.withOpacity(0.5),
-                  )),
+              child: Row(
+                children: <Widget>[
+                  Visibility(
+                    visible: !widget.readOnly,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          widget.controller.value = LinkItem();
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 13),
+                        child: Icon(
+                          FontAwesomeIcons.times,
+                          size: 15,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                      onTap: () {
+                        value.open(context);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 13),
+                        child: Icon(
+                          FontAwesomeIcons.clone,
+                          size: 15,
+                          color: ColorMain,
+                        ),
+                      )),
+                ],
+              ),
             ),
           ],
         ),
