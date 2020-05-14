@@ -20,7 +20,9 @@ class NewVersion {
               height: 30,
             ),
             Text(
-              version == Data.version ? "Версия $version (текущая)" : "Версия $version",
+              version == Data.version
+                  ? "Версия $version (текущая)"
+                  : "Версия $version",
               style: Theme.of(mainWidgetKey.currentContext).textTheme.title,
             ),
           ],
@@ -129,6 +131,10 @@ class _ItemWidgetState extends State<ItemWidget> {
   bool showAll = false;
 
   var versions = [
+    NewVersion(version: "0.0.5", features: [
+      FeatureDescriber("Сообщения",
+          "Команда прочитать все сообщения перемещена в фильтры, добавлен вопрос для подтверждения прочтения"),
+    ], bugs: []),
     NewVersion(version: "0.0.4", features: [
       FeatureDescriber("Пролистование сообщений",
           "Теперь можно свайпать вправо/влево для пролистывания сообщений и объявлений. Нет необходимости возвращаться в список, чтобы открыть новое сообщение"),
@@ -164,8 +170,8 @@ class _ItemWidgetState extends State<ItemWidget> {
     ], bugs: [
       FeatureDescriber("Сообщения",
           "Исправлена ошибка, при которой отправлялся запрос о прочтении сообщения, которое уже было прочитано"),
-      FeatureDescriber("Темная тема",
-          "Исправлены ошибки, связанные с темной темой"),
+      FeatureDescriber(
+          "Темная тема", "Исправлены ошибки, связанные с темной темой"),
     ]),
     NewVersion(version: "0.0.2", features: [
       FeatureDescriber("Контактная информация",

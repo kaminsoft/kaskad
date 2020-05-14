@@ -118,7 +118,7 @@ class Post {
         });
   }
 
-  static void showAttachments(BuildContext context, Message msg) {
+  static void showAttachments(BuildContext context, List<Attachment> attachments) {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         context: context,
@@ -139,9 +139,9 @@ class Post {
                 Expanded(
                   child: Scrollbar(
                     child: ListView.builder(
-                      itemCount: msg.attachments.length,
+                      itemCount: attachments.length,
                       itemBuilder: (BuildContext context, int index) {
-                        Attachment attachment = msg.attachments[index];
+                        Attachment attachment = attachments[index];
                         Icon icon = Icon(Icons.insert_drive_file);
                         if (attachment.type == "HTTP") {
                           icon = Icon(Icons.insert_link);

@@ -69,6 +69,7 @@ class Connection {
       if (response.statusCode == 200) {
         Logger.log('token sent');
         var userFields = json.decode(response.body);
+        user.guid = userFields["guid"];
         user.firstname = userFields["firstname"];
         user.lastname = userFields["lastname"];
         user.secondname = userFields["secondname"];
@@ -507,4 +508,28 @@ class Connection {
 
     return task;
   }
+
+  static Future<bool> setTaskStatus(String guid, String status, {String comment=''}) async {
+    bool result = false;
+    Logger.log('getting task');
+    User user = Data.curUser;
+    try {
+      final response = await http.get(
+        '$url/tasks/setstatus?id=$guid&status=$status&comment=$comment',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        result = true;
+      } else {
+        Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
+  
+
 }

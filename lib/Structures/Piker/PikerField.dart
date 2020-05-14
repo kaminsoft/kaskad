@@ -10,6 +10,7 @@ class PikerField extends StatefulWidget {
   bool readOnly;
   bool isRequired;
   _PikerFieldState state;
+  bool separated;
 
   PikerField({
     Key key,
@@ -82,31 +83,28 @@ class _PikerFieldState extends State<PikerField> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   label(mult),
-                  Text(value.name,
+                  Text(value.toString(),
                       style: TextStyle(
                           fontSize: 14 * mult, fontWeight: FontWeight.w500)),
                 ],
               ),
             ),
             Visibility(
-              visible: value.isNotEmpty,
+              visible: value.isNotEmpty && !widget.readOnly,
               child: Row(
                 children: <Widget>[
-                  Visibility(
-                    visible: !widget.readOnly,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          widget.controller.value = LinkItem();
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 13),
-                        child: Icon(
-                          FontAwesomeIcons.times,
-                          size: 15,
-                          color: Colors.red,
-                        ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        widget.controller.value = LinkItem();
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 13),
+                      child: Icon(
+                        FontAwesomeIcons.times,
+                        size: 15,
+                        color: Colors.red,
                       ),
                     ),
                   ),
@@ -133,7 +131,7 @@ class _PikerFieldState extends State<PikerField> {
 
   Padding label(double mult) {
     String text = widget.controller.label;
-    TextStyle style = TextStyle(fontSize: 12 * mult);
+    TextStyle style = TextStyle(fontSize: 12 * mult, color: Theme.of(context).colorScheme.onSurface);
     if (!valid) {
       text = "$text - обязательно для заполнения";
       style = style.copyWith(color: Colors.redAccent);
@@ -149,7 +147,11 @@ class _PikerFieldState extends State<PikerField> {
 
   Function onTap(BuildContext context) {
     if (widget.readOnly) {
-      return null;
+      return () {
+        if (value.isNotEmpty) {
+          value.open(context);
+        }
+      };
     }
     return () {
       if (hasOwner && ownerIsEmpty) {

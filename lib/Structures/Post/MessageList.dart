@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:async_redux/async_redux.dart';
-import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,17 +14,22 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'Post.dart';
 
 typedef FilterChanged = void Function(bool sent, bool justNew);
+typedef ReadAll = void Function();
 
 class MessageFilter extends StatefulWidget {
   final bool sent;
   final bool justNew;
+  final bool hasNewMessages;
   final FilterChanged onFilterChanged;
+  final ReadAll onReadAll;
 
   const MessageFilter(
       {Key key,
       @required this.sent,
       @required this.justNew,
-      @required this.onFilterChanged})
+      @required this.onFilterChanged,
+      @required this.onReadAll,
+      this.hasNewMessages = false})
       : super(key: key);
   @override
   _MessageFilterState createState() =>
@@ -47,8 +53,33 @@ class _MessageFilterState extends State<MessageFilter> {
             style: Theme.of(context).textTheme.title,
           ),
         ),
+        Visibility(
+          visible: sent != 1,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: 8,
+              left: 8,
+              right: 8,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: CupertinoSlidingSegmentedControl(
+                groupValue: justNew,
+                onValueChanged: (val) {
+                  setState(() {
+                    justNew = val;
+                  });
+                },
+                children: {
+                  0: Text("все"),
+                  1: Text("новые"),
+                },
+              ),
+            ),
+          ),
+        ),
         Padding(
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
+          padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 10),
           child: SizedBox(
             width: double.infinity,
             child: CupertinoSlidingSegmentedControl(
@@ -68,40 +99,78 @@ class _MessageFilterState extends State<MessageFilter> {
             ),
           ),
         ),
-        Opacity(
-          opacity: sent == 1 ? 0 : 1,
-          child: Padding(
-            padding:
-                const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 10),
-            child: SizedBox(
-              width: double.infinity,
-              child: CupertinoSlidingSegmentedControl(
-                groupValue: justNew,
-                onValueChanged: (val) {
-                  setState(() {
-                    justNew = val;
-                  });
-                },
-                children: {
-                  0: Text("все"),
-                  1: Text("новые"),
-                },
+        SafeArea(
+          child: Row(
+            children: <Widget>[
+              Visibility(
+                visible: widget.hasNewMessages,
+                child: Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        top: 8, right: 4, bottom: 8, left: 8),
+                    child: CupertinoButton(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      onPressed: () {
+                        if (Platform.isAndroid) {
+                          showDialog(
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  content: Text("Прочитать все сообщения?"),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                        onPressed: () => widget.onReadAll(),
+                                        child: Text("Да")),
+                                    FlatButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text("Нет")),
+                                  ],
+                                );
+                              });
+                        } else {
+                          showCupertinoDialog(
+                              context: context,
+                              builder: (context) {
+                                return CupertinoAlertDialog(
+                                  content: Text("Прочитать все сообщения?"),
+                                  actions: <Widget>[
+                                    CupertinoDialogAction(
+                                        onPressed: () => widget.onReadAll(),
+                                        child: Text("Да")),
+                                    CupertinoDialogAction(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text("Нет"))
+                                  ],
+                                );
+                              });
+                        }
+                      },
+                      color: ColorMain,
+                      child: Text("Прочитать все"),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CupertinoButton(
-              onPressed: () {
-                widget.onFilterChanged(
-                    sent == 1 ? true : false, justNew == 1 ? true : false);
-              },
-              color: ColorMain,
-              child: Text("Готово"),
-            ),
+              Expanded(
+                child: Padding(
+                  padding: widget.hasNewMessages
+                      ? const EdgeInsets.only(
+                          top: 8, right: 8, bottom: 8, left: 4)
+                      : EdgeInsets.all(8),
+                  child: CupertinoButton(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    onPressed: () {
+                      widget.onFilterChanged(sent == 1 ? true : false,
+                          justNew == 1 ? true : false);
+                    },
+                    color: ColorMain,
+                    child: Text("Готово"),
+                  ),
+                ),
+              ),
+            ],
           ),
         )
       ],
@@ -126,6 +195,7 @@ class _MessageListState extends State<MessageList> {
   bool _fabVisibility = true;
   bool justNew = false;
   bool sent = false;
+  bool hasNewMessages = false;
 
   RefreshController _refreshController = RefreshController(
       initialRefresh: false, initialLoadStatus: LoadStatus.loading);
@@ -171,39 +241,48 @@ class _MessageListState extends State<MessageList> {
   void _onRefresh() async {
     await StoreProvider.dispatchFuture(context,
         LoadMessages(widget.isPublicate, sent: sent, justNew: justNew));
+    await StoreProvider.dispatchFuture(context, UpdateMessageCount());
     _refreshController.refreshCompleted();
   }
 
   void _openFilter(BuildContext context) {
     showModalBottomSheet(
+        isScrollControlled: true,
         backgroundColor: Colors.transparent,
         context: context,
         builder: (ctx) {
           return Container(
-            height: 200,
             decoration: BoxDecoration(
                 color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
             child: StatefulBuilder(
                 builder: (BuildContext context, StateSetter setModalState) {
-              return MessageFilter(
-                  sent: sent,
-                  justNew: justNew,
-                  onFilterChanged: (_sent, _justNew) async {
-                    setState(() {
-                      sent = _sent;
-                      justNew = _justNew;
-                      _isUpdating = true;
-                    });
-                    Navigator.of(context).pop();
-                    await StoreProvider.dispatchFuture(
-                        context,
-                        LoadMessages(widget.isPublicate,
-                            sent: sent, justNew: justNew));
-                    setState(() {
-                      _isUpdating = false;
-                    });
-                  });
+              return SingleChildScrollView(
+                child: MessageFilter(
+                    sent: sent,
+                    justNew: justNew,
+                    hasNewMessages: hasNewMessages,
+                    onReadAll: () {
+                      StoreProvider.dispatchFuture(
+                          context, SetReadAll(widget.isPublicate));
+                      Navigator.of(context).pop();
+                    },
+                    onFilterChanged: (_sent, _justNew) async {
+                      setState(() {
+                        sent = _sent;
+                        justNew = _justNew;
+                        _isUpdating = true;
+                      });
+                      Navigator.of(context).pop();
+                      await StoreProvider.dispatchFuture(
+                          context,
+                          LoadMessages(widget.isPublicate,
+                              sent: sent, justNew: justNew));
+                      setState(() {
+                        _isUpdating = false;
+                      });
+                    }),
+              );
             }),
           );
         });
@@ -215,7 +294,7 @@ class _MessageListState extends State<MessageList> {
       converter: (store) => store.state,
       builder: (BuildContext context, state) {
         var messages = widget.isPublicate ? state.messagesP : state.messages;
-        bool hasNewMessages = widget.isPublicate
+        hasNewMessages = widget.isPublicate
             ? state.messageCount.post > 0
             : state.messageCount.message > 0;
         if (!_built) {
@@ -261,7 +340,7 @@ class _MessageListState extends State<MessageList> {
                   icon: Icon(Icons.add))
             ],
           ),
-          floatingActionButton: fab(context, hasNewMessages),
+          floatingActionButton: fab(context),
           body: messages.length == 0
               ? Center(
                   child: justNew
@@ -325,7 +404,7 @@ class _MessageListState extends State<MessageList> {
     );
   }
 
-  Widget fab(BuildContext context, bool hasNewMessages) {
+  Widget fab(BuildContext context) {
     return AnimatedOpacity(
       duration: Duration(milliseconds: 250),
       opacity: _fabOpacity,
@@ -347,19 +426,6 @@ class _MessageListState extends State<MessageList> {
                 child: Icon(
                   FontAwesomeIcons.filter,
                   size: 18,
-                )),
-            SizedBox(
-              width: hasNewMessages ? 10 : 0,
-            ),
-            Visibility(
-                visible: hasNewMessages,
-                child: FloatingActionButton(
-                  heroTag: "readAll",
-                  onPressed: () {
-                    StoreProvider.dispatchFuture(
-                        context, SetReadAll(widget.isPublicate));
-                  },
-                  child: Icon(Icons.check_circle_outline),
                 )),
           ],
         ),
@@ -387,27 +453,30 @@ Widget itemCard(BuildContext context, Message msg) {
 }
 
 Widget itemBody(BuildContext context, Message msg) {
-  return ListTile(
-    selected: !msg.isRead(),
-    leading: CircleAvatar(
-      backgroundColor: Theme.of(context).colorScheme.onSurface,
-      child: msg.toCount > 0
-          ? Icon(Icons.mail_outline)
-          : Text(msg.getAvatarLetter()),
-    ),
-    title: Text(
-      msg.getTittle(),
-      style: TextStyle(
-          fontWeight: msg.isRead() ? FontWeight.normal : FontWeight.w800),
-    ),
-    subtitle: msg.toCount > 0
-        ? Text("Получателей: ${msg.toCount}")
-        : Text(msg.from.name),
-    trailing: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(msg.getDate()),
-      ],
+  return ListTileTheme(
+    selectedColor: Theme.of(context).colorScheme.onSurface,
+    child: ListTile(
+      selected: !msg.isRead(),
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
+        child: msg.toCount > 0
+            ? Icon(Icons.mail_outline)
+            : Text(msg.getAvatarLetter()),
+      ),
+      title: Text(
+        msg.getTittle(),
+        style: TextStyle(
+            fontWeight: msg.isRead() ? FontWeight.normal : FontWeight.w800),
+      ),
+      subtitle: msg.toCount > 0
+          ? Text("Получателей: ${msg.toCount}")
+          : Text(msg.from.name),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(msg.getDate()),
+        ],
+      ),
     ),
   );
 }

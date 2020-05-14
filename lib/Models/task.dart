@@ -21,6 +21,12 @@ class Task {
   LinkItem executer;
   LinkItem author;
 
+  bool hasAccess;
+  bool isOwner;
+  bool isExecuter;
+  bool isAuthor;
+  bool loaded;
+
   List<Attachment> attachments;
   Task({
     this.guid,
@@ -38,6 +44,11 @@ class Task {
     this.executer,
     this.author,
     this.attachments,
+    this.hasAccess,
+    this.isOwner,
+    this.isExecuter,
+    this.isAuthor,
+    this.loaded = false,
   });
 
   bool operator ==(other) => other.guid == guid;
@@ -59,6 +70,10 @@ class Task {
       'executer': executer?.toJson(),
       'author': author?.toJson(),
       'attachments': attachments?.map((x) => x?.toJson())?.toList(),
+      'hasAccess': hasAccess,
+      'isOwner': isOwner,
+      'isExecuter': isExecuter,
+      'isAuthor': isAuthor,
     };
   }
 
@@ -81,6 +96,10 @@ class Task {
       executer: LinkItem.fromJSON(map['executer']),
       author: LinkItem.fromJSON(map['author']),
       attachments: map['attachments'] == null ? [] : List<Attachment>.from(map['attachments']?.map((x) => Attachment.fromJSON(x))),
+      hasAccess: map['hasAccess'],
+      isOwner: map['isOwner'],
+      isExecuter: map['isExecuter'],
+      isAuthor: map['isAuthor'],
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,6 +8,8 @@ import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/filters.dart';
 import 'package:mobile_kaskad/Models/task.dart';
+import 'package:mobile_kaskad/Store/Actions.dart';
+import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerForm.dart';
@@ -22,6 +25,7 @@ class _TaskListState extends State<TaskList> {
   List<Task> list = List<Task>();
   bool loading = true;
   bool updating = false;
+  int lastLength = 0;
   bool listEnded = false;
   double _fabOpacity = 1;
   bool _fabVisibility = true;
@@ -30,21 +34,9 @@ class _TaskListState extends State<TaskList> {
 
   Future _updateList() async {
     updating = true;
-    var nlist = await Connection.getTasks(
-        executer: filter.executer,
-        kontragent: filter.kontragent,
-        group: filter.group,
-        theme: filter.theme,
-        status: filter.statusString,
-        forMe: filter.forMe,
-        last: list.last.number);
-    if (nlist.isEmpty) {
-      listEnded = true;
-    }
+    await StoreProvider.dispatchFuture(
+        context, GetTasks(clearLoad: false, filter: filter));
     updating = false;
-    setState(() {
-      list.addAll(nlist);
-    });
   }
 
   void loadTasks() async {
@@ -54,19 +46,10 @@ class _TaskListState extends State<TaskList> {
     setState(() {
       loading = true;
     });
-    Connection.getTasks(
-            executer: filter.executer,
-            kontragent: filter.kontragent,
-            group: filter.group,
-            theme: filter.theme,
-            status: filter.statusString,
-            forMe: filter.forMe)
-        .then((value) {
-      list = value;
-      listEnded = false;
-      setState(() {
-        loading = false;
-      });
+    await StoreProvider.dispatchFuture(context, GetTasks(filter: filter));
+    listEnded = false;
+    setState(() {
+      loading = false;
     });
   }
 
@@ -112,8 +95,7 @@ class _TaskListState extends State<TaskList> {
           : Scrollbar(
               child: NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scrollInfo) {
-                  if (!listEnded &&
-                      !updating &&
+                  if (!updating &&
                       scrollInfo.metrics.pixels >=
                           scrollInfo.metrics.maxScrollExtent - 200 &&
                       scrollInfo.metrics.pixels <=
@@ -123,16 +105,22 @@ class _TaskListState extends State<TaskList> {
                   }
                   return false;
                 },
-                child: list.isEmpty
-                    ? Center(
-                        child: Text('Нет данных для отображения'),
-                      )
-                    : ListView.builder(
-                        itemCount: list.length,
-                        controller: _scrollController,
-                        itemBuilder: (BuildContext context, int index) {
-                          Task task = list[index];
-                          return taskBody(task);
+                child: StoreConnector<AppState, List<Task>>(
+                        converter: (state) => state.state.tasks,
+                        builder: (context, list) {
+                          if (list.isEmpty) {
+                            return Center(
+                              child: Text('Нет данных для отображения'),
+                            );
+                          }
+                          return ListView.builder(
+                            itemCount: list.length,
+                            controller: _scrollController,
+                            itemBuilder: (BuildContext context, int index) {
+                              Task task = list[index];
+                              return taskBody(task);
+                            },
+                          );
                         },
                       ),
               ),
@@ -141,18 +129,6 @@ class _TaskListState extends State<TaskList> {
   }
 
   Widget taskBody(Task task) {
-    String date = '';
-    if (task.status != "Завершена" && task.status != "Отклонена") {
-      String minutes = task.releaseBefore.minute < 10
-          ? '0${task.releaseBefore.minute}'
-          : task.releaseBefore.minute.toString();
-      if (task.releaseBefore.minute == 0 && task.releaseBefore.hour == 0) {
-        date = 'до ${DateFormat.MMMMd("ru").format(task.releaseBefore)}';
-      } else {
-        date =
-            'до ${DateFormat.MMMMd("ru").format(task.releaseBefore)} ${task.releaseBefore.hour}:$minutes';
-      }
-    }
     String executer = task.executer.isNotEmpty
         ? task.executer.toString()
         : 'Исполнитель не назначен';
@@ -173,7 +149,8 @@ class _TaskListState extends State<TaskList> {
                   child: Text(
                     '${task.status}',
                     style: TextStyle(
-                        color: _statusColor(task.status), fontSize: 12),
+                        color: TaskHelper.getStatusColor(context, task.status),
+                        fontSize: 12),
                   ),
                 ),
               ),
@@ -193,7 +170,7 @@ class _TaskListState extends State<TaskList> {
                                 fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                         ),
-                        dateBadge(date, task)
+                        TaskHelper.getDateBadge(task)
                       ],
                     ),
                     Text(kontragent),
@@ -341,8 +318,7 @@ class _TaskListState extends State<TaskList> {
                           isSelected[index] = !isSelected[index];
                           if (index != 0 && isSelected[index] == true) {
                             isSelected[0] = false;
-                          } else if (index == 0 &&
-                              isSelected[index] == true) {
+                          } else if (index == 0 && isSelected[index] == true) {
                             for (var i = 1; i < isSelected.length; i++) {
                               isSelected[i] = false;
                             }
@@ -394,40 +370,5 @@ class _TaskListState extends State<TaskList> {
             }),
           );
         });
-  }
-
-  Widget dateBadge(String date, Task task) {
-    var now = DateTime.now();
-    var diff = task.releaseBefore.difference(now);
-    Color textColor = Colors.white;
-    Color badgeColor = Colors.green;
-    if (diff.isNegative) {
-      badgeColor = Colors.red;
-    } else if (diff.inHours <= 12) {
-      badgeColor = Color(0xFFcc6633);
-    }
-    return Visibility(
-      visible: date.isNotEmpty,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
-        decoration: BoxDecoration(
-            color: badgeColor, borderRadius: BorderRadius.circular(5)),
-        child: Text(
-          date,
-          style: TextStyle(fontSize: 10, color: textColor),
-        ),
-      ),
-    );
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case "В работе":
-        return Colors.lightBlue;
-      case "Новая":
-        return Colors.green;
-      default:
-        return Theme.of(context).textTheme.bodyText1.color.withAlpha(150);
-    }
   }
 }

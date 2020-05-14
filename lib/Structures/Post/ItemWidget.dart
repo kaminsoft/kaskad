@@ -158,7 +158,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                 isPublicate: msg.isPublicite);
             break;
           case 3: // attachments
-            Post.showAttachments(context, msg);
+            Post.showAttachments(context, msg.attachments);
             break;
           default:
         }
