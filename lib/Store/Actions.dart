@@ -448,6 +448,13 @@ class SetTaskStatus extends ReduxAction<AppState> {
           duration: 5,
         );
       }
+    } else {
+      Toast.show(
+          "Не удалось сменить статус",
+          mainWidgetKey.currentContext,
+          gravity: Toast.BOTTOM,
+          duration: 5,
+        );
     }
     return newState;
   }

@@ -83,7 +83,7 @@ class _ItemWidgetState extends State<ItemWidget> {
         group.value = task.group;
         theme.value = task.theme;
 
-        checkAccesseble();
+        checkAccesseble(isBuild: true);
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -97,6 +97,14 @@ class _ItemWidgetState extends State<ItemWidget> {
                       Post.showAttachments(context, task.attachments);
                     }),
               )
+            ],
+          ),
+          bottomNavigationBar: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              takeToWork(context),
+              doneTask(context),
+              cancelTask(context)
             ],
           ),
           body: ListView(
@@ -123,12 +131,17 @@ class _ItemWidgetState extends State<ItemWidget> {
               ),
               PikerField(
                 controller: kontragent,
-                readOnly: !task.hasAccess,
+                readOnly: !task.hasAccess || !canEdit,
               ),
-              PikerField(controller: kontragentUser, readOnly: !task.hasAccess || !canEdit),
-              PikerField(controller: group, readOnly: !task.hasAccess || !canEdit),
-              PikerField(controller: theme, readOnly: !task.hasAccess || !canEdit),
-              PikerField(controller: executer, readOnly: !task.hasAccess || !canEdit),
+              PikerField(
+                  controller: kontragentUser,
+                  readOnly: !task.hasAccess || !canEdit),
+              PikerField(
+                  controller: group, readOnly: !task.hasAccess || !canEdit),
+              PikerField(
+                  controller: theme, readOnly: !task.hasAccess || !canEdit),
+              PikerField(
+                  controller: executer, readOnly: !task.hasAccess || !canEdit),
               Divider(
                 height: 5,
               ),
@@ -146,19 +159,94 @@ class _ItemWidgetState extends State<ItemWidget> {
     );
   }
 
-  void checkAccesseble() {
-    if (task.status != 'Новая' || task.status == 'Новая' && !task.isAuthor) {
+  Widget takeToWork(BuildContext context) {
+    if (task.hasAccess && task.executer.isEmpty) {
+      return FlatButton(
+          onPressed: () async {
+            setState(() {
+              loaded = false;
+            });
+            await StoreProvider.dispatchFuture(
+                context,
+                SetTaskStatus(
+                    guid: task.guid,
+                    status: TaskStatus.Work,
+                    toastText: "Задача теперь в работе"));
+
+            task.loaded = false;
+          },
+          child: Text(
+            "Взять себе",
+            style: TextStyle(color: Theme.of(context).textTheme.caption.color),
+          ));
+    }
+
+    return SizedBox.shrink();
+  }
+
+  Widget doneTask(BuildContext context) {
+    if (task.status == TaskStatus.Work && task.isExecuter) {
+      return FlatButton(
+          onPressed: () async {
+            setState(() {
+              loaded = false;
+            });
+            await StoreProvider.dispatchFuture(
+                context,
+                SetTaskStatus(
+                    guid: task.guid,
+                    status: TaskStatus.Done,
+                    toastText: "Задача выполнена"));
+
+            task.loaded = false;
+          },
+          child: Text(
+            "Выполнено",
+            style: TextStyle(color: Theme.of(context).textTheme.caption.color),
+          ));
+    }
+
+    return SizedBox.shrink();
+  }
+
+  Widget cancelTask(BuildContext context) {
+    if (task.isOwner && !task.status.isCanceled && !task.status.isDone) {
+      return FlatButton(
+          onPressed: () async {
+            setState(() {
+              loaded = false;
+            });
+            await StoreProvider.dispatchFuture(
+                context,
+                SetTaskStatus(
+                    guid: task.guid,
+                    status: TaskStatus.Canceled,
+                    toastText: "Задача отменена"));
+
+            task.loaded = false;
+          },
+          child: Text(
+            "Отменить",
+            style: TextStyle(color: Theme.of(context).textTheme.caption.color),
+          ));
+    }
+
+    return SizedBox.shrink();
+  }
+
+  void checkAccesseble({bool isBuild = false}) {
+    if (!task.status.isNew || task.status.isNew && !task.isAuthor) {
       canEdit = false;
     }
-    if (task.status == 'Новая') {
+    if (task.status.isNew) {
       if (task.isExecuter) {
         StoreProvider.dispatchFuture(
-          context, SetTaskStatus(guid: task.guid, status: 'В работе',toastText: "Задача теперь в работе"));
-      }
-      if (task.hasAccess && task.executer.isEmpty) {
-        canTakeToWork = true;
+            context,
+            SetTaskStatus(
+                guid: task.guid,
+                status: TaskStatus.Work,
+                toastText: "Задача теперь в работе"));
       }
     }
-    
   }
 }

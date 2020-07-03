@@ -4,33 +4,55 @@ import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Structures/Tasks/ItemWidget.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskList.dart';
 
+// abstract class TaskStatus {
+//   static final String New = "Новая";
+//   static final String Work = "В работе";
+//   static final String Done = "Завершена";
+//   static final String Canceled = "Отменена";
+// }
+
+abstract class TaskStatus {
+  static String New = "Новая";
+  static String Done = "Завершена";
+  static String Work = "В работе";
+  static String Canceled = "Отменена";
+}
+
+extension StringTaskStatusExtension on String {
+  bool get isNew => this == TaskStatus.New;
+  bool get isDone => this == TaskStatus.Done;
+  bool get isWork => this == TaskStatus.Work;
+  bool get isCanceled => this == TaskStatus.Canceled;
+}
+
 class TaskHelper {
   static void openList(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-        settings: RouteSettings(name: 'Задачи'),
-        builder: (ctx) => TaskList()));
+        settings: RouteSettings(name: 'Задачи'), builder: (ctx) => TaskList()));
   }
 
   static void openItem(BuildContext context, String guid) {
     Navigator.of(context).push(MaterialPageRoute(
         settings: RouteSettings(name: 'Задача'),
-        builder: (ctx) => ItemWidget(guid: guid,)));
+        builder: (ctx) => ItemWidget(
+              guid: guid,
+            )));
   }
 
   static Color getStatusColor(BuildContext context, String status) {
-    switch (status) {
-      case "В работе":
-        return Colors.lightBlue;
-      case "Новая":
-        return Colors.green;
-      default:
-        return Theme.of(context).textTheme.bodyText1.color.withAlpha(150);
+    if (status.isNew) {
+      return Colors.lightBlue;
     }
+    if (status.isWork) {
+      return Colors.green;
+    }
+
+    return Theme.of(context).textTheme.bodyText1.color.withAlpha(150);
   }
 
   static Widget getDateBadge(Task task, {bool force = false}) {
-
-    String date = ''; bool usual = task.status != "Завершена" && task.status != "Отклонена";
+    String date = '';
+    bool usual = !task.status.isDone && !task.status.isCanceled;
     if (usual || force) {
       String minutes = task.releaseBefore.minute < 10
           ? '0${task.releaseBefore.minute}'
@@ -43,7 +65,6 @@ class TaskHelper {
       }
     }
 
-
     var now = DateTime.now();
     var diff = task.releaseBefore.difference(now);
     Color textColor = Colors.white;
@@ -53,7 +74,7 @@ class TaskHelper {
     } else if (diff.isNegative) {
       badgeColor = Colors.red;
     } else if (diff.inHours <= 12) {
-      badgeColor = Color(0xFFcc6633);
+      badgeColor = Colors.orange; //Color(0xFFcc6633);
     }
     return Visibility(
       visible: date.isNotEmpty,
