@@ -425,18 +425,27 @@ class SetTaskStatus extends ReduxAction<AppState> {
   String status;
   String comment;
   String toastText;
+  String executer;
 
   SetTaskStatus(
       {@required this.guid,
       @required this.status,
       this.comment = '',
-      this.toastText = ''});
+      this.toastText = '',
+      this.executer = ''});
 
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
-    bool success =
-        await Connection.setTaskStatus(guid, status, comment: comment);
+    bool success = await Connection.setTaskStatus(guid, status,
+        comment: comment, executer: executer, onError: (error) {
+      Toast.show(
+        error,
+        mainWidgetKey.currentContext,
+        gravity: Toast.BOTTOM,
+        duration: 5,
+      );
+    });
     if (success) {
       int index = newState.tasks.indexWhere((element) => element.guid == guid);
       newState.tasks[index].status = status;
@@ -448,13 +457,39 @@ class SetTaskStatus extends ReduxAction<AppState> {
           duration: 5,
         );
       }
-    } else {
-      Toast.show(
-          "Не удалось сменить статус",
-          mainWidgetKey.currentContext,
-          gravity: Toast.BOTTOM,
-          duration: 5,
-        );
+    }
+    return newState;
+  }
+}
+
+class SaveTask extends ReduxAction<AppState> {
+  Task task;
+  bool authorInfo;
+  SaveTask({@required this.task, this.authorInfo = true});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    String guid = await Connection.saveTask(
+        task: task,
+        authorInfo: authorInfo,
+        onError: (error) {
+          Toast.show(
+            error,
+            mainWidgetKey.currentContext,
+            gravity: Toast.BOTTOM,
+            duration: 5,
+          );
+        });
+    if (guid.isNotEmpty) {
+      Task newTask = await Connection.getTask(guid);
+      if (task.guid.isEmpty) {
+        newState.tasks.insert(0, newTask);
+      } else {
+        int index =
+            newState.tasks.indexWhere((element) => element.guid == guid);
+        newState.tasks[index] = newTask;
+      }
     }
     return newState;
   }
@@ -463,8 +498,7 @@ class SetTaskStatus extends ReduxAction<AppState> {
 class UpdateTask extends ReduxAction<AppState> {
   String guid;
 
-  UpdateTask(
-      {@required this.guid});
+  UpdateTask({@required this.guid});
 
   @override
   FutureOr<AppState> reduce() async {

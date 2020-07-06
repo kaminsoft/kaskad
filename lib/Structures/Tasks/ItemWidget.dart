@@ -1,6 +1,7 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
@@ -96,6 +97,21 @@ class _ItemWidgetState extends State<ItemWidget> {
                     onPressed: () {
                       Post.showAttachments(context, task.attachments);
                     }),
+              ),
+              Visibility(
+                visible: (task.isAuthor || task.isOwner) &&
+                    (task.status.isNew || task.status.isWork),
+                child: IconButton(
+                    icon: Icon(Icons.done),
+                    onPressed: () async {
+                      await StoreProvider.dispatchFuture(
+                          context, SaveTask(task: copyTask(task)));
+                      setState(() {
+                        loaded = false;
+                      });
+
+                      //Post.showAttachments(context, task.attachments);
+                    }),
               )
             ],
           ),
@@ -104,7 +120,7 @@ class _ItemWidgetState extends State<ItemWidget> {
             children: <Widget>[
               takeToWork(context),
               doneTask(context),
-              cancelTask(context)
+              cancelTask(context),
             ],
           ),
           body: ListView(
@@ -123,8 +139,26 @@ class _ItemWidgetState extends State<ItemWidget> {
                   TaskHelper.getDateBadge(task, force: true)
                 ],
               ),
-              SizedBox(
-                height: 10,
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 3),
+                      child: Icon(
+                        CupertinoIcons.person_solid,
+                        color: Theme.of(context).textTheme.caption.color,
+                      ),
+                    ),
+                    Text(
+                      "${task.author.name}",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Theme.of(context).textTheme.caption.color),
+                    ),
+                  ],
+                ),
               ),
               Divider(
                 height: 5,
@@ -141,7 +175,7 @@ class _ItemWidgetState extends State<ItemWidget> {
               PikerField(
                   controller: theme, readOnly: !task.hasAccess || !canEdit),
               PikerField(
-                  controller: executer, readOnly: !task.hasAccess || !canEdit),
+                  controller: executer, readOnly: checkElementReadOnly(task)),
               Divider(
                 height: 5,
               ),
@@ -159,21 +193,41 @@ class _ItemWidgetState extends State<ItemWidget> {
     );
   }
 
+  Task copyTask(task) {
+    Task copyTask = task;
+
+    copyTask.kontragent = kontragent.value;
+    copyTask.kontragentUser = kontragentUser.value;
+    copyTask.group = group.value;
+    copyTask.theme = theme.value;
+    copyTask.executer = executer.value;
+
+    return task;
+  }
+
+  bool checkElementReadOnly(Task task) {
+    if (task.status.isDone || task.status.isCanceled) {
+      return true;
+    }
+    if (task.isOwner) {
+      return false;
+    }
+    return !task.hasAccess || !canEdit;
+  }
+
   Widget takeToWork(BuildContext context) {
     if (task.hasAccess && task.executer.isEmpty) {
       return FlatButton(
           onPressed: () async {
-            setState(() {
-              loaded = false;
-            });
             await StoreProvider.dispatchFuture(
                 context,
                 SetTaskStatus(
                     guid: task.guid,
                     status: TaskStatus.Work,
-                    toastText: "Задача теперь в работе"));
-
-            task.loaded = false;
+                    toastText: "Задача в работе"));
+            setState(() {
+              loaded = false;
+            });
           },
           child: Text(
             "Взять себе",
@@ -188,9 +242,6 @@ class _ItemWidgetState extends State<ItemWidget> {
     if (task.status == TaskStatus.Work && task.isExecuter) {
       return FlatButton(
           onPressed: () async {
-            setState(() {
-              loaded = false;
-            });
             await StoreProvider.dispatchFuture(
                 context,
                 SetTaskStatus(
@@ -198,7 +249,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                     status: TaskStatus.Done,
                     toastText: "Задача выполнена"));
 
-            task.loaded = false;
+            setState(() {
+              loaded = false;
+            });
           },
           child: Text(
             "Выполнено",
@@ -213,9 +266,6 @@ class _ItemWidgetState extends State<ItemWidget> {
     if (task.isOwner && !task.status.isCanceled && !task.status.isDone) {
       return FlatButton(
           onPressed: () async {
-            setState(() {
-              loaded = false;
-            });
             await StoreProvider.dispatchFuture(
                 context,
                 SetTaskStatus(
@@ -223,7 +273,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                     status: TaskStatus.Canceled,
                     toastText: "Задача отменена"));
 
-            task.loaded = false;
+            setState(() {
+              loaded = false;
+            });
           },
           child: Text(
             "Отменить",
@@ -237,6 +289,8 @@ class _ItemWidgetState extends State<ItemWidget> {
   void checkAccesseble({bool isBuild = false}) {
     if (!task.status.isNew || task.status.isNew && !task.isAuthor) {
       canEdit = false;
+    } else {
+      canEdit = true;
     }
     if (task.status.isNew) {
       if (task.isExecuter) {
@@ -249,4 +303,6 @@ class _ItemWidgetState extends State<ItemWidget> {
       }
     }
   }
+
+  checkElementAccess(Task task) {}
 }

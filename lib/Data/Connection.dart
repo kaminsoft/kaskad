@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'package:async_redux/async_redux.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Data/Logger.dart';
@@ -16,6 +18,8 @@ import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
 import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
 import 'package:mobile_kaskad/Structures/Profile/Profile.dart';
+
+typedef OnError = void Function(String error);
 
 class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
@@ -461,10 +465,16 @@ class Connection {
     List<Task> list = List<Task>();
     User user = Data.curUser;
     Logger.log('getting Tasks');
-    var _kontragent = kontragent == null || kontragent.isEmpty ? '' : jsonEncode(kontragent?.toJson());
-    var _theme = theme == null || theme.isEmpty ? '' : jsonEncode(theme?.toJson());
-    var _group = group == null || group.isEmpty ? '' : jsonEncode(group?.toJson());
-    var _executer = executer == null || executer.isEmpty ? '' : jsonEncode(executer?.toJson());
+    var _kontragent = kontragent == null || kontragent.isEmpty
+        ? ''
+        : jsonEncode(kontragent?.toJson());
+    var _theme =
+        theme == null || theme.isEmpty ? '' : jsonEncode(theme?.toJson());
+    var _group =
+        group == null || group.isEmpty ? '' : jsonEncode(group?.toJson());
+    var _executer = executer == null || executer.isEmpty
+        ? ''
+        : jsonEncode(executer?.toJson());
     status = status == 'все' ? '' : status;
     try {
       final response = await http.get(
@@ -509,13 +519,14 @@ class Connection {
     return task;
   }
 
-  static Future<bool> setTaskStatus(String guid, String status, {String comment=''}) async {
+  static Future<bool> setTaskStatus(String guid, String status,
+      {String comment = '', String executer = '', OnError onError}) async {
     bool result = false;
     Logger.log('getting task');
     User user = Data.curUser;
     try {
       final response = await http.get(
-        '$url/tasks/setstatus?id=$guid&status=$status&comment=$comment',
+        '$url/tasks/setstatus?id=$guid&status=$status&comment=$comment&executer=$executer',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
@@ -523,6 +534,7 @@ class Connection {
         result = true;
       } else {
         Logger.error(response.body);
+        onError(response.body);
       }
     } catch (e) {
       Logger.warning(e);
@@ -530,6 +542,32 @@ class Connection {
 
     return result;
   }
-  
 
+  static Future<String> saveTask(
+      {@required Task task, bool authorInfo = true, OnError onError}) async {
+    String result = '';
+    Logger.log('getting task');
+    User user = Data.curUser;
+    String releaseBefore =
+        DateFormat("yyyy.MM.dd HH:mm:ss").format(task.releaseBefore);
+    try {
+      final response = await http.get(
+        '$url/tasks/save?id=${task.guid}&status=${task.status}&text=${task.text}&authorInfo=$authorInfo' +
+            '&releaseBefore=$releaseBefore&kontragent=${task.kontragent.guid}&kontragentUser=${task.kontragentUser.guid}' +
+            '&group=${task.group.guid}&theme=${task.theme.guid}&executer=${task.executer.guid}',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        result = response.body;
+      } else {
+        Logger.error(response.body);
+        onError(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
 }
