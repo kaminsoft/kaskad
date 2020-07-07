@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,7 @@ class _ItemWidgetState extends State<ItemWidget> {
   bool loaded = false;
   bool canEdit = true;
   bool canTakeToWork = false;
+  bool isChanged = false;
 
   PikerController kontragent = PikerController(
     type: "Контрагенты",
@@ -85,112 +88,197 @@ class _ItemWidgetState extends State<ItemWidget> {
         theme.value = task.theme;
 
         checkAccesseble(isBuild: true);
-        return Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: Text("Задача"),
-            actions: <Widget>[
-              Visibility(
-                visible: task.attachments.isNotEmpty,
-                child: IconButton(
-                    icon: Icon(Icons.attach_file),
-                    onPressed: () {
-                      Post.showAttachments(context, task.attachments);
-                    }),
-              ),
-              Visibility(
-                visible: (task.isAuthor || task.isOwner) &&
-                    (task.status.isNew || task.status.isWork),
-                child: IconButton(
-                    icon: Icon(Icons.done),
-                    onPressed: () async {
-                      await StoreProvider.dispatchFuture(
-                          context, SaveTask(task: copyTask(task)));
-                      setState(() {
-                        loaded = false;
-                      });
+        return WillPopScope(
+          onWillPop: () async {
+            if (isChanged) {
+              String _question = "Данные были изменены. Сохранить изменения?";
+              if (Platform.isAndroid) {
+                showDialog(
+                    context: context,
+                    builder: (_) {
+                      return AlertDialog(
+                        content: Text(_question),
+                        actions: <Widget>[
+                          FlatButton(
+                              onPressed: () async {
+                                await onSavePress(context);
+                              },
+                              child: Text("Да")),
+                          FlatButton(
+                              onPressed: () => onNotSavePress(context),
+                              child: Text("Нет")),
+                          FlatButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text("Отмена")),
+                        ],
+                      );
+                    });
+              } else {
+                showCupertinoDialog(
+                    context: context,
+                    builder: (context) {
+                      return CupertinoAlertDialog(
+                        content: Text(_question),
+                        actions: <Widget>[
+                          CupertinoDialogAction(
+                              onPressed: () async {
+                                await onSavePress(context);
+                              },
+                              child: Text("Да")),
+                          CupertinoDialogAction(
+                              onPressed: () => onNotSavePress(context),
+                              child: Text("Нет")),
+                          CupertinoDialogAction(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text("Отмена")),
+                        ],
+                      );
+                    });
+              }
 
-                      //Post.showAttachments(context, task.attachments);
-                    }),
-              )
-            ],
-          ),
-          bottomNavigationBar: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              takeToWork(context),
-              doneTask(context),
-              cancelTask(context),
-            ],
-          ),
-          body: ListView(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Text(
-                    task.status,
-                    style: TextStyle(
-                      color: TaskHelper.getStatusColor(context, task.status),
-                    ),
-                  ),
-                  Text(
-                      '№ ${task.number} от ${DateFormat.MMMMd("ru").format(task.date)}'),
-                  TaskHelper.getDateBadge(task, force: true)
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+              return false;
+            }
+
+            return true;
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: Text("Задача"),
+              actions: <Widget>[
+                Visibility(
+                  visible: task.attachments.isNotEmpty,
+                  child: IconButton(
+                      icon: Icon(Icons.attach_file),
+                      onPressed: () {
+                        Post.showAttachments(context, task.attachments);
+                      }),
+                ),
+                Visibility(
+                  visible: (task.isAuthor || task.isOwner) &&
+                      (task.status.isNew || task.status.isWork),
+                  child: IconButton(
+                      icon: Icon(Icons.done),
+                      onPressed: () async {
+                        await StoreProvider.dispatchFuture(
+                            context, SaveTask(task: copyTask(task)));
+                        setState(() {
+                          loaded = false;
+                        });
+                        isChanged = false;
+                      }),
+                )
+              ],
+            ),
+            bottomNavigationBar: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                takeToWork(context),
+                doneTask(context),
+                cancelTask(context),
+              ],
+            ),
+            body: ListView(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 3),
-                      child: Icon(
-                        CupertinoIcons.person_solid,
-                        color: Theme.of(context).textTheme.caption.color,
+                    Text(
+                      task.status,
+                      style: TextStyle(
+                        color: TaskHelper.getStatusColor(context, task.status),
                       ),
                     ),
                     Text(
-                      "${task.author.name}",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Theme.of(context).textTheme.caption.color),
-                    ),
+                        '№ ${task.number} от ${DateFormat.MMMMd("ru").format(task.date)}'),
+                    TaskHelper.getDateBadge(task, force: true)
                   ],
                 ),
-              ),
-              Divider(
-                height: 5,
-              ),
-              PikerField(
-                controller: kontragent,
-                readOnly: !task.hasAccess || !canEdit,
-              ),
-              PikerField(
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 3),
+                        child: Icon(
+                          CupertinoIcons.person_solid,
+                          color: Theme.of(context).textTheme.caption.color,
+                        ),
+                      ),
+                      Text(
+                        "${task.author.name}",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Theme.of(context).textTheme.caption.color),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  height: 5,
+                ),
+                PikerField(
+                  controller: kontragent,
+                  readOnly: !task.hasAccess || !canEdit,
+                  onPickerChanged: onPickerChanged,
+                ),
+                PikerField(
                   controller: kontragentUser,
-                  readOnly: !task.hasAccess || !canEdit),
-              PikerField(
-                  controller: group, readOnly: !task.hasAccess || !canEdit),
-              PikerField(
-                  controller: theme, readOnly: !task.hasAccess || !canEdit),
-              PikerField(
-                  controller: executer, readOnly: checkElementReadOnly(task)),
-              Divider(
-                height: 5,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(task.text),
-              )
-            ],
+                  readOnly: !task.hasAccess || !canEdit,
+                  onPickerChanged: onPickerChanged,
+                ),
+                PikerField(
+                  controller: group,
+                  readOnly: !task.hasAccess || !canEdit,
+                  onPickerChanged: onPickerChanged,
+                ),
+                PikerField(
+                  controller: theme,
+                  readOnly: !task.hasAccess || !canEdit,
+                  onPickerChanged: onPickerChanged,
+                ),
+                PikerField(
+                  controller: executer,
+                  readOnly: checkElementReadOnly(task),
+                  onPickerChanged: onPickerChanged,
+                ),
+                Divider(
+                  height: 5,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(task.text),
+                )
+              ],
+            ),
           ),
         );
       },
     );
+  }
+
+  void onNotSavePress(BuildContext context) {
+    Navigator.of(context).pop();
+    isChanged = false;
+    Navigator.of(context).pop();
+  }
+
+  Future onSavePress(BuildContext context) async {
+    Navigator.of(context).pop();
+    await StoreProvider.dispatchFuture(context, SaveTask(task: copyTask(task)));
+    setState(() {
+      loaded = false;
+    });
+    isChanged = false;
+    Navigator.of(context).pop();
+  }
+
+  void onPickerChanged(PikerController controller) {
+    isChanged = true;
   }
 
   Task copyTask(task) {

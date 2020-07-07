@@ -4,6 +4,8 @@ import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 
+typedef OnPickerChanged = void Function(PikerController controller);
+
 class PikerField extends StatefulWidget {
   PikerController controller;
   String placeholder;
@@ -11,14 +13,16 @@ class PikerField extends StatefulWidget {
   bool isRequired;
   _PikerFieldState state;
   bool separated;
+  OnPickerChanged onPickerChanged;
 
-  PikerField({
-    Key key,
-    @required this.controller,
-    this.placeholder = "",
-    this.readOnly = false,
-    this.isRequired = false,
-  }) : super(key: key);
+  PikerField(
+      {Key key,
+      @required this.controller,
+      this.placeholder = "",
+      this.readOnly = false,
+      this.isRequired = false,
+      this.onPickerChanged})
+      : super(key: key);
 
   @override
   _PikerFieldState createState() {
@@ -98,6 +102,7 @@ class _PikerFieldState extends State<PikerField> {
                       setState(() {
                         widget.controller.value = LinkItem();
                       });
+                      widget.onPickerChanged(widget.controller);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 13),
@@ -131,7 +136,8 @@ class _PikerFieldState extends State<PikerField> {
 
   Padding label(double mult) {
     String text = widget.controller.label;
-    TextStyle style = TextStyle(fontSize: 12 * mult, color: Theme.of(context).colorScheme.onSurface);
+    TextStyle style = TextStyle(
+        fontSize: 12 * mult, color: Theme.of(context).colorScheme.onSurface);
     if (!valid) {
       text = "$text - обязательно для заполнения";
       style = style.copyWith(color: Colors.redAccent);
@@ -170,6 +176,7 @@ class _PikerFieldState extends State<PikerField> {
               valid = true;
               value = onValue;
             });
+            widget.onPickerChanged(widget.controller);
           }
         });
       }
