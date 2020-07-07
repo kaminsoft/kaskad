@@ -522,7 +522,7 @@ class Connection {
   static Future<bool> setTaskStatus(String guid, String status,
       {String comment = '', String executer = '', OnError onError}) async {
     bool result = false;
-    Logger.log('getting task');
+    Logger.log('setting task status');
     User user = Data.curUser;
     try {
       final response = await http.get(
@@ -546,7 +546,7 @@ class Connection {
   static Future<String> saveTask(
       {@required Task task, bool authorInfo = true, OnError onError}) async {
     String result = '';
-    Logger.log('getting task');
+    Logger.log('saving task');
     User user = Data.curUser;
     String releaseBefore =
         DateFormat("yyyy.MM.dd HH:mm:ss").format(task.releaseBefore);
@@ -563,6 +563,29 @@ class Connection {
       } else {
         Logger.error(response.body);
         onError(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
+
+  static Future<String> getTaskCount() async {
+    String result = '';
+    Logger.log('getting task count');
+    User user = Data.curUser;
+
+    try {
+      final response = await http.get(
+        '$url/tasks/count',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        result = response.body;
+      } else {
+        Logger.error(response.body);
       }
     } catch (e) {
       Logger.warning(e);

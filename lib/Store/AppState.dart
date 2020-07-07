@@ -15,6 +15,7 @@ class AppState {
   List<Message> messagesP;
 
   NewMessageCount messageCount;
+  String taskCount;
 
   List<Feature> features;
   List<Kontragent> kontragents;
@@ -47,6 +48,7 @@ class AppState {
       this.messages,
       this.messagesP,
       this.messageCount,
+      this.taskCount = "",
       this.features,
       this.kontragents,
       this.settings,
@@ -61,5 +63,6 @@ class AppState {
     messageCount = other.messageCount;
     user = other.user;
     settings = other.settings;
+    taskCount = other.taskCount;
   }
 }

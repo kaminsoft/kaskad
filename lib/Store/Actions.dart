@@ -28,7 +28,8 @@ class SetBottomBar extends ReduxAction<AppState> {
     AppState newState = AppState.copy(state);
     newState.settings.bottomBar = bottomBar;
     for (var feature in newState.features) {
-      if (feature.isMessage || feature.isPublicate) {
+      if (feature.role == FeatureRole.message ||
+          feature.role == FeatureRole.publicate) {
         feature.enabled = !bottomBar;
       }
     }
@@ -78,7 +79,8 @@ class SetSettings extends ReduxAction<AppState> {
     newState.settings = settings;
     if (state.settings.bottomBar != settings.bottomBar) {
       for (var feature in newState.features) {
-        if (feature.isMessage || feature.isPublicate) {
+        if (feature.role == FeatureRole.message ||
+            feature.role == FeatureRole.publicate) {
           feature.enabled = !settings.bottomBar;
         }
       }
@@ -507,6 +509,24 @@ class UpdateTask extends ReduxAction<AppState> {
     Task newTask = await Connection.getTask(guid);
     newTask.loaded = true;
     newState.tasks[index] = newTask;
+    return newState;
+  }
+}
+
+class UpdateTaskCount extends ReduxAction<AppState> {
+  UpdateTaskCount();
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    bool tasksEnabled =
+        newState.features.firstWhere((f) => f.role == FeatureRole.task) != null;
+
+    newState.taskCount = '';
+    if (tasksEnabled) {
+      newState.taskCount = await Connection.getTaskCount();
+    }
+
     return newState;
   }
 }

@@ -15,6 +15,7 @@ import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerForm.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class TaskList extends StatefulWidget {
   @override
@@ -29,6 +30,8 @@ class _TaskListState extends State<TaskList> {
   bool listEnded = false;
   double _fabOpacity = 1;
   bool _fabVisibility = true;
+  RefreshController _refreshController = RefreshController(
+      initialRefresh: false, initialLoadStatus: LoadStatus.loading);
   ScrollController _scrollController = ScrollController();
   TaskFilter filter;
 
@@ -37,6 +40,12 @@ class _TaskListState extends State<TaskList> {
     await StoreProvider.dispatchFuture(
         context, GetTasks(clearLoad: false, filter: filter));
     updating = false;
+  }
+
+  void _onRefresh() async {
+    await StoreProvider.dispatchFuture(
+        context, GetTasks(clearLoad: true, filter: filter));
+    _refreshController.refreshCompleted();
   }
 
   void loadTasks() async {
@@ -86,6 +95,13 @@ class _TaskListState extends State<TaskList> {
       appBar: AppBar(
         centerTitle: true,
         title: Text("Задачи"),
+        actions: <Widget>[
+          IconButton(
+              onPressed: () {
+                TaskHelper.newItem(context);
+              },
+              icon: Icon(Icons.add)),
+        ],
       ),
       floatingActionButton: fab(context),
       body: loading
@@ -106,23 +122,34 @@ class _TaskListState extends State<TaskList> {
                   return false;
                 },
                 child: StoreConnector<AppState, List<Task>>(
-                        converter: (state) => state.state.tasks,
-                        builder: (context, list) {
-                          if (list.isEmpty) {
-                            return Center(
-                              child: Text('Нет данных для отображения'),
-                            );
-                          }
-                          return ListView.builder(
-                            itemCount: list.length,
-                            controller: _scrollController,
-                            itemBuilder: (BuildContext context, int index) {
-                              Task task = list[index];
-                              return taskBody(task);
-                            },
-                          );
+                  converter: (state) => state.state.tasks,
+                  builder: (context, list) {
+                    if (list.isEmpty) {
+                      return Center(
+                        child: Text('Нет данных для отображения'),
+                      );
+                    }
+                    return SmartRefresher(
+                      controller: _refreshController,
+                      onRefresh: _onRefresh,
+                      header: ClassicHeader(
+                        completeText: 'Готово',
+                        failedText: 'Ошибка обновления',
+                        idleText: 'Потяните для обновления',
+                        refreshingText: 'Обновление',
+                        releaseText: 'Отпустите для обновления',
+                      ),
+                      child: ListView.builder(
+                        itemCount: list.length,
+                        controller: _scrollController,
+                        itemBuilder: (BuildContext context, int index) {
+                          Task task = list[index];
+                          return taskBody(task);
                         },
                       ),
+                    );
+                  },
+                ),
               ),
             ),
     );

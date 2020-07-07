@@ -118,51 +118,57 @@ class Post {
         });
   }
 
-  static void showAttachments(BuildContext context, List<Attachment> attachments) {
-    showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (ctx) {
-          return Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    "Вложения",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-                Expanded(
-                  child: Scrollbar(
-                    child: ListView.builder(
-                      itemCount: attachments.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        Attachment attachment = attachments[index];
-                        Icon icon = Icon(Icons.insert_drive_file);
-                        if (attachment.type == "HTTP") {
-                          icon = Icon(Icons.insert_link);
-                        } else if (attachment.type.startsWith("Справочник")) {
-                          icon = Icon(Icons.featured_play_list);
-                        }
-                        return ListTile(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            attachment.open(context);
-                          },
-                          leading: icon,
-                          title: Text(attachment.name),
-                        );
-                      },
+  static void showAttachments(
+      BuildContext context, List<Attachment> attachments) {
+    if (attachments.length == 1) {
+      attachments[0].open(context);
+    } else {
+      showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          context: context,
+          builder: (ctx) {
+            return Container(
+              decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(20))),
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      "Вложения",
+                      style: TextStyle(fontSize: 18),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        });
+                  Expanded(
+                    child: Scrollbar(
+                      child: ListView.builder(
+                        itemCount: attachments.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          Attachment attachment = attachments[index];
+                          Icon icon = Icon(Icons.insert_drive_file);
+                          if (attachment.type == "HTTP") {
+                            icon = Icon(Icons.insert_link);
+                          } else if (attachment.type.startsWith("Справочник")) {
+                            icon = Icon(Icons.featured_play_list);
+                          }
+                          return ListTile(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              attachment.open(context);
+                            },
+                            leading: icon,
+                            title: Text(attachment.name),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          });
+    }
   }
 }

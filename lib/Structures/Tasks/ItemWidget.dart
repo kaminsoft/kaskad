@@ -91,7 +91,7 @@ class _ItemWidgetState extends State<ItemWidget> {
         return WillPopScope(
           onWillPop: () async {
             if (isChanged) {
-              String _question = "Данные были изменены. Сохранить изменения?";
+              String _question = "Данные были изменены.\nСохранить изменения?";
               if (Platform.isAndroid) {
                 showDialog(
                     context: context,

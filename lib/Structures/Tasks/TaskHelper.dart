@@ -2,14 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Structures/Tasks/ItemWidget.dart';
+import 'package:mobile_kaskad/Structures/Tasks/NewItemWidget.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskList.dart';
-
-// abstract class TaskStatus {
-//   static final String New = "Новая";
-//   static final String Work = "В работе";
-//   static final String Done = "Завершена";
-//   static final String Canceled = "Отменена";
-// }
 
 abstract class TaskStatus {
   static String New = "Новая";
@@ -37,6 +31,12 @@ class TaskHelper {
         builder: (ctx) => ItemWidget(
               guid: guid,
             )));
+  }
+
+  static void newItem(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+        settings: RouteSettings(name: 'Новая задача'),
+        builder: (ctx) => NewItemWidget()));
   }
 
   static Color getStatusColor(BuildContext context, String status) {

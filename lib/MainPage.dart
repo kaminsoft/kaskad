@@ -51,11 +51,13 @@ class _MainPageState extends State<MainPage> {
       Events.subscribeMessageEvents(context);
       FirebaseNotifications().setUpFirebase(context);
       StoreProvider.dispatchFuture(context, UpdateMessageCount());
+      StoreProvider.dispatchFuture(context, UpdateTaskCount());
       subscibed = true;
     }
     SystemChannels.lifecycle.setMessageHandler((msg) {
       if (msg == AppLifecycleState.resumed.toString()) {
         StoreProvider.dispatchFuture(context, UpdateMessageCount());
+        StoreProvider.dispatchFuture(context, UpdateTaskCount());
       }
     });
     if (Data.showNews) {
@@ -327,7 +329,7 @@ class FeatureCard extends StatelessWidget {
                               ],
                             ),
                           ),
-                          feature.isMessage
+                          feature.role == FeatureRole.message
                               ? StoreConnector<AppState, NewMessageCount>(
                                   converter: (store) =>
                                       store.state.messageCount,
@@ -350,7 +352,7 @@ class FeatureCard extends StatelessWidget {
                                   },
                                 )
                               : Container(),
-                          feature.isPublicate
+                          feature.role == FeatureRole.publicate
                               ? StoreConnector<AppState, NewMessageCount>(
                                   converter: (store) =>
                                       store.state.messageCount,
@@ -367,6 +369,33 @@ class FeatureCard extends StatelessWidget {
                                         badgeContent: Text(
                                           '${messages.post}',
                                           style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(),
+                          feature.role == FeatureRole.task
+                              ? StoreConnector<AppState, String>(
+                                  converter: (store) => store.state.taskCount,
+                                  builder: (context, taskCount) {
+                                    if (taskCount.isEmpty) {
+                                      return Container();
+                                    }
+                                    return Align(
+                                      alignment: Alignment.topRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 40, right: 20),
+                                        child: Text(
+                                          taskCount,
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .caption
+                                                  .color),
                                         ),
                                       ),
                                     );

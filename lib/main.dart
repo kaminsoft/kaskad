@@ -40,6 +40,8 @@ class MyRouteObserver extends RouteObserver<PageRoute<dynamic>> {
       Timer(Duration(milliseconds: 500), () {
         StoreProvider.dispatchFuture(
             previousRoute.navigator.context, UpdateMessageCount());
+        StoreProvider.dispatchFuture(
+            previousRoute.navigator.context, UpdateTaskCount());
       });
     }
     super.didPop(route, previousRoute);

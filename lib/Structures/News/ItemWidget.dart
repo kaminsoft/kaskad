@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
@@ -56,30 +59,40 @@ class NewVersion {
     );
   }
 
-  Widget newLine(String title, String text) {
+  Widget newLine(FeatureDescriber ftr) {
     return Padding(
       padding: const EdgeInsets.only(top: 5, right: 8, bottom: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          RotatedBox(
-              quarterTurns: -1,
-              child: Text(
-                "•",
-                style: TextStyle(
-                  fontSize: 28,
+          ftr.isHot
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(
+                    Icons.new_releases,
+                    color: Theme.of(mainWidgetKey.currentContext)
+                        .colorScheme
+                        .onSurface,
+                    size: 18,
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(
+                    Icons.done,
+                    size: 18,
+                  ),
                 ),
-              )),
           Flexible(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                title,
+                ftr.title,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               Text(
-                text,
+                ftr.description,
                 style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(mainWidgetKey.currentContext)
@@ -88,6 +101,16 @@ class NewVersion {
                         .color
                         .withAlpha(150)),
               ),
+              ftr.attentionText.isNotEmpty
+                  ? Text(
+                      ftr.attentionText,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(mainWidgetKey.currentContext)
+                              .colorScheme
+                              .onSurface),
+                    )
+                  : Container(),
             ],
           ))
         ],
@@ -102,14 +125,14 @@ class NewVersion {
       result.add(Divider());
       result.add(newTitle());
       for (var ftr in features) {
-        result.add(newLine(ftr.title, ftr.description));
+        result.add(newLine(ftr));
       }
     }
     if (bugs.length > 0) {
       result.add(Divider());
       result.add(bugTitle());
       for (var ftr in bugs) {
-        result.add(newLine(ftr.title, ftr.description));
+        result.add(newLine(ftr));
       }
     }
     return result;
@@ -119,7 +142,10 @@ class NewVersion {
 class FeatureDescriber {
   String title;
   String description;
-  FeatureDescriber(this.title, this.description);
+  String attentionText;
+  bool isHot;
+  FeatureDescriber(this.title, this.description,
+      {this.isHot = false, this.attentionText = ""});
 }
 
 class ItemWidget extends StatefulWidget {
@@ -132,8 +158,17 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   var versions = [
     NewVersion(version: "0.0.5", features: [
+      FeatureDescriber("Задачи",
+          "Добавлен новый раздел - задачи. Создавайте и выполняйте задачи прямо из мобильного приложения",
+          isHot: true),
       FeatureDescriber("Сообщения",
           "Команда прочитать все сообщения перемещена в фильтры, добавлен вопрос для подтверждения прочтения"),
+      FeatureDescriber("Рабочий стол",
+          "Переработано отображение индикаторов сообщений, объявлений и задач",
+          attentionText:
+              "Рекомендуется передобавить плитки сообщений, объявлений и задач, если они были добавлены ранее"),
+      FeatureDescriber("Вложения",
+          "Теперь если вложение в объекте одно, то оно открвается сразу при нажатии на кнопку вложений. Если вложений несколько - открывается список, как и реньше"),
     ], bugs: []),
     NewVersion(version: "0.0.4", features: [
       FeatureDescriber("Пролистование сообщений",
@@ -231,23 +266,25 @@ class _ItemWidgetState extends State<ItemWidget> {
               })
         ],
       ),
-      body: ListView(
-        children: <Widget>[
-          newImage(),
-          Builder(
-            builder: (_) {
-              List<Widget> children = List<Widget>();
-              for (var ver in versions) {
-                if (showAll || ver.version == Data.version) {
-                  children.addAll(ver.getFeatures(showAll));
+      body: Scrollbar(
+        child: ListView(
+          children: <Widget>[
+            newImage(),
+            Builder(
+              builder: (_) {
+                List<Widget> children = List<Widget>();
+                for (var ver in versions) {
+                  if (showAll || ver.version == Data.version) {
+                    children.addAll(ver.getFeatures(showAll));
+                  }
                 }
-              }
-              return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: children);
-            },
-          ),
-        ],
+                return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: children);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
