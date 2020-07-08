@@ -102,7 +102,9 @@ class _PikerFieldState extends State<PikerField> {
                       setState(() {
                         widget.controller.value = LinkItem();
                       });
-                      widget.onPickerChanged(widget.controller);
+                      if (widget.onPickerChanged != null) {
+                        widget.onPickerChanged(widget.controller);
+                      }
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 13),
@@ -176,7 +178,9 @@ class _PikerFieldState extends State<PikerField> {
               valid = true;
               value = onValue;
             });
-            widget.onPickerChanged(widget.controller);
+            if (widget.onPickerChanged != null) {
+              widget.onPickerChanged(widget.controller);
+            }
           }
         });
       }

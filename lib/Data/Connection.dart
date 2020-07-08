@@ -593,4 +593,30 @@ class Connection {
 
     return result;
   }
+
+  static Future<List<TaskTemplate>> getTaskTemplates() async {
+    List<TaskTemplate> result = List<TaskTemplate>();
+    Logger.log('getting task templates');
+    User user = Data.curUser;
+
+    try {
+      final response = await http.get(
+        '$url/tasks/templates',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = jsonDecode(response.body);
+        parsedList.forEach((item) {
+          result.add(TaskTemplate.fromJSON(item));
+        });
+      } else {
+        Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
 }

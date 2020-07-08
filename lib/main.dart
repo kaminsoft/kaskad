@@ -5,6 +5,8 @@ import 'package:flare_flutter/flare_cache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 
 import 'package:mobile_kaskad/MainPage.dart';
@@ -91,6 +93,15 @@ class MyApp extends StatelessWidget {
               themeMode: mode,
               title: 'КАСКАД',
               debugShowCheckedModeBanner: false,
+              localizationsDelegates: [
+                // ... app-specific localization delegate[s] here
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: [
+                const Locale('ru', ''),
+              ],
               home: StoreConnector<AppState, User>(
                   converter: (store) => store.state.user,
                   builder: (context, user) {

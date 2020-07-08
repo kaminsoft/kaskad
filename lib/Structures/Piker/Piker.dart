@@ -29,14 +29,11 @@ class PikerController extends ValueNotifier<LinkItem> {
   final String type;
   final String label;
   PikerController _owner;
-    
+
   PikerController get owner => _owner;
 
-  PikerController({
-    @required this.type,
-    @required this.label,
-    LinkItem value,
-  }) : super(value == null ? LinkItem() : value);
+  PikerController({@required this.type, @required this.label, LinkItem value})
+      : super(value == null ? LinkItem() : value);
 
   void setOwner(PikerController owner) {
     _owner = owner;

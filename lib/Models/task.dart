@@ -1,7 +1,5 @@
-
 import 'package:mobile_kaskad/Models/attachment.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
-
 
 class Task {
   String guid;
@@ -79,7 +77,7 @@ class Task {
 
   factory Task.fromJSON(Map<String, dynamic> map) {
     if (map == null) return null;
-  
+
     return Task(
       guid: map['guid'],
       number: map['number'],
@@ -87,7 +85,9 @@ class Task {
       text: map['text'],
       comment: map['comment'],
       date: DateTime.parse(map['date']),
-      releaseDate: map['releaseDate'] == null ? DateTime.now() : DateTime.parse(map['releaseDate']),
+      releaseDate: map['releaseDate'] == null
+          ? DateTime.now()
+          : DateTime.parse(map['releaseDate']),
       releaseBefore: DateTime.parse(map['releaseBefore']),
       kontragent: LinkItem.fromJSON(map['kontragent']),
       kontragentUser: LinkItem.fromJSON(map['kontragentUser']),
@@ -95,11 +95,49 @@ class Task {
       theme: LinkItem.fromJSON(map['theme']),
       executer: LinkItem.fromJSON(map['executer']),
       author: LinkItem.fromJSON(map['author']),
-      attachments: map['attachments'] == null ? [] : List<Attachment>.from(map['attachments']?.map((x) => Attachment.fromJSON(x))),
+      attachments: map['attachments'] == null
+          ? []
+          : List<Attachment>.from(
+              map['attachments']?.map((x) => Attachment.fromJSON(x))),
       hasAccess: map['hasAccess'],
       isOwner: map['isOwner'],
       isExecuter: map['isExecuter'],
       isAuthor: map['isAuthor'],
+    );
+  }
+}
+
+class TaskTemplate {
+  String name;
+
+  LinkItem group;
+  LinkItem theme;
+  LinkItem executer;
+
+  TaskTemplate({
+    this.name,
+    this.group,
+    this.theme,
+    this.executer,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'group': group?.toJson(),
+      'theme': theme?.toJson(),
+      'executer': executer?.toJson(),
+    };
+  }
+
+  factory TaskTemplate.fromJSON(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return TaskTemplate(
+      name: map['name'],
+      group: LinkItem.fromJSON(map['group']),
+      theme: LinkItem.fromJSON(map['theme']),
+      executer: LinkItem.fromJSON(map['executer']),
     );
   }
 }
