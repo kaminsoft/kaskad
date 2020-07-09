@@ -144,7 +144,11 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: ColorMain, foregroundColor: Colors.white),
-      cupertinoOverrideTheme: CupertinoThemeData(brightness: Brightness.dark),
+      cupertinoOverrideTheme: CupertinoThemeData(
+          brightness: Brightness.dark,
+          textTheme: CupertinoTextThemeData(
+            dateTimePickerTextStyle: TextStyle(color: Colors.white),
+          )),
       accentColor: ColorMainLight,
       colorScheme: Theme.of(context).colorScheme.copyWith(
           primary: ColorMainLight,
