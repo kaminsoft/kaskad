@@ -3,19 +3,14 @@ import 'dart:io';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_kaskad/Data/Connection.dart';
-import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
-import 'package:mobile_kaskad/Structures/Piker/PikerForm.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
-import 'package:toast/toast.dart';
 
 class ItemWidget extends StatefulWidget {
   final String guid;
@@ -53,8 +48,6 @@ class _ItemWidgetState extends State<ItemWidget> {
     type: "ТемыКонтактов",
     label: "Тема",
   );
-
-  final _formKey = GlobalKey<PikerFormState>();
 
   @override
   void initState() {

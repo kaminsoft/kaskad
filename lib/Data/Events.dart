@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_eventemitter/flutter_eventemitter.dart';
@@ -15,11 +13,12 @@ class Events {
       Post.openItem(context, data['id']);
     });
 
-     EventEmitter.subscribe('OpenBirthday', (data) {
+    EventEmitter.subscribe('OpenBirthday', (data) {
       Data.analytics.logEvent(name: 'open_birthday_push');
-      WorkerHelper.openBirthdayWidget(context, workers: Woker.listFromJSONString(data));
+      WorkerHelper.openBirthdayWidget(context,
+          workers: Woker.listFromJSONString(data));
     });
-    
+
     EventEmitter.subscribe('ShowSnakBarNewMessage', (data) {
       String _title = data['title'];
       _title = _title.length > 65 ? _title.substring(0, 62) + '...' : _title;
@@ -54,8 +53,8 @@ class Events {
 
     EventEmitter.subscribe('ShowSnakBarBirthday', (data) {
       List<Woker> workers = Woker.listFromJSONString(data);
-      var list = workers.map((e)=> e.shortName);
-      
+      var list = workers.map((e) => e.shortName);
+
       Flushbar(
         messageText: Text(
           list.toString(),

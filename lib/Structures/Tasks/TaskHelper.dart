@@ -6,10 +6,10 @@ import 'package:mobile_kaskad/Structures/Tasks/NewItemWidget.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskList.dart';
 
 abstract class TaskStatus {
-  static String New = "Новая";
-  static String Done = "Завершена";
-  static String Work = "В работе";
-  static String Canceled = "Отменена";
+  static const String New = "Новая";
+  static const String Done = "Завершена";
+  static const String Work = "В работе";
+  static const String Canceled = "Отменена";
 }
 
 extension StringTaskStatusExtension on String {

@@ -98,7 +98,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
               title: DropdownButton<String>(
                   style: TextStyle(
                       fontSize: 20,
-                      color: Theme.of(context).textTheme.body1.color),
+                      color: Theme.of(context).textTheme.bodyText2.color),
                   value: (isPublicate ? 'Объявление' : 'Сообщение'),
                   underline: Container(),
                   items: <String>['Сообщение', 'Объявление']
@@ -323,7 +323,7 @@ class _RecipientListState extends State<RecipientList> {
               padding: EdgeInsets.all(10),
               textAlign: TextAlign.center,
               placeholder: "Поиск",
-              style: Theme.of(context).textTheme.body1,
+              style: Theme.of(context).textTheme.bodyText2,
               onChanged: (text) {
                 if (filter.text.isNotEmpty) {
                   setState(() {
@@ -375,7 +375,8 @@ class _RecipientListState extends State<RecipientList> {
                                         child: Text("Отмена")),
                                     actions: <Widget>[
                                       CupertinoActionSheetAction(
-                                        child: Text('Отметить сотрудников группы'),
+                                        child:
+                                            Text('Отметить сотрудников группы'),
                                         onPressed: () async {
                                           List<String> ids =
                                               await Connection.getUsersInList(

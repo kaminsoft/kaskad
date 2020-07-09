@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
@@ -26,7 +25,7 @@ class NewVersion {
               version == Data.version
                   ? "Версия $version (текущая)"
                   : "Версия $version",
-              style: Theme.of(mainWidgetKey.currentContext).textTheme.title,
+              style: Theme.of(mainWidgetKey.currentContext).textTheme.headline6,
             ),
           ],
         ),
@@ -97,7 +96,7 @@ class NewVersion {
                     fontSize: 14,
                     color: Theme.of(mainWidgetKey.currentContext)
                         .textTheme
-                        .body1
+                        .bodyText2
                         .color
                         .withAlpha(150)),
               ),
@@ -243,11 +242,12 @@ class _ItemWidgetState extends State<ItemWidget> {
           children: <Widget>[
             Text(
               "Что нового",
-              style: Theme.of(context).textTheme.subtitle,
+              style: Theme.of(context).textTheme.subtitle2,
             ),
             Text(
               Data.version,
-              style: Theme.of(context).textTheme.subhead.copyWith(fontSize: 12),
+              style:
+                  Theme.of(context).textTheme.subtitle1.copyWith(fontSize: 12),
             ),
           ],
         ),

@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -59,7 +58,10 @@ class _AuthNamePageState extends State<AuthNamePage> {
             });
             _openPass(context, usr);
           },
-          title: Text(usr.username, textAlign: TextAlign.center,),
+          title: Text(
+            usr.username,
+            textAlign: TextAlign.center,
+          ),
         ));
       }
     }
@@ -75,8 +77,6 @@ class _AuthNamePageState extends State<AuthNamePage> {
               )),
     );
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +110,7 @@ class _AuthNamePageState extends State<AuthNamePage> {
   CupertinoTextField usernameInput(
       AsyncSnapshot<List<User>> snapshot, BuildContext context) {
     return CupertinoTextField(
-      style: Theme.of(context).textTheme.body2,
+      style: Theme.of(context).textTheme.bodyText1,
       focusNode: _usernameFocusNode,
       onChanged: (text) {
         setState(() {

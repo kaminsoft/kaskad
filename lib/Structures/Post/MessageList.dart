@@ -50,7 +50,7 @@ class _MessageFilterState extends State<MessageFilter> {
           padding: const EdgeInsets.only(top: 10, bottom: 5),
           child: Text(
             "Настройки",
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         Visibility(
@@ -321,13 +321,13 @@ class _MessageListState extends State<MessageList> {
               children: <Widget>[
                 Text(
                   widget.isPublicate ? 'Объявления' : 'Сообщения',
-                  style: Theme.of(context).textTheme.subtitle,
+                  style: Theme.of(context).textTheme.subtitle2,
                 ),
                 Text(
                   sent ? 'исходящие' : 'входящие',
                   style: Theme.of(context)
                       .textTheme
-                      .subhead
+                      .subtitle1
                       .copyWith(fontSize: 12),
                 ),
               ],

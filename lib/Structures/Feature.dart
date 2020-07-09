@@ -38,6 +38,10 @@ class Feature {
       };
 
   bool operator ==(other) => other.name == name;
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }
 
 _wip(BuildContext context, {String feature}) {

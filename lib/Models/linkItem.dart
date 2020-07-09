@@ -65,6 +65,10 @@ class LinkItem {
   String toString() {
     return name.isNotEmpty ? name : 'Не указано';
   }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }
 
 class CustomField {

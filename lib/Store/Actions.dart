@@ -7,7 +7,6 @@ import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/filters.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
-import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/task.dart';

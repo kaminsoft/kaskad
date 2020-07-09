@@ -54,11 +54,12 @@ class _MainPageState extends State<MainPage> {
       StoreProvider.dispatchFuture(context, UpdateTaskCount());
       subscibed = true;
     }
-    SystemChannels.lifecycle.setMessageHandler((msg) {
+    SystemChannels.lifecycle.setMessageHandler((msg) async {
       if (msg == AppLifecycleState.resumed.toString()) {
         StoreProvider.dispatchFuture(context, UpdateMessageCount());
         StoreProvider.dispatchFuture(context, UpdateTaskCount());
       }
+      return "";
     });
     if (Data.showNews) {
       Data.showNews = false;
@@ -505,8 +506,9 @@ class MessageButton extends StatelessWidget {
             onPressed: onPressed)
         : OutlineButton(
             borderSide: BorderSide(
-                color: Theme.of(context).textTheme.body1.color.withAlpha(100)),
-            textColor: Theme.of(context).textTheme.body1.color,
+                color:
+                    Theme.of(context).textTheme.bodyText2.color.withAlpha(100)),
+            textColor: Theme.of(context).textTheme.bodyText2.color,
             padding: EdgeInsets.all(0),
             color: ColorMain,
             child: body(),

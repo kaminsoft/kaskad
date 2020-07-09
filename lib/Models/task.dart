@@ -105,6 +105,10 @@ class Task {
       isAuthor: map['isAuthor'],
     );
   }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }
 
 class TaskTemplate {

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
@@ -17,7 +15,6 @@ class _BirthdayWidgetState extends State<BirthdayWidget> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        
         Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.transparent,
@@ -39,7 +36,7 @@ class _BirthdayWidgetState extends State<BirthdayWidget> {
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
-                                .title
+                                .headline6
                                 .copyWith(fontSize: 18),
                           ),
                           subtitle: Text(
