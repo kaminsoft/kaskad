@@ -423,14 +423,14 @@ class GetTasks extends ReduxAction<AppState> {
 
 class SetTaskStatus extends ReduxAction<AppState> {
   String guid;
-  String status;
+  String taskStatus;
   String comment;
   String toastText;
   String executer;
 
   SetTaskStatus(
       {@required this.guid,
-      @required this.status,
+      @required this.taskStatus,
       this.comment = '',
       this.toastText = '',
       this.executer = ''});
@@ -438,7 +438,7 @@ class SetTaskStatus extends ReduxAction<AppState> {
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
-    bool success = await Connection.setTaskStatus(guid, status,
+    bool success = await Connection.setTaskStatus(guid, taskStatus,
         comment: comment, executer: executer, onError: (error) {
       Toast.show(
         error,
@@ -449,7 +449,7 @@ class SetTaskStatus extends ReduxAction<AppState> {
     });
     if (success) {
       int index = newState.tasks.indexWhere((element) => element.guid == guid);
-      newState.tasks[index].status = status;
+      newState.tasks[index].status = taskStatus;
       if (toastText.isNotEmpty) {
         Toast.show(
           toastText,

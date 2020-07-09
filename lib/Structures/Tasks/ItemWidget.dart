@@ -304,7 +304,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                 context,
                 SetTaskStatus(
                     guid: task.guid,
-                    status: TaskStatus.Work,
+                    taskStatus: TaskStatus.Work,
                     toastText: "Задача в работе"));
             setState(() {
               loaded = false;
@@ -327,7 +327,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                 context,
                 SetTaskStatus(
                     guid: task.guid,
-                    status: TaskStatus.Done,
+                    taskStatus: TaskStatus.Done,
                     toastText: "Задача выполнена"));
 
             setState(() {
@@ -351,7 +351,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                 context,
                 SetTaskStatus(
                     guid: task.guid,
-                    status: TaskStatus.Canceled,
+                    taskStatus: TaskStatus.Canceled,
                     toastText: "Задача отменена"));
 
             setState(() {
@@ -379,7 +379,7 @@ class _ItemWidgetState extends State<ItemWidget> {
             context,
             SetTaskStatus(
                 guid: task.guid,
-                status: TaskStatus.Work,
+                taskStatus: TaskStatus.Work,
                 toastText: "Задача теперь в работе"));
       }
     }
