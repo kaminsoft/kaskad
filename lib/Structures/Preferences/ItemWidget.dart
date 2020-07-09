@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';

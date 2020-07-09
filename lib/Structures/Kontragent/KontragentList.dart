@@ -48,7 +48,7 @@ class _KontragentListState extends State<KontragentList> {
               title: TextField(
                 controller: filter,
                 focusNode: focusNode,
-                style: Theme.of(context).textTheme.title,
+                style: Theme.of(context).textTheme.headline6,
                 textInputAction: TextInputAction.unspecified,
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -122,7 +122,7 @@ class _KontragentListState extends State<KontragentList> {
                         fontSize: 16,
                         color: Theme.of(context)
                             .textTheme
-                            .body1
+                            .bodyText2
                             .color
                             .withAlpha(200),
                       ),
@@ -144,7 +144,7 @@ class _KontragentListState extends State<KontragentList> {
                         fontSize: 16,
                         color: Theme.of(context)
                             .textTheme
-                            .body1
+                            .bodyText2
                             .color
                             .withAlpha(200)),
                   ),
@@ -176,7 +176,7 @@ class _KontragentListState extends State<KontragentList> {
                   child: Text(
                     'В избранном нет контрагентов\n Для добавления в избранное перейдите в поиск',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.body1,
+                    style: Theme.of(context).textTheme.bodyText2,
                   ),
                 ),
               );
@@ -260,7 +260,7 @@ class _ItemCardState extends State<ItemCard> {
       child: Card(
         child: InkWell(
           onTap: () {
-            Kontr.openItem(context,
+            KontragentHelper.openItem(context,
                 widget.active ? widget.cashedKontragent : widget.kontragent);
           },
           child: Padding(
@@ -277,7 +277,7 @@ class _ItemCardState extends State<ItemCard> {
                       style: TextStyle(
                           color: Theme.of(context)
                               .textTheme
-                              .body1
+                              .bodyText1
                               .color
                               .withAlpha(150),
                           fontSize: 12),
@@ -301,7 +301,7 @@ class _ItemCardState extends State<ItemCard> {
                         style: TextStyle(
                             color: Theme.of(context)
                                 .textTheme
-                                .body1
+                                .bodyText1
                                 .color
                                 .withAlpha(150),
                             fontSize: 12),

@@ -1,4 +1,3 @@
-
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Models/attachment.dart';
@@ -17,14 +16,14 @@ class Message {
   int toCount;
   List<Attachment> attachments;
 
-  bool operator ==(other)  => other.guid == guid;
+  bool operator ==(other) => other.guid == guid;
 
-  String getTittle(){
-    return title.length > 65 ? title.substring(0,62)+'...' : title;
+  String getTittle() {
+    return title.length > 65 ? title.substring(0, 62) + '...' : title;
   }
 
-  String getText(){
-    return text.length > 100 ? text.substring(0,97)+'...' : text;
+  String getText() {
+    return text.length > 100 ? text.substring(0, 97) + '...' : text;
   }
 
   bool isRead() {
@@ -47,8 +46,8 @@ class Message {
     var diff = now.difference(date);
     if (diff.inDays == 0 && now.day == date.day) {
       return DateFormat("HH:mm").format(date);
-    }
-    else if ((diff.inDays == 1 || diff.inDays == 0) && now.day-1 == date.day) {
+    } else if ((diff.inDays == 1 || diff.inDays == 0) &&
+        now.day - 1 == date.day) {
       return "Вчера";
     }
     initializeDateFormatting();
@@ -58,10 +57,10 @@ class Message {
   String getSeparatorText() {
     var now = DateTime.now();
     var diff = now.difference(date);
-     if (diff.inDays == 0 && now.day == date.day) {
+    if (diff.inDays == 0 && now.day == date.day) {
       return "Сегодня";
-    }
-    else if ((diff.inDays == 1 || diff.inDays == 0) && now.day-1 == date.day) {
+    } else if ((diff.inDays == 1 || diff.inDays == 0) &&
+        now.day - 1 == date.day) {
       return "Вчера";
     }
     initializeDateFormatting();
@@ -126,6 +125,10 @@ class Message {
         "toCount": toCount ?? 0,
         "attachments": attachments.map((t) => t.toJson()).toList(),
       };
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }
 
 class NewMessageCount {

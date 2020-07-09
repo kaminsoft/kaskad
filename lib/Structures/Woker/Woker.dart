@@ -5,7 +5,7 @@ import 'package:mobile_kaskad/Structures/Woker/ItemWidget.dart';
 import 'package:mobile_kaskad/Structures/Woker/ListWidget.dart';
 import 'package:mobile_kaskad/Models/woker.dart';
 
-class Wkr {
+class WorkerHelper {
 
   static Future<List<Woker>> getBirthdayWorkers({List<Woker> allWorkers}) async{
     if (allWorkers == null) {

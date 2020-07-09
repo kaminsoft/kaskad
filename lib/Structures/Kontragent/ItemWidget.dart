@@ -184,7 +184,11 @@ class _ItemWidgetState extends State<ItemWidget> {
                         padding: const EdgeInsets.only(left: 8, top: 8),
                         child: Icon(
                           Icons.lock,
-                          color: Theme.of(context).textTheme.body1.color.withAlpha(150),
+                          color: Theme.of(context)
+                              .textTheme
+                              .bodyText2
+                              .color
+                              .withAlpha(150),
                         ),
                       ),
                       Padding(
@@ -207,6 +211,7 @@ class _ItemWidgetState extends State<ItemWidget> {
       ),
     );
   }
+
   Widget _emptyPersons() {
     return Column(
       children: <Widget>[
@@ -221,14 +226,24 @@ class _ItemWidgetState extends State<ItemWidget> {
                 Icon(
                   CupertinoIcons.person_solid,
                   size: 48,
-                  color: Theme.of(context).textTheme.body1.color.withAlpha(150),
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      .color
+                      .withAlpha(150),
                 ),
                 SizedBox(
                   height: 5,
                 ),
                 Text(
                   'Нет контактных лиц'.toUpperCase(),
-                  style: TextStyle(fontSize: 14, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyText2
+                          .color
+                          .withAlpha(150)),
                 ),
               ],
             ),
@@ -274,7 +289,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget _getINNKPP() {
     return SizedBox(
-      height: 50*MediaQuery.of(context).textScaleFactor,
+      height: 50 * MediaQuery.of(context).textScaleFactor,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: <Widget>[
@@ -288,7 +303,7 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Widget _getKontacts() {
     return SizedBox(
-      height: 50*MediaQuery.of(context).textScaleFactor,
+      height: 50 * MediaQuery.of(context).textScaleFactor,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: <Widget>[
@@ -325,7 +340,11 @@ class _ItemWidgetState extends State<ItemWidget> {
                     child: Icon(
                       CupertinoIcons.person_solid,
                       size: 36,
-                      color: Theme.of(context).textTheme.body1.color.withAlpha(150),
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyText2
+                          .color
+                          .withAlpha(150),
                     ),
                   ),
                   Expanded(
@@ -348,8 +367,13 @@ class _ItemWidgetState extends State<ItemWidget> {
                             person.position.isEmpty
                                 ? 'Должность не указана'
                                 : person.position,
-                            style:
-                                TextStyle(fontSize: 14, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyText2
+                                    .color
+                                    .withAlpha(150)),
                           ),
                         ),
                       ],
@@ -432,7 +456,9 @@ class _DogovorWidgetState extends State<DogovorWidget> {
           child: Text(
         'Нет действующих договоров',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
+        style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).textTheme.bodyText2.color.withAlpha(150)),
       ));
     }
 
@@ -527,7 +553,9 @@ class _ProductWidgetState extends State<ProductWidget> {
           child: Text(
         'Нет продуктов, ИТС и сервисов',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.body1.color.withAlpha(150)),
+        style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).textTheme.bodyText2.color.withAlpha(150)),
       ));
     }
 
@@ -585,7 +613,7 @@ class _ProductWidgetState extends State<ProductWidget> {
         ),
       );
     }
-    
+
     return serviceCard(element);
   }
 
@@ -608,8 +636,30 @@ class _ProductWidgetState extends State<ProductWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            Text(element['regNumber'], style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150)),),
-            element['summ'] > 0 ? Text("Платный", style: TextStyle(color: Theme.of(context).colorScheme.onSurface),) : Text("Бесплатный", style: TextStyle(color: Theme.of(context).textTheme.body1.color.withAlpha(150)),),
+            Text(
+              element['regNumber'],
+              style: TextStyle(
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      .color
+                      .withAlpha(150)),
+            ),
+            element['summ'] > 0
+                ? Text(
+                    "Платный",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface),
+                  )
+                : Text(
+                    "Бесплатный",
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodyText2
+                            .color
+                            .withAlpha(150)),
+                  ),
             Text(element['status']),
             //Text(element['sotrudnik']),
           ],
@@ -619,7 +669,9 @@ class _ProductWidgetState extends State<ProductWidget> {
   }
 
   Widget _getTypeText(type) {
-    TextStyle _style = TextStyle(color:Theme.of(context).textTheme.body1.color.withAlpha(150), fontSize: 16);
+    TextStyle _style = TextStyle(
+        color: Theme.of(context).textTheme.bodyText2.color.withAlpha(150),
+        fontSize: 16);
     if (type == 'product') {
       return Text(
         'Продукты',

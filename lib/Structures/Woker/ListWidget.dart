@@ -38,8 +38,8 @@ class _ListWidgetState extends State<ListWidget> {
 
   void updateBirtdays(List<Woker> workers) async {
     await DBProvider.db.saveWorkers(list);
-    var blist = await Wkr.getBirthdayWorkers(allWorkers: list);
-    setState((){
+    var blist = await WorkerHelper.getBirthdayWorkers(allWorkers: list);
+    setState(() {
       birthdayWorkers = blist;
     });
   }
@@ -71,7 +71,7 @@ class _ListWidgetState extends State<ListWidget> {
               title: TextField(
                 controller: filter,
                 focusNode: focusNode,
-                style: Theme.of(context).textTheme.title,
+                style: Theme.of(context).textTheme.headline6,
                 textInputAction: TextInputAction.unspecified,
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -143,7 +143,8 @@ class _ListWidgetState extends State<ListWidget> {
       floatingActionButton: Visibility(
           visible: birthdayWorkers.length > 0,
           child: FloatingActionButton(
-            onPressed: () => Wkr.openBirthdayWidget(context, workers: birthdayWorkers),
+            onPressed: () => WorkerHelper.openBirthdayWidget(context,
+                workers: birthdayWorkers),
             backgroundColor: ColorMain,
             child: Icon(Icons.cake),
           )),
@@ -159,7 +160,7 @@ class _ListWidgetState extends State<ListWidget> {
             child: Text(
               'Нет данных для отображения',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.body1,
+              style: Theme.of(context).textTheme.bodyText2,
             ),
           );
         }
@@ -181,7 +182,7 @@ class _ListWidgetState extends State<ListWidget> {
                     trailing: Icon(
                       Icons.chevron_right,
                     ),
-                    onTap: () => Wkr.openItem(context, woker),
+                    onTap: () => WorkerHelper.openItem(context, woker),
                   ),
                 ),
               );

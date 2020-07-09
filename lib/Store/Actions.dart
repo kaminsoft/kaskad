@@ -1,16 +1,20 @@
 import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
+import 'package:mobile_kaskad/Models/filters.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
+import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Models/user.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Feature.dart';
 import 'package:mobile_kaskad/Structures/Preferences/Preferences.dart';
+import 'package:toast/toast.dart';
 
 // Settings
 class SetBottomBar extends ReduxAction<AppState> {
@@ -23,7 +27,8 @@ class SetBottomBar extends ReduxAction<AppState> {
     AppState newState = AppState.copy(state);
     newState.settings.bottomBar = bottomBar;
     for (var feature in newState.features) {
-      if (feature.isMessage || feature.isPublicate) {
+      if (feature.role == FeatureRole.message ||
+          feature.role == FeatureRole.publicate) {
         feature.enabled = !bottomBar;
       }
     }
@@ -62,7 +67,6 @@ class SetRemindOnBirthday extends ReduxAction<AppState> {
   }
 }
 
-
 class SetSettings extends ReduxAction<AppState> {
   final Settings settings;
 
@@ -74,7 +78,8 @@ class SetSettings extends ReduxAction<AppState> {
     newState.settings = settings;
     if (state.settings.bottomBar != settings.bottomBar) {
       for (var feature in newState.features) {
-        if (feature.isMessage || feature.isPublicate) {
+        if (feature.role == FeatureRole.message ||
+            feature.role == FeatureRole.publicate) {
           feature.enabled = !settings.bottomBar;
         }
       }
@@ -158,11 +163,15 @@ class SetReadAll extends ReduxAction<AppState> {
     await Connection.setReadAll(isPublicate);
     newState.messageCount.message = 0;
     newState.messageCount.post = 0;
-    
+
     if (isPublicate) {
-      newState.messagesP.where((m) => m.status != 'Прочитано').forEach((m) => m.status = 'Прочитано');
+      newState.messagesP
+          .where((m) => m.status != 'Прочитано')
+          .forEach((m) => m.status = 'Прочитано');
     } else {
-      newState.messages.where((m) => m.status != 'Прочитано').forEach((m) => m.status = 'Прочитано');
+      newState.messages
+          .where((m) => m.status != 'Прочитано')
+          .forEach((m) => m.status = 'Прочитано');
     }
     return newState;
   }
@@ -194,7 +203,8 @@ class UpdateMessages extends ReduxAction<AppState> {
   final bool justNew;
   final bool sent;
 
-  UpdateMessages(this.isPublicate, {this.addBefore = false, this.justNew = false, this.sent = false});
+  UpdateMessages(this.isPublicate,
+      {this.addBefore = false, this.justNew = false, this.sent = false});
 
   @override
   FutureOr<AppState> reduce() async {
@@ -205,7 +215,8 @@ class UpdateMessages extends ReduxAction<AppState> {
         return null;
       }
       var msgs = await Connection.getMessageList(isPublicate,
-          justNew: justNew, sent: sent,
+          justNew: justNew,
+          sent: sent,
           lastNum: addBefore ? null : newState.messagesP.last.number,
           firstNum: newState.messagesP.first.number);
       if (addBefore) {
@@ -218,7 +229,8 @@ class UpdateMessages extends ReduxAction<AppState> {
         return null;
       }
       var msgs = await Connection.getMessageList(isPublicate,
-          justNew: justNew, sent: sent,
+          justNew: justNew,
+          sent: sent,
           lastNum: addBefore ? null : newState.messages.last.number,
           firstNum: newState.messages.first.number);
       if (addBefore) {
@@ -245,7 +257,7 @@ class AddMessage extends ReduxAction<AppState> {
 
 class ClearMessages extends ReduxAction<AppState> {
   final bool isPublicate;
-  
+
   ClearMessages(this.isPublicate);
 
   @override
@@ -375,6 +387,145 @@ class RemoveKontragent extends ReduxAction<AppState> {
 
     newState.kontragents.removeWhere((k) => k.guid == kontragent.guid);
     DBProvider.db.saveKontragents(newState.kontragents);
+    return newState;
+  }
+}
+
+// tasks
+class GetTasks extends ReduxAction<AppState> {
+  bool clearLoad;
+  TaskFilter filter;
+
+  GetTasks({this.clearLoad = true, this.filter});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+
+    List<Task> newList = await Connection.getTasks(
+        forMe: filter.forMe,
+        status: filter.statusString,
+        kontragent: filter.kontragent,
+        theme: filter.theme,
+        executer: filter.executer,
+        group: filter.group,
+        last: clearLoad ? '' : newState.tasks.last.number);
+
+    if (clearLoad) {
+      newState.tasks = newList;
+    } else {
+      newState.tasks.addAll(newList);
+    }
+
+    return newState;
+  }
+}
+
+class SetTaskStatus extends ReduxAction<AppState> {
+  String guid;
+  String status;
+  String comment;
+  String toastText;
+  String executer;
+
+  SetTaskStatus(
+      {@required this.guid,
+      @required this.status,
+      this.comment = '',
+      this.toastText = '',
+      this.executer = ''});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    bool success = await Connection.setTaskStatus(guid, status,
+        comment: comment, executer: executer, onError: (error) {
+      Toast.show(
+        error,
+        mainWidgetKey.currentContext,
+        gravity: Toast.BOTTOM,
+        duration: 5,
+      );
+    });
+    if (success) {
+      int index = newState.tasks.indexWhere((element) => element.guid == guid);
+      newState.tasks[index].status = status;
+      if (toastText.isNotEmpty) {
+        Toast.show(
+          toastText,
+          mainWidgetKey.currentContext,
+          gravity: Toast.BOTTOM,
+          duration: 5,
+        );
+      }
+    }
+    return newState;
+  }
+}
+
+class SaveTask extends ReduxAction<AppState> {
+  Task task;
+  bool authorInfo;
+  SaveTask({@required this.task, this.authorInfo = true});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    String guid = await Connection.saveTask(
+        task: task,
+        authorInfo: authorInfo,
+        onError: (error) {
+          Toast.show(
+            error,
+            mainWidgetKey.currentContext,
+            gravity: Toast.BOTTOM,
+            duration: 5,
+          );
+        });
+    if (guid.isNotEmpty) {
+      Task newTask = await Connection.getTask(guid);
+      if (task.guid.isEmpty) {
+        newState.tasks.insert(0, newTask);
+      } else {
+        int index =
+            newState.tasks.indexWhere((element) => element.guid == guid);
+        newState.tasks[index] = newTask;
+      }
+    }
+    return newState;
+  }
+}
+
+class UpdateTask extends ReduxAction<AppState> {
+  String guid;
+
+  UpdateTask({@required this.guid});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    int index = newState.tasks.indexWhere((element) => element.guid == guid);
+    Task newTask = await Connection.getTask(guid);
+    newTask.loaded = true;
+    newState.tasks[index] = newTask;
+    return newState;
+  }
+}
+
+class UpdateTaskCount extends ReduxAction<AppState> {
+  UpdateTaskCount();
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    bool tasksEnabled =
+        newState.features.firstWhere((f) => f.role == FeatureRole.task) != null;
+
+    newState.taskCount = '';
+    if (tasksEnabled) {
+      newState.taskCount = await Connection.getTaskCount();
+    }
+
     return newState;
   }
 }

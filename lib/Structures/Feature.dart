@@ -1,13 +1,15 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Pages/underConstruction.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
+import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
 typedef PressCallback = void Function(BuildContext context, {String feature});
+
+enum FeatureRole { none, message, publicate, task }
 
 class Feature {
   final String name;
@@ -15,9 +17,8 @@ class Feature {
   final IconData icon;
   final Color color;
   final String image;
+  final FeatureRole role;
   bool enabled;
-  bool isMessage;
-  bool isPublicate;
 
   final PressCallback onPressed;
 
@@ -29,8 +30,7 @@ class Feature {
       this.onPressed,
       this.image,
       this.enabled = false,
-      this.isMessage = false,
-      this.isPublicate = false});
+      this.role = FeatureRole.none});
 
   Map<String, dynamic> toJson() => {
         "name": name,
@@ -38,6 +38,10 @@ class Feature {
       };
 
   bool operator ==(other) => other.name == name;
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }
 
 _wip(BuildContext context, {String feature}) {
@@ -56,26 +60,31 @@ List<Feature> getInitialFeatureList() {
         enabled: true,
         name: 'Контрагенты',
         image: 'assets/img/cards/kontragent.png',
-        onPressed: (ctx, {feature}) => Kontr.openList(ctx)),
+        onPressed: (ctx, {feature}) => KontragentHelper.openList(ctx)),
     Feature(
         enabled: true,
         name: 'Сотрудники',
         image: 'assets/img/cards/sotrudnik.png',
-        onPressed: (ctx, {feature}) => Wkr.openList(ctx)),
+        onPressed: (ctx, {feature}) => WorkerHelper.openList(ctx)),
     Feature(
         name: 'Сообщения',
         image: 'assets/img/cards/post01.png',
-        isMessage: true,
+        role: FeatureRole.message,
         onPressed: (ctx, {feature}) => Post.openList(ctx, false)),
     Feature(
         name: 'Объявления',
         image: 'assets/img/cards/post02.png',
-        isPublicate: true,
-        onPressed: (ctx, {feature}) => Post.openList(ctx, true,)),
+        role: FeatureRole.publicate,
+        onPressed: (ctx, {feature}) => Post.openList(
+              ctx,
+              true,
+            )),
     Feature(
+        enabled: true,
         name: 'Задачи',
+        role: FeatureRole.task,
         image: 'assets/img/cards/task.png',
-        onPressed: _wip),
+        onPressed: (ctx, {feature}) => TaskHelper.openList(ctx)),
     Feature(
         name: 'Контакты',
         image: 'assets/img/cards/contact.png',

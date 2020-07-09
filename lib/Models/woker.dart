@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
@@ -18,10 +17,23 @@ class Woker {
   String email;
   String workEmail;
   String homePhone;
-  
-  Woker({this.guid, this.name, this.shortName, this.sex, this.position, this.subdivision, this.mobilePhone, this.birthday, this.workPhone, this.email, this.internalPhone, this.workEmail, this.homePhone});
 
-  bool operator ==(other)  => other.guid == guid;
+  Woker(
+      {this.guid,
+      this.name,
+      this.shortName,
+      this.sex,
+      this.position,
+      this.subdivision,
+      this.mobilePhone,
+      this.birthday,
+      this.workPhone,
+      this.email,
+      this.internalPhone,
+      this.workEmail,
+      this.homePhone});
+
+  bool operator ==(other) => other.guid == guid;
 
   String getBirthdayString() {
     initializeDateFormatting();
@@ -30,11 +42,11 @@ class Woker {
 
   static List<Woker> listFromJSONString(String jsonString) {
     var items = jsonDecode(jsonString);
-      List<Woker> workers = List<Woker>();
-      for (var item in items) {
-        workers.add(Woker.fromJSON(item));
-      }
-      return workers;
+    List<Woker> workers = List<Woker>();
+    for (var item in items) {
+      workers.add(Woker.fromJSON(item));
+    }
+    return workers;
   }
 
   factory Woker.fromJSON(Map<String, dynamic> json) {
@@ -46,7 +58,9 @@ class Woker {
       position: json["position"],
       subdivision: json["subdivision"],
       mobilePhone: json["mobilePhone"],
-      birthday: json["birthday"] == null ? DateTime.now() : DateTime.parse(json["birthday"]),
+      birthday: json["birthday"] == null
+          ? DateTime.now()
+          : DateTime.parse(json["birthday"]),
       workPhone: json["workPhone"],
       internalPhone: json["internalPhone"],
       email: json["email"],
@@ -55,7 +69,7 @@ class Woker {
     );
   }
 
-   Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "guid": guid,
         "name": name,
         "shortName": shortName,
@@ -69,5 +83,9 @@ class Woker {
         "email": email,
         "workEmail": workEmail,
         "homePhone": homePhone,
-    };
+      };
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }

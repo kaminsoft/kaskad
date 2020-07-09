@@ -1,6 +1,7 @@
 
 class User {
   int id;
+  String guid;
   String username;
   String firstname;
   String lastname;

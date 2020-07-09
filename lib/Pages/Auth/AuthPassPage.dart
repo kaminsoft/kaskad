@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -44,7 +42,10 @@ class _AuthPassPageState extends State<AuthPassPage> {
         _authwrong = false;
         _isLoading = false;
       });
-      Navigator.popUntil(context, (ModalRoute.withName('/')),);
+      Navigator.popUntil(
+        context,
+        (ModalRoute.withName('/')),
+      );
     } else {
       setState(() {
         _authwrong = true;
@@ -68,23 +69,23 @@ class _AuthPassPageState extends State<AuthPassPage> {
                     Text(
                       "Здравствуйте,",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.body1,
+                      style: Theme.of(context).textTheme.bodyText2,
                     ),
                     Text(
                       "${widget.user.firstname}!",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.title,
+                      style: Theme.of(context).textTheme.headline6,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10, bottom: 5),
                       child: Text(
                         "Для продолжения введите свой пароль",
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.body1,
+                        style: Theme.of(context).textTheme.bodyText2,
                       ),
                     ),
                     CupertinoTextField(
-                      style: Theme.of(context).textTheme.body2,
+                      style: Theme.of(context).textTheme.bodyText1,
                       textAlign: TextAlign.center,
                       placeholder: 'Пароль',
                       autofocus: true,
@@ -126,7 +127,7 @@ class _AuthPassPageState extends State<AuthPassPage> {
                         padding: const EdgeInsets.only(left: 10),
                         child: Icon(
                           Icons.vpn_key,
-                          color: Theme.of(context).textTheme.body2.color,
+                          color: Theme.of(context).textTheme.bodyText1.color,
                           size: 12,
                         ),
                       ),
@@ -145,10 +146,12 @@ class _AuthPassPageState extends State<AuthPassPage> {
                       child: Text(
                         "Неправильный пароль",
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.body2.copyWith(color: Colors.red),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1
+                            .copyWith(color: Colors.red),
                       ),
                     ),
-                  
                   ],
                 ),
               ),

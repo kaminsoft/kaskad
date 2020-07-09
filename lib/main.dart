@@ -5,6 +5,7 @@ import 'package:flare_flutter/flare_cache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:logging/logging.dart';
 
 import 'package:mobile_kaskad/MainPage.dart';
@@ -40,6 +41,8 @@ class MyRouteObserver extends RouteObserver<PageRoute<dynamic>> {
       Timer(Duration(milliseconds: 500), () {
         StoreProvider.dispatchFuture(
             previousRoute.navigator.context, UpdateMessageCount());
+        StoreProvider.dispatchFuture(
+            previousRoute.navigator.context, UpdateTaskCount());
       });
     }
     super.didPop(route, previousRoute);
@@ -89,6 +92,15 @@ class MyApp extends StatelessWidget {
               themeMode: mode,
               title: 'КАСКАД',
               debugShowCheckedModeBanner: false,
+              localizationsDelegates: [
+                // ... app-specific localization delegate[s] here
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: [
+                const Locale('ru', ''),
+              ],
               home: StoreConnector<AppState, User>(
                   converter: (store) => store.state.user,
                   builder: (context, user) {
@@ -118,9 +130,9 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.light,
           color: ColorGray,
           textTheme: TextTheme(
-              title: Theme.of(context)
+              headline6: Theme.of(context)
                   .textTheme
-                  .title
+                  .headline6
                   .copyWith(color: Colors.black)),
           elevation: 0,
           iconTheme: IconThemeData(color: Colors.black)),
@@ -145,8 +157,10 @@ class MyApp extends StatelessWidget {
           elevation: 0,
           iconTheme: IconThemeData(color: Colors.white)),
       textTheme: TextTheme(
-          title:
-              Theme.of(context).textTheme.title.copyWith(color: Colors.white)),
+          headline6: Theme.of(context)
+              .textTheme
+              .headline6
+              .copyWith(color: Colors.white)),
       scaffoldBackgroundColor: ColorDark,
     );
   }

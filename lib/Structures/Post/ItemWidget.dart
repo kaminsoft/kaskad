@@ -28,7 +28,7 @@ class _ItemWidgetState extends State<ItemWidget> {
   Map<String, Widget> cacheWidgets = Map<String, Widget>();
   List<Message> cacheMessages = List<Message>();
   Widget bottomBar;
-  
+
   loadMessage(String guid, {bool updateList = false}) async {
     if (updateList) {
       await StoreProvider.dispatchFuture(context, LoadMessages(false));
@@ -46,10 +46,9 @@ class _ItemWidgetState extends State<ItemWidget> {
       });
     } else {
       //setState(() {
-       // bottomBar = getBottomBar(context, messages.firstWhere((m) => m.guid == guid));
+      // bottomBar = getBottomBar(context, messages.firstWhere((m) => m.guid == guid));
       //});
     }
-
   }
 
   @override
@@ -72,22 +71,22 @@ class _ItemWidgetState extends State<ItemWidget> {
             }
 
             return Scaffold(
-                appBar: AppBar(
-                  title: Text(
-                    isPublicite ? 'Объявление' : 'Cообщение',
-                  ),
-                  centerTitle: true,
+              appBar: AppBar(
+                title: Text(
+                  isPublicite ? 'Объявление' : 'Cообщение',
                 ),
-                body: Builder(builder: (ctx) {
-                  if (cacheWidgets.containsKey(widget.id)) {
-                    return cacheWidgets[widget.id];
-                  }
-                  return Center(
-                    child: CupertinoActivityIndicator(),
-                  );
-                }),
-                bottomNavigationBar: bottomBar,
+                centerTitle: true,
+              ),
+              body: Builder(builder: (ctx) {
+                if (cacheWidgets.containsKey(widget.id)) {
+                  return cacheWidgets[widget.id];
+                }
+                return Center(
+                  child: CupertinoActivityIndicator(),
                 );
+              }),
+              bottomNavigationBar: bottomBar,
+            );
           }
 
           loadMessage(widget.id);
@@ -103,10 +102,13 @@ class _ItemWidgetState extends State<ItemWidget> {
               body: PageView.builder(
                   controller: controller,
                   itemCount: messages.length,
-                  onPageChanged: (index) async{
+                  onPageChanged: (index) async {
                     await loadMessage(messages[index].guid);
                     setState(() {
-                      bottomBar = getBottomBar(context, cacheMessages.firstWhere((m)=> m.guid == messages[index].guid));
+                      bottomBar = getBottomBar(
+                          context,
+                          cacheMessages.firstWhere(
+                              (m) => m.guid == messages[index].guid));
                     });
                     if (index == messages.length - 1) {
                       StoreProvider.dispatch(
@@ -158,7 +160,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                 isPublicate: msg.isPublicite);
             break;
           case 3: // attachments
-            Post.showAttachments(context, msg);
+            Post.showAttachments(context, msg.attachments);
             break;
           default:
         }
@@ -183,7 +185,8 @@ class _ItemWidgetState extends State<ItemWidget> {
 
     if (msg.attachments.length > 0) {
       res.add(BottomNavigationBarItem(
-          title: Text('Вложения'), icon: Icon(FontAwesomeIcons.paperclip)));
+          title: Text(msg.attachments.length == 1 ? 'Вложение' : 'Вложения'),
+          icon: Icon(FontAwesomeIcons.paperclip)));
     }
     return res;
   }
@@ -206,7 +209,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                 style: TextStyle(fontSize: 14),
               ),
               GestureDetector(
-                onTap: () => Wkr.openItemById(context, inMsg.from.guid),
+                onTap: () =>
+                    WorkerHelper.openItemById(context, inMsg.from.guid),
                 child: Chip(
                   label: Text(inMsg.from.name),
                   avatar: CircleAvatar(
@@ -249,8 +253,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                                       itemBuilder:
                                           (BuildContext context, int index) {
                                         return ListTile(
-                                          onTap: () => Wkr.openItemById(
-                                              context, inMsg.to[index].guid),
+                                          onTap: () =>
+                                              WorkerHelper.openItemById(context,
+                                                  inMsg.to[index].guid),
                                           title: Text(inMsg.to[index].name),
                                         );
                                       },
@@ -291,7 +296,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Wkr.openItemById(context, inMsg.to.first.guid);
+                            WorkerHelper.openItemById(
+                                context, inMsg.to.first.guid);
                           },
                           child: Chip(
                             label: Text(inMsg.to.first.name),

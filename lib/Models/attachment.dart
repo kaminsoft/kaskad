@@ -48,13 +48,13 @@ Attachment({this.value, this.name, this.type});
   void _openAvaliableType(BuildContext context) async {
     switch (type) {
       case "Справочник.Контрагенты":
-        Kontr.openItem(context, Kontragent(guid: value, name: name));
+        KontragentHelper.openItem(context, Kontragent(guid: value, name: name));
         break;
       case "Документ.Сообщение":
         Post.openItem(context, value);
         break;
       case "Справочник.Пользователи":
-        Wkr.openItem(context, await DBProvider.db.getWorker(value));
+        WorkerHelper.openItem(context, await DBProvider.db.getWorker(value));
         break;
       default:
     }

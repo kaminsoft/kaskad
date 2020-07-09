@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 class Kontragent {
@@ -16,13 +15,27 @@ class Kontragent {
   List<KontaktPerson> persons;
   List<KontragentSecret> secrets;
 
-  Kontragent({this.guid, this.code, this.name, this.fullName, this.inn, this.kpp, this.adressLegal, this.adressActual, this.email, this.orientir, this.phone, this.persons, this.secrets});
+  Kontragent(
+      {this.guid,
+      this.code,
+      this.name,
+      this.fullName,
+      this.inn,
+      this.kpp,
+      this.adressLegal,
+      this.adressActual,
+      this.email,
+      this.orientir,
+      this.phone,
+      this.persons,
+      this.secrets});
 
-  bool operator ==(other)  => other.guid == guid;
+  bool operator ==(other) => other.guid == guid;
 
   factory Kontragent.fromJSON(Map<String, dynamic> json) {
-
-    var src = json['secrets'] is String ? jsonDecode(json['secrets']) : json['secrets'];
+    var src = json['secrets'] is String
+        ? jsonDecode(json['secrets'])
+        : json['secrets'];
     List<dynamic> _tmp = src == null ? [] : src;
     List<KontragentSecret> secrets = List<KontragentSecret>();
     if (_tmp != null) {
@@ -31,7 +44,9 @@ class Kontragent {
       }
     }
 
-    src = json['persons'] is String ? jsonDecode(json['persons']) : json['persons'];
+    src = json['persons'] is String
+        ? jsonDecode(json['persons'])
+        : json['persons'];
     _tmp = src == null ? [] : src;
     List<KontaktPerson> persons = List<KontaktPerson>();
     if (_tmp != null) {
@@ -71,12 +86,14 @@ class Kontragent {
         "phone": phone,
         "persons": json.encode(persons),
         "secrets": json.encode(secrets),
-    };
+      };
 
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }
 
 class KontaktPerson {
-
   String name;
   String position;
   String phone;
@@ -84,7 +101,13 @@ class KontaktPerson {
   String email;
   bool expanded;
 
-  KontaktPerson({this.name, this.position, this.phone, this.workPhone, this.email, this.expanded = false});
+  KontaktPerson(
+      {this.name,
+      this.position,
+      this.phone,
+      this.workPhone,
+      this.email,
+      this.expanded = false});
 
   factory KontaktPerson.fromJSON(Map<String, dynamic> json) {
     return KontaktPerson(
@@ -102,19 +125,18 @@ class KontaktPerson {
         "phone": phone,
         "workPhone": workPhone,
         "email": email,
-    };
-
+      };
 }
 
 class KontragentSecret {
-
   String type;
   String text;
   String login;
   String password;
   String email;
 
-  KontragentSecret({this.type, this.text, this.login, this.password, this.email});
+  KontragentSecret(
+      {this.type, this.text, this.login, this.password, this.email});
 
   factory KontragentSecret.fromJSON(Map<String, dynamic> json) {
     return KontragentSecret(
@@ -132,6 +154,5 @@ class KontragentSecret {
         "login": login,
         "password": password,
         "email": email,
-    };
-
+      };
 }
