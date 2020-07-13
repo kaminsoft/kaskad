@@ -33,13 +33,22 @@ class _TaskListState extends State<TaskList> {
   TaskFilter filter;
 
   Future _updateList() async {
-    updating = true;
-    await StoreProvider.dispatchFuture(
-        context, GetTasks(clearLoad: false, filter: filter));
-    updating = false;
+    if (!listEnded) {
+      updating = true;
+      var lastLength = list.length;
+      await StoreProvider.dispatchFuture(
+          context, GetTasks(clearLoad: false, filter: filter));
+      updating = false;
+      if (lastLength == list.length) {
+        listEnded = true;
+      } else {
+        listEnded = false;
+      }
+    }
   }
 
   void _onRefresh() async {
+    listEnded = false;
     await StoreProvider.dispatchFuture(
         context, GetTasks(clearLoad: true, filter: filter));
     _refreshController.refreshCompleted();
@@ -52,8 +61,8 @@ class _TaskListState extends State<TaskList> {
     setState(() {
       loading = true;
     });
-    await StoreProvider.dispatchFuture(context, GetTasks(filter: filter));
     listEnded = false;
+    await StoreProvider.dispatchFuture(context, GetTasks(filter: filter));
     setState(() {
       loading = false;
     });
