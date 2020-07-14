@@ -8,6 +8,7 @@ import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
+import 'package:mobile_kaskad/Models/filters.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Models/message.dart';
@@ -453,31 +454,29 @@ class Connection {
     return list;
   }
 
-  static Future<List<Task>> getTasks(
-      {bool forMe = false,
-      String status = '',
-      String last = "",
-      LinkItem kontragent,
-      LinkItem theme,
-      LinkItem group,
-      LinkItem executer}) async {
+  static Future<List<Task>> getTasks({
+    TaskFilter filter,
+    String last = "",
+  }) async {
     List<Task> list = List<Task>();
     User user = Data.curUser;
     Logger.log('getting Tasks');
-    var _kontragent = kontragent == null || kontragent.isEmpty
+    var _kontragent = filter.kontragent == null || filter.kontragent.isEmpty
         ? ''
-        : jsonEncode(kontragent?.toJson());
-    var _theme =
-        theme == null || theme.isEmpty ? '' : jsonEncode(theme?.toJson());
-    var _group =
-        group == null || group.isEmpty ? '' : jsonEncode(group?.toJson());
-    var _executer = executer == null || executer.isEmpty
+        : jsonEncode(filter.kontragent?.toJson());
+    var _theme = filter.theme == null || filter.theme.isEmpty
         ? ''
-        : jsonEncode(executer?.toJson());
-    status = status == 'все' ? '' : status;
+        : jsonEncode(filter.theme?.toJson());
+    var _group = filter.group == null || filter.group.isEmpty
+        ? ''
+        : jsonEncode(filter.group?.toJson());
+    var _executer = filter.executer == null || filter.executer.isEmpty
+        ? ''
+        : jsonEncode(filter.executer?.toJson());
+    var status = filter.statusString == 'все' ? '' : filter.statusString;
     try {
       final response = await http.get(
-        '$url/tasks?forMe=$forMe&status=$status&lastNum=$last&kontragent=$_kontragent&theme=$_theme&group=$_group&executor=$_executer',
+        '$url/tasks?forMe=${filter.forMe}&status=$status&lastNum=$last&kontragent=$_kontragent&theme=$_theme&group=$_group&executor=$_executer',
         headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 

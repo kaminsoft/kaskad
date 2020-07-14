@@ -22,6 +22,27 @@ class Filters {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("TaskFilter", filter.toJson());
   }
+
+  static Future<KontaktFilter> getKontaktFilter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var filter = prefs.getString("KontaktFilter");
+    if (filter == null) {
+      return KontaktFilter(
+        sotrudnik: LinkItem(),
+        kontragent: LinkItem(),
+        vid: LinkItem(),
+        theme: LinkItem(),
+        sposob: LinkItem(),
+        infoSource: LinkItem(),
+      );
+    }
+    return KontaktFilter.fromJson(filter);
+  }
+
+  static void saveKontaktFilter(KontaktFilter filter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("KontaktFilter", filter.toJson());
+  }
 }
 
 class TaskFilter {
@@ -67,6 +88,59 @@ class TaskFilter {
       group: LinkItem.fromJSON(map['group']),
       theme: LinkItem.fromJSON(map['theme']),
       forMe: map['forMe'],
+    );
+  }
+}
+
+class KontaktFilter {
+  String statusString;
+  LinkItem sotrudnik;
+  LinkItem kontragent;
+  LinkItem vid;
+  LinkItem sposob;
+  LinkItem infoSource;
+  LinkItem theme;
+
+  KontaktFilter({
+    this.statusString = "все",
+    this.sotrudnik,
+    this.kontragent,
+    this.vid,
+    this.theme,
+    this.sposob,
+    this.infoSource,
+  });
+
+  get statuses => statusString.split(',');
+  set status(String newStatus) => statusString = newStatus;
+
+  String toJson() => json.encode(toMap());
+
+  static KontaktFilter fromJson(String source) => fromMap(json.decode(source));
+
+  Map<String, dynamic> toMap() {
+    return {
+      'statusString': statusString,
+      'sotrudnik': sotrudnik?.toJson(),
+      'kontragent': kontragent?.toJson(),
+      'vid': vid?.toJson(),
+      'theme': theme?.toJson(),
+      'sposob': sposob?.toJson(),
+      'infoSource': infoSource?.toJson(),
+    };
+  }
+
+  static KontaktFilter fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return KontaktFilter(
+      statusString: map['statusString'],
+      sotrudnik: LinkItem.fromJSON(map['sotrudnik']),
+      kontragent: LinkItem.fromJSON(map['kontragent']),
+      vid: LinkItem.fromJSON(map['vid']),
+      theme: LinkItem.fromJSON(map['theme']),
+      sposob: LinkItem.fromJSON(map['sposob']),
+      infoSource: LinkItem.fromJSON(map['infoSource']),
     );
   }
 }
