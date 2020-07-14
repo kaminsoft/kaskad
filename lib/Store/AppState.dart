@@ -23,6 +23,9 @@ class AppState {
 
   Settings settings;
 
+  bool taskListEnded;
+  bool kontaktListEnded;
+
   static Future<AppState> initState() async {
     var user = await DBProvider.db.getUser();
     Settings prefs = await Preferences.getSettings();
@@ -52,7 +55,9 @@ class AppState {
       this.features,
       this.kontragents,
       this.settings,
-      this.tasks});
+      this.tasks,
+      this.taskListEnded = false,
+      this.kontaktListEnded = false});
 
   AppState.copy(AppState other) {
     messages = List<Message>.from(other.messages);

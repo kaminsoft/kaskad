@@ -20,10 +20,8 @@ class TaskList extends StatefulWidget {
 }
 
 class _TaskListState extends State<TaskList> {
-  List<Task> list = List<Task>();
   bool loading = true;
   bool updating = false;
-  int lastLength = 0;
   bool listEnded = false;
   double _fabOpacity = 1;
   bool _fabVisibility = true;
@@ -33,22 +31,13 @@ class _TaskListState extends State<TaskList> {
   TaskFilter filter;
 
   Future _updateList() async {
-    if (!listEnded) {
-      updating = true;
-      var lastLength = list.length;
-      await StoreProvider.dispatchFuture(
-          context, GetTasks(clearLoad: false, filter: filter));
-      updating = false;
-      if (lastLength == list.length) {
-        listEnded = true;
-      } else {
-        listEnded = false;
-      }
-    }
+    updating = true;
+    await StoreProvider.dispatchFuture(
+        context, GetTasks(clearLoad: false, filter: filter));
+    updating = false;
   }
 
   void _onRefresh() async {
-    listEnded = false;
     await StoreProvider.dispatchFuture(
         context, GetTasks(clearLoad: true, filter: filter));
     _refreshController.refreshCompleted();
@@ -61,7 +50,6 @@ class _TaskListState extends State<TaskList> {
     setState(() {
       loading = true;
     });
-    listEnded = false;
     await StoreProvider.dispatchFuture(context, GetTasks(filter: filter));
     setState(() {
       loading = false;
@@ -118,6 +106,7 @@ class _TaskListState extends State<TaskList> {
               child: NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scrollInfo) {
                   if (!updating &&
+                      !listEnded &&
                       scrollInfo.metrics.pixels >=
                           scrollInfo.metrics.maxScrollExtent - 200 &&
                       scrollInfo.metrics.pixels <=
@@ -127,9 +116,11 @@ class _TaskListState extends State<TaskList> {
                   }
                   return false;
                 },
-                child: StoreConnector<AppState, List<Task>>(
-                  converter: (state) => state.state.tasks,
-                  builder: (context, list) {
+                child: StoreConnector<AppState, AppState>(
+                  converter: (state) => state.state,
+                  builder: (context, state) {
+                    var list = state.tasks;
+                    listEnded = state.taskListEnded;
                     if (list.isEmpty) {
                       return Center(
                         child: Text('Нет данных для отображения'),

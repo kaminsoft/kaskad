@@ -403,19 +403,15 @@ class GetTasks extends ReduxAction<AppState> {
     AppState newState = AppState.copy(state);
 
     List<Task> newList = await Connection.getTasks(
-        forMe: filter.forMe,
-        status: filter.statusString,
-        kontragent: filter.kontragent,
-        theme: filter.theme,
-        executer: filter.executer,
-        group: filter.group,
-        last: clearLoad ? '' : newState.tasks.last.number);
+        filter: filter, last: clearLoad ? '' : newState.tasks.last.number);
 
     if (clearLoad) {
       newState.tasks = newList;
     } else {
       newState.tasks.addAll(newList);
     }
+
+    newState.taskListEnded = newList.isEmpty;
 
     return newState;
   }
