@@ -2,7 +2,7 @@ import 'linkItem.dart';
 
 class Kontakt {
   String guid;
-  String number;
+  int number;
   String status;
   String text;
 
@@ -83,4 +83,47 @@ class Kontakt {
   @override
   // TODO: implement hashCode
   int get hashCode => super.hashCode;
+}
+
+class KontaktTemplate {
+  String name;
+
+  LinkItem vid;
+  LinkItem theme;
+  LinkItem sposob;
+  LinkItem infoSource;
+  String text;
+
+  KontaktTemplate({
+    this.name,
+    this.vid,
+    this.theme,
+    this.sposob,
+    this.infoSource,
+    this.text,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'group': vid?.toJson(),
+      'theme': theme?.toJson(),
+      'sposob': sposob?.toJson(),
+      'infoSource': infoSource?.toJson(),
+      'text': text,
+    };
+  }
+
+  factory KontaktTemplate.fromJSON(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return KontaktTemplate(
+      name: map['name'],
+      text: map['text'],
+      vid: LinkItem.fromJSON(map['vid']),
+      theme: LinkItem.fromJSON(map['theme']),
+      sposob: LinkItem.fromJSON(map['sposob']),
+      infoSource: LinkItem.fromJSON(map['infoSource']),
+    );
+  }
 }

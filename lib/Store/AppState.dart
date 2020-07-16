@@ -1,5 +1,6 @@
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
+import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
@@ -20,6 +21,7 @@ class AppState {
   List<Feature> features;
   List<Kontragent> kontragents;
   List<Task> tasks;
+  List<Kontakt> kontakts;
 
   Settings settings;
 
@@ -43,7 +45,8 @@ class AppState {
         messageCount: NewMessageCount(),
         kontragents: kontr,
         settings: prefs,
-        tasks: List<Task>());
+        tasks: List<Task>(),
+        kontakts: List<Kontakt>());
   }
 
   AppState(
@@ -56,6 +59,7 @@ class AppState {
       this.kontragents,
       this.settings,
       this.tasks,
+      this.kontakts,
       this.taskListEnded = false,
       this.kontaktListEnded = false});
 
@@ -65,6 +69,7 @@ class AppState {
     features = List<Feature>.from(other.features);
     kontragents = List<Kontragent>.from(other.kontragents);
     tasks = List<Task>.from(other.tasks);
+    kontakts = List<Kontakt>.from(other.kontakts);
     messageCount = other.messageCount;
     user = other.user;
     settings = other.settings;

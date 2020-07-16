@@ -64,7 +64,10 @@ class _ItemWidgetState extends State<ItemWidget> {
     return StoreConnector<AppState, List<Task>>(
       converter: (state) => state.state.tasks,
       builder: (context, tasks) {
-        task = tasks.firstWhere((element) => element.guid == widget.guid);
+        task = tasks.firstWhere(
+          (element) => element.guid == widget.guid,
+          orElse: () => Task(),
+        );
 
         if (!task.loaded) {
           return Scaffold(
@@ -243,7 +246,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                   height: 10,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding:
+                      const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                   child: Text(task.text),
                 )
               ],

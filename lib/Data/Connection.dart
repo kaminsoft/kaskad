@@ -9,6 +9,7 @@ import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Data/Logger.dart';
 import 'package:mobile_kaskad/Models/Recipient.dart';
 import 'package:mobile_kaskad/Models/filters.dart';
+import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Models/message.dart';
@@ -607,6 +608,129 @@ class Connection {
         var parsedList = jsonDecode(response.body);
         parsedList.forEach((item) {
           result.add(TaskTemplate.fromJSON(item));
+        });
+      } else {
+        Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
+
+  static Future<List<Kontakt>> getKontakts({
+    KontaktFilter filter,
+    int last = 0,
+  }) async {
+    List<Kontakt> list = List<Kontakt>();
+    User user = Data.curUser;
+    Logger.log('getting Kontakts');
+    var _kontragent = filter.kontragent == null || filter.kontragent.isEmpty
+        ? ''
+        : jsonEncode(filter.kontragent?.toJson());
+    var _theme = filter.theme == null || filter.theme.isEmpty
+        ? ''
+        : jsonEncode(filter.theme?.toJson());
+    var _vid = filter.vid == null || filter.vid.isEmpty
+        ? ''
+        : jsonEncode(filter.vid?.toJson());
+    var _sotrudnik = filter.sotrudnik == null || filter.sotrudnik.isEmpty
+        ? ''
+        : jsonEncode(filter.sotrudnik?.toJson());
+    var _sposob = filter.sposob == null || filter.sposob.isEmpty
+        ? ''
+        : jsonEncode(filter.sposob?.toJson());
+    var _infoSource = filter.infoSource == null || filter.infoSource.isEmpty
+        ? ''
+        : jsonEncode(filter.infoSource?.toJson());
+    var status = filter.statusString == 'все' ? '' : filter.statusString;
+    try {
+      final response = await http.get(
+        '$url/kontakts?status=$status&lastNum=$last&kontragent=$_kontragent&theme=$_theme&vid=$_vid&sotrudnik=$_sotrudnik&sposob=$_sposob&infoSource=$_infoSource',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = jsonDecode(response.body);
+        parsedList.forEach((item) {
+          list.add(Kontakt.fromJSON(item));
+        });
+      } else {
+        Logger.warning(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e.toString());
+    }
+
+    return list;
+  }
+
+  static Future<Kontakt> getKontakt(String guid) async {
+    Kontakt task = Kontakt();
+    Logger.log('getting Kontakt');
+    User user = Data.curUser;
+    try {
+      final response = await http.get(
+        '$url/kontakts/$guid',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        task = Kontakt.fromJSON(json.decode(response.body));
+      } else {
+        Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return task;
+  }
+
+  static Future<String> saveKontakt(
+      {@required Kontakt kontakt, OnError onError}) async {
+    String result = '';
+    Logger.log('saving kontakt');
+    User user = Data.curUser;
+
+    try {
+      final response = await http.get(
+        '$url/kontakts/save?id=${kontakt.guid}&status=${kontakt.status}&text=${kontakt.text}' +
+            '&kontragent=${kontakt.kontragent.guid}&kontragentUser=${kontakt.kontragentUser.guid}' +
+            '&vid=${kontakt.vid.guid}&theme=${kontakt.theme.guid}&sotrudnik=${kontakt.sotrudnik.guid}' +
+            '&sposob=${kontakt.sposob.guid}&infoSource=${kontakt.infoSource.guid}',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        result = response.body;
+      } else {
+        Logger.error(response.body);
+        onError(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
+
+  static Future<List<KontaktTemplate>> getKontaktTemplates() async {
+    List<KontaktTemplate> result = List<KontaktTemplate>();
+    Logger.log('getting kontakt templates');
+    User user = Data.curUser;
+
+    try {
+      final response = await http.get(
+        '$url/kontakts/templates',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = jsonDecode(response.body);
+        parsedList.forEach((item) {
+          result.add(KontaktTemplate.fromJSON(item));
         });
       } else {
         Logger.error(response.body);

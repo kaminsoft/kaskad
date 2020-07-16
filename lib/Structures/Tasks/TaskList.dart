@@ -120,7 +120,7 @@ class _TaskListState extends State<TaskList> {
                   converter: (state) => state.state,
                   builder: (context, state) {
                     var list = state.tasks;
-                    listEnded = state.taskListEnded;
+                    listEnded = state.taskListEnded ?? false;
                     if (list.isEmpty) {
                       return Center(
                         child: Text('Нет данных для отображения'),
