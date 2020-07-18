@@ -75,6 +75,7 @@ class Connection {
         Logger.log('token sent');
         var userFields = json.decode(response.body);
         user.guid = userFields["guid"];
+        user.individualGuid = userFields["individualGuid"];
         user.firstname = userFields["firstname"];
         user.lastname = userFields["lastname"];
         user.secondname = userFields["secondname"];

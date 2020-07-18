@@ -10,9 +10,15 @@ import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
 import 'package:toast/toast.dart';
 
+import '../../Data/Consts.dart';
+import '../../Models/linkItem.dart';
 import 'KontaktHelper.dart';
 
 class NewItemWidget extends StatefulWidget {
+  final LinkItem kontragent;
+
+  const NewItemWidget({Key key, this.kontragent}) : super(key: key);
+
   @override
   _NewItemWidgetState createState() => _NewItemWidgetState();
 }
@@ -31,9 +37,9 @@ class _NewItemWidgetState extends State<NewItemWidget> {
   );
 
   PikerController sotrudnik = PikerController(
-    type: "ФизЛица",
-    label: "Сотрудник",
-  );
+      type: "ФизическиеЛица",
+      label: "Сотрудник",
+      value: LinkItem(name: "Я", guid: Data.curUser.individualGuid));
   PikerController vid = PikerController(
     type: "ВидыКонтактов",
     label: "Вид",
@@ -63,6 +69,11 @@ class _NewItemWidgetState extends State<NewItemWidget> {
     });
     kontragentUser.setOwner(kontragent);
     kontakt = Kontakt();
+
+    if (widget.kontragent.isNotEmpty) {
+      kontragent.value = widget.kontragent;
+    }
+
     super.initState();
   }
 

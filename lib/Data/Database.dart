@@ -22,14 +22,16 @@ class DBProvider {
     return _database;
   }
 
-  void _update002(Database db) async { // added fields to worker
+  void _update002(Database db) async {
+    // added fields to worker
     await db.execute("ALTER TABLE Woker ADD COLUMN homePhone TEXT");
     await db.execute("ALTER TABLE Woker ADD COLUMN internalPhone TEXT");
     await db.execute("ALTER TABLE Woker ADD COLUMN email TEXT");
     await db.execute("ALTER TABLE Woker ADD COLUMN workEmail TEXT");
   }
 
-  void _update003(Database db) async { // added fields to user
+  void _update003(Database db) async {
+    // added fields to user
     await db.execute("ALTER TABLE User ADD COLUMN secondname TEXT");
     await db.execute("ALTER TABLE User ADD COLUMN position TEXT");
     await db.execute("ALTER TABLE User ADD COLUMN subdivision TEXT");
@@ -41,9 +43,7 @@ class DBProvider {
     return await openDatabase(
       path,
       version: getDBVersion(),
-      onOpen: (db) async {
-        
-      },
+      onOpen: (db) async {},
       onCreate: (Database db, int version) async {
         await db.execute("CREATE TABLE User ("
             "id INTEGER PRIMARY KEY,"
@@ -86,7 +86,7 @@ class DBProvider {
             "birthday TEXT,"
             "workPhone TEXT"
             ")");
-        if(version >= 2) {
+        if (version >= 2) {
           _update002(db);
         }
         if (version >= 3) {
@@ -95,7 +95,7 @@ class DBProvider {
       },
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
         Data.showNews = true;
-        
+
         if (oldVersion < 2) {
           _update002(db);
         }
@@ -135,7 +135,8 @@ class DBProvider {
 
   Future<int> updateUser(User user) async {
     final db = await database;
-    var res = await db.update("User", user.toJson(),where: "username = ?",whereArgs: [user.username]);
+    var res = await db.update("User", user.toJson(),
+        where: "username = ?", whereArgs: [user.username]);
     return res;
   }
 
@@ -210,7 +211,6 @@ class DBProvider {
       return tmp;
     }
     for (var item in res) {
-      
       Woker kntr = Woker.fromJSON(item);
       if (!tmp.contains(kntr)) {
         tmp.add(kntr);
@@ -221,7 +221,7 @@ class DBProvider {
 
   Future<Woker> getWorker(String id) async {
     final db = await database;
-    var res = await db.query("Woker", where: "guid = ?",whereArgs: [id] );
+    var res = await db.query("Woker", where: "guid = ?", whereArgs: [id]);
     if (res.isEmpty) {
       List<Woker> workers = await Connection.getWorkers();
       saveWorkers(workers);
@@ -237,5 +237,4 @@ class DBProvider {
       await db.insert("Woker", item.toJson());
     }
   }
-
 }

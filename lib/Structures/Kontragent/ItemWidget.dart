@@ -9,6 +9,9 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:toast/toast.dart';
 
+import '../../Models/linkItem.dart';
+import '../Kontakts/KontaktHelper.dart';
+
 var dogovors;
 var products;
 
@@ -77,11 +80,18 @@ class _ItemWidgetState extends State<ItemWidget> {
           appBar: AppBar(
             centerTitle: true,
             title: Text(
-              '${kontragent.name}',
+              'Контрагент',
               maxLines: 2,
               textAlign: TextAlign.center,
             ),
             actions: <Widget>[
+              IconButton(
+                  icon: Icon(CupertinoIcons.person_add_solid),
+                  onPressed: () => KontaktHelper.newItem(context,
+                      kontragent: LinkItem(
+                          guid: kontragent.guid,
+                          name: kontragent.name,
+                          type: "Контрагенты"))),
               loading
                   ? IconButton(
                       icon: CupertinoActivityIndicator(),
@@ -149,6 +159,7 @@ class _ItemWidgetState extends State<ItemWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            _labeledWidget(kontragent.name, 'Наименование'),
             _labeledWidget(kontragent.fullName, 'Полное наименование'),
             _getAdresses(),
             _getINNKPP(),
