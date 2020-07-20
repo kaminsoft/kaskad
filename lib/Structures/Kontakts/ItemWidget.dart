@@ -9,7 +9,6 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
-import 'package:mobile_kaskad/Structures/Post/Post.dart';
 import 'package:mobile_kaskad/Structures/Kontakts/KontaktHelper.dart';
 
 class ItemWidget extends StatefulWidget {

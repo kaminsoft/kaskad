@@ -1,18 +1,15 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
-import 'package:toast/toast.dart';
 
 import '../../Data/Consts.dart';
 import '../../Models/linkItem.dart';
-import 'KontaktHelper.dart';
 
 class NewItemWidget extends StatefulWidget {
   final LinkItem kontragent;
@@ -70,7 +67,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
     kontragentUser.setOwner(kontragent);
     kontakt = Kontakt();
 
-    if (widget.kontragent.isNotEmpty) {
+    if (widget.kontragent != null && widget.kontragent.isNotEmpty) {
       kontragent.value = widget.kontragent;
     }
 
@@ -79,7 +76,6 @@ class _NewItemWidgetState extends State<NewItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double mult = MediaQuery.of(context).textScaleFactor;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -116,7 +112,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    "Отправить",
+                    "Сохранить",
                     style: TextStyle(
                         color: Theme.of(context).textTheme.caption.color),
                   ),
