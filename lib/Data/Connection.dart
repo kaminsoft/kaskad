@@ -108,6 +108,8 @@ class Connection {
     }
   }
 
+  // message
+
   static Future<List<Message>> getMessageList(bool isPublicate,
       {String lastNum, String firstNum, bool justNew, bool sent}) async {
     Logger.log('getting messages');
@@ -293,6 +295,8 @@ class Connection {
     return false;
   }
 
+  // kontragent
+
   static Future<List<Kontragent>> searchKontragent(String query) async {
     List<Kontragent> list = List<Kontragent>();
     User user = Data.curUser;
@@ -378,6 +382,34 @@ class Connection {
     return result;
   }
 
+  static Future<List<KontragentSettlement>> getKontragentSettlement(
+      String id) async {
+    List<KontragentSettlement> list = List<KontragentSettlement>();
+    User user = Data.curUser;
+    Logger.log('getting KontragentSettlement');
+    try {
+      final response = await http.get(
+        '$url/settlements/$id',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = json.decode(response.body);
+        parsedList.forEach((item) {
+          list.add(KontragentSettlement.fromJSON(item));
+        });
+      } else {
+        Logger.warning(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return list;
+  }
+
+  // workers
+
   static Future<List<Woker>> getWorkers() async {
     List<Woker> list = List<Woker>();
     User user = Data.curUser;
@@ -402,6 +434,8 @@ class Connection {
 
     return list;
   }
+
+  // custom link
 
   static Future<Map<String, dynamic>> getCustomLink(
       String type, String id) async {
@@ -455,6 +489,8 @@ class Connection {
 
     return list;
   }
+
+  // tasks
 
   static Future<List<Task>> getTasks({
     TaskFilter filter,
@@ -619,6 +655,8 @@ class Connection {
 
     return result;
   }
+
+  // kontakts
 
   static Future<List<Kontakt>> getKontakts({
     KontaktFilter filter,
