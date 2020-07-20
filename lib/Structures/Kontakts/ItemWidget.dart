@@ -281,6 +281,7 @@ class _ItemWidgetState extends State<ItemWidget> {
     copyKontakt.kontragentUser = kontragentUser.value;
     copyKontakt.vid = vid.value;
     copyKontakt.theme = theme.value;
+    copyKontakt.sposob = sposob.value;
     copyKontakt.sotrudnik = sotrudnik.value;
 
     return kontakt;
