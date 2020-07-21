@@ -156,3 +156,49 @@ class KontragentSecret {
         "email": email,
       };
 }
+
+class KontragentSettlement {
+  String type;
+  List<KontragentSettlementData> data;
+
+  KontragentSettlement({this.type, this.data});
+
+  factory KontragentSettlement.fromJSON(Map<String, dynamic> json) {
+    List<dynamic> _tmp = json["data"];
+    List<KontragentSettlementData> data = List<KontragentSettlementData>();
+    if (_tmp != null) {
+      for (var item in _tmp) {
+        data.add(KontragentSettlementData.fromJSON(item));
+      }
+    }
+
+    return KontragentSettlement(
+      type: json["type"],
+      data: data,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "type": type,
+        "data": json.encode(data),
+      };
+}
+
+class KontragentSettlementData {
+  String dogovor;
+  double amount;
+
+  KontragentSettlementData({this.dogovor, this.amount});
+
+  factory KontragentSettlementData.fromJSON(Map<String, dynamic> json) {
+    return KontragentSettlementData(
+      dogovor: json["dogovor"],
+      amount: json["amount"].toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "dogovor": dogovor,
+        "amount": amount,
+      };
+}

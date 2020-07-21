@@ -4,13 +4,12 @@ import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_kaskad/Models/task.dart';
+import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
-import 'package:mobile_kaskad/Structures/Post/Post.dart';
-import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
+import 'package:mobile_kaskad/Structures/Kontakts/KontaktHelper.dart';
 
 class ItemWidget extends StatefulWidget {
   final String guid;
@@ -21,7 +20,7 @@ class ItemWidget extends StatefulWidget {
 }
 
 class _ItemWidgetState extends State<ItemWidget> {
-  Task task;
+  Kontakt kontakt;
   bool loaded = false;
   bool canEdit = true;
   bool canTakeToWork = false;
@@ -36,17 +35,25 @@ class _ItemWidgetState extends State<ItemWidget> {
     label: "Контактное лицо",
   );
 
-  PikerController executer = PikerController(
-    type: "Пользователи",
+  PikerController sotrudnik = PikerController(
+    type: "ФизЛица",
     label: "Сотрудник",
   );
-  PikerController group = PikerController(
-    type: "СпискиИсполнителейЗадач",
-    label: "Кому",
+  PikerController vid = PikerController(
+    type: "ВидыКонтактов",
+    label: "Вид",
   );
   PikerController theme = PikerController(
     type: "ТемыКонтактов",
     label: "Тема",
+  );
+  PikerController sposob = PikerController(
+    type: "СпособыКонтактов",
+    label: "Способ",
+  );
+  PikerController infoSource = PikerController(
+    type: "ИсточникиИнформации",
+    label: "Источник",
   );
 
   @override
@@ -58,18 +65,18 @@ class _ItemWidgetState extends State<ItemWidget> {
   @override
   Widget build(BuildContext context) {
     if (!loaded) {
-      StoreProvider.dispatchFuture(context, UpdateTask(guid: widget.guid));
+      StoreProvider.dispatchFuture(context, UpdateKontakt(guid: widget.guid));
       loaded = true;
     }
-    return StoreConnector<AppState, List<Task>>(
-      converter: (state) => state.state.tasks,
-      builder: (context, tasks) {
-        task = tasks.firstWhere(
+    return StoreConnector<AppState, List<Kontakt>>(
+      converter: (state) => state.state.kontakts,
+      builder: (context, kontakts) {
+        kontakt = kontakts.firstWhere(
           (element) => element.guid == widget.guid,
-          orElse: () => Task(),
+          orElse: () => Kontakt(),
         );
 
-        if (!task.loaded) {
+        if (!kontakt.loaded) {
           return Scaffold(
             body: Center(
               child: CupertinoActivityIndicator(),
@@ -77,13 +84,13 @@ class _ItemWidgetState extends State<ItemWidget> {
           );
         }
 
-        kontragent.value = task.kontragent;
-        kontragentUser.value = task.kontragentUser;
-        executer.value = task.executer;
-        group.value = task.group;
-        theme.value = task.theme;
+        kontragent.value = kontakt.kontragent;
+        kontragentUser.value = kontakt.kontragentUser;
+        sotrudnik.value = kontakt.sotrudnik;
+        vid.value = kontakt.vid;
+        sposob.value = kontakt.sposob;
+        theme.value = kontakt.theme;
 
-        checkAccesseble(isBuild: true);
         return WillPopScope(
           onWillPop: () async {
             if (isChanged) {
@@ -140,24 +147,15 @@ class _ItemWidgetState extends State<ItemWidget> {
           child: Scaffold(
             appBar: AppBar(
               centerTitle: true,
-              title: Text("Задача"),
+              title: Text("Контакт"),
               actions: <Widget>[
                 Visibility(
-                  visible: task.attachments.isNotEmpty,
-                  child: IconButton(
-                      icon: Icon(Icons.attach_file),
-                      onPressed: () {
-                        Post.showAttachments(context, task.attachments);
-                      }),
-                ),
-                Visibility(
-                  visible: (task.isAuthor || task.isOwner) &&
-                      (task.status.isNew || task.status.isWork),
+                  visible: kontakt.isAuthor,
                   child: IconButton(
                       icon: Icon(Icons.done),
                       onPressed: () async {
-                        await StoreProvider.dispatchFuture(
-                            context, SaveTask(task: copyTask(task)));
+                        await StoreProvider.dispatchFuture(context,
+                            SaveKontakt(kontakt: copyKontakt(kontakt)));
                         setState(() {
                           loaded = false;
                         });
@@ -166,28 +164,20 @@ class _ItemWidgetState extends State<ItemWidget> {
                 )
               ],
             ),
-            bottomNavigationBar: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                takeToWork(context),
-                doneTask(context),
-                cancelTask(context),
-              ],
-            ),
             body: ListView(
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Text(
-                      task.status,
+                      kontakt.status,
                       style: TextStyle(
-                        color: TaskHelper.getStatusColor(context, task.status),
+                        color: KontaktHelper.getStatusColor(
+                            context, kontakt.status),
                       ),
                     ),
                     Text(
-                        '№ ${task.number} от ${DateFormat.MMMMd("ru").format(task.date)}'),
-                    TaskHelper.getDateBadge(task, force: true)
+                        '№ ${kontakt.number} от ${DateFormat.MMMMd("ru").format(kontakt.date)}'),
                   ],
                 ),
                 Padding(
@@ -203,7 +193,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                         ),
                       ),
                       Text(
-                        "${task.author.name}",
+                        "${kontakt.author.name}",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Theme.of(context).textTheme.caption.color),
@@ -216,27 +206,32 @@ class _ItemWidgetState extends State<ItemWidget> {
                 ),
                 PikerField(
                   controller: kontragent,
-                  readOnly: !task.hasAccess || !canEdit,
+                  readOnly: !kontakt.isAuthor,
                   onPickerChanged: onPickerChanged,
                 ),
                 PikerField(
                   controller: kontragentUser,
-                  readOnly: !task.hasAccess || !canEdit,
+                  readOnly: !kontakt.isAuthor,
                   onPickerChanged: onPickerChanged,
                 ),
                 PikerField(
-                  controller: group,
-                  readOnly: !task.hasAccess || !canEdit,
+                  controller: vid,
+                  readOnly: !kontakt.isAuthor,
                   onPickerChanged: onPickerChanged,
                 ),
                 PikerField(
                   controller: theme,
-                  readOnly: !task.hasAccess || !canEdit,
+                  readOnly: !kontakt.isAuthor,
                   onPickerChanged: onPickerChanged,
                 ),
                 PikerField(
-                  controller: executer,
-                  readOnly: checkElementReadOnly(task),
+                  controller: sposob,
+                  readOnly: !kontakt.isAuthor,
+                  onPickerChanged: onPickerChanged,
+                ),
+                PikerField(
+                  controller: sotrudnik,
+                  readOnly: !kontakt.isAuthor,
                   onPickerChanged: onPickerChanged,
                 ),
                 Divider(
@@ -248,7 +243,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                 Padding(
                   padding:
                       const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                  child: Text(task.text),
+                  child: Text(kontakt.text),
                 )
               ],
             ),
@@ -266,7 +261,8 @@ class _ItemWidgetState extends State<ItemWidget> {
 
   Future onSavePress(BuildContext context) async {
     Navigator.of(context).pop();
-    await StoreProvider.dispatchFuture(context, SaveTask(task: copyTask(task)));
+    await StoreProvider.dispatchFuture(
+        context, SaveKontakt(kontakt: copyKontakt(kontakt)));
     setState(() {
       loaded = false;
     });
@@ -278,116 +274,16 @@ class _ItemWidgetState extends State<ItemWidget> {
     isChanged = true;
   }
 
-  Task copyTask(task) {
-    Task copyTask = task;
+  Kontakt copyKontakt(kontakt) {
+    Kontakt copyKontakt = kontakt;
 
-    copyTask.kontragent = kontragent.value;
-    copyTask.kontragentUser = kontragentUser.value;
-    copyTask.group = group.value;
-    copyTask.theme = theme.value;
-    copyTask.executer = executer.value;
+    copyKontakt.kontragent = kontragent.value;
+    copyKontakt.kontragentUser = kontragentUser.value;
+    copyKontakt.vid = vid.value;
+    copyKontakt.theme = theme.value;
+    copyKontakt.sposob = sposob.value;
+    copyKontakt.sotrudnik = sotrudnik.value;
 
-    return task;
+    return kontakt;
   }
-
-  bool checkElementReadOnly(Task task) {
-    if (task.status.isDone || task.status.isCanceled) {
-      return true;
-    }
-    if (task.isOwner) {
-      return false;
-    }
-    return !task.hasAccess || !canEdit;
-  }
-
-  Widget takeToWork(BuildContext context) {
-    if (task.hasAccess && task.executer.isEmpty) {
-      return FlatButton(
-          onPressed: () async {
-            await StoreProvider.dispatchFuture(
-                context,
-                SetTaskStatus(
-                    guid: task.guid,
-                    taskStatus: TaskStatus.Work,
-                    toastText: "Задача в работе"));
-            setState(() {
-              loaded = false;
-            });
-          },
-          child: Text(
-            "Взять себе",
-            style: TextStyle(color: Theme.of(context).textTheme.caption.color),
-          ));
-    }
-
-    return SizedBox.shrink();
-  }
-
-  Widget doneTask(BuildContext context) {
-    if (task.status == TaskStatus.Work && task.isExecuter) {
-      return FlatButton(
-          onPressed: () async {
-            await StoreProvider.dispatchFuture(
-                context,
-                SetTaskStatus(
-                    guid: task.guid,
-                    taskStatus: TaskStatus.Done,
-                    toastText: "Задача выполнена"));
-
-            setState(() {
-              loaded = false;
-            });
-          },
-          child: Text(
-            "Выполнено",
-            style: TextStyle(color: Theme.of(context).textTheme.caption.color),
-          ));
-    }
-
-    return SizedBox.shrink();
-  }
-
-  Widget cancelTask(BuildContext context) {
-    if (task.isOwner && !task.status.isCanceled && !task.status.isDone) {
-      return FlatButton(
-          onPressed: () async {
-            await StoreProvider.dispatchFuture(
-                context,
-                SetTaskStatus(
-                    guid: task.guid,
-                    taskStatus: TaskStatus.Canceled,
-                    toastText: "Задача отменена"));
-
-            setState(() {
-              loaded = false;
-            });
-          },
-          child: Text(
-            "Отменить",
-            style: TextStyle(color: Theme.of(context).textTheme.caption.color),
-          ));
-    }
-
-    return SizedBox.shrink();
-  }
-
-  void checkAccesseble({bool isBuild = false}) {
-    if (!task.status.isNew || task.status.isNew && !task.isAuthor) {
-      canEdit = false;
-    } else {
-      canEdit = true;
-    }
-    if (task.status.isNew) {
-      if (task.isExecuter) {
-        StoreProvider.dispatchFuture(
-            context,
-            SetTaskStatus(
-                guid: task.guid,
-                taskStatus: TaskStatus.Work,
-                toastText: "Задача теперь в работе"));
-      }
-    }
-  }
-
-  checkElementAccess(Task task) {}
 }

@@ -5,21 +5,21 @@ import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/filters.dart';
-import 'package:mobile_kaskad/Models/task.dart';
+import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Piker/Piker.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerField.dart';
-import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
+import 'package:mobile_kaskad/Structures/Kontakts/KontaktHelper.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-class TaskList extends StatefulWidget {
+class KontaktList extends StatefulWidget {
   @override
-  _TaskListState createState() => _TaskListState();
+  _KontaktListState createState() => _KontaktListState();
 }
 
-class _TaskListState extends State<TaskList> {
+class _KontaktListState extends State<KontaktList> {
   bool loading = true;
   bool updating = false;
   bool listEnded = false;
@@ -28,29 +28,29 @@ class _TaskListState extends State<TaskList> {
   RefreshController _refreshController = RefreshController(
       initialRefresh: false, initialLoadStatus: LoadStatus.loading);
   ScrollController _scrollController = ScrollController();
-  TaskFilter filter;
+  KontaktFilter filter;
 
   Future _updateList() async {
     updating = true;
     await StoreProvider.dispatchFuture(
-        context, GetTasks(clearLoad: false, filter: filter));
+        context, GetKontakts(clearLoad: false, filter: filter));
     updating = false;
   }
 
   void _onRefresh() async {
     await StoreProvider.dispatchFuture(
-        context, GetTasks(clearLoad: true, filter: filter));
+        context, GetKontakts(clearLoad: true, filter: filter));
     _refreshController.refreshCompleted();
   }
 
-  void loadTasks() async {
+  void loadKontakts() async {
     if (filter == null) {
-      filter = await Filters.getTaskFilter();
+      filter = await Filters.getKontaktFilter();
     }
     setState(() {
       loading = true;
     });
-    await StoreProvider.dispatchFuture(context, GetTasks(filter: filter));
+    await StoreProvider.dispatchFuture(context, GetKontakts(filter: filter));
     setState(() {
       loading = false;
     });
@@ -77,7 +77,7 @@ class _TaskListState extends State<TaskList> {
 
   @override
   void initState() {
-    loadTasks();
+    loadKontakts();
     initializeDateFormatting();
     addScrollController();
     super.initState();
@@ -88,11 +88,11 @@ class _TaskListState extends State<TaskList> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Задачи"),
+        title: Text("Контакты"),
         actions: <Widget>[
           IconButton(
               onPressed: () {
-                TaskHelper.newItem(context);
+                KontaktHelper.newItem(context);
               },
               icon: Icon(Icons.add)),
         ],
@@ -119,8 +119,8 @@ class _TaskListState extends State<TaskList> {
                 child: StoreConnector<AppState, AppState>(
                   converter: (state) => state.state,
                   builder: (context, state) {
-                    var list = state.tasks;
-                    listEnded = state.taskListEnded ?? false;
+                    var list = state.kontakts;
+                    listEnded = state.kontaktListEnded ?? false;
                     if (list.isEmpty) {
                       return Center(
                         child: Text('Нет данных для отображения'),
@@ -140,8 +140,8 @@ class _TaskListState extends State<TaskList> {
                         itemCount: list.length,
                         controller: _scrollController,
                         itemBuilder: (BuildContext context, int index) {
-                          Task task = list[index];
-                          return taskBody(task);
+                          Kontakt kontakt = list[index];
+                          return kontaktBody(kontakt);
                         },
                       ),
                     );
@@ -152,16 +152,16 @@ class _TaskListState extends State<TaskList> {
     );
   }
 
-  Widget taskBody(Task task) {
-    String executer = task.executer.isNotEmpty
-        ? task.executer.toString()
-        : 'Исполнитель не назначен';
-    String kontragent = task.kontragent.isNotEmpty
-        ? task.kontragent.toString()
+  Widget kontaktBody(Kontakt kontakt) {
+    String sotrudnik = kontakt.sotrudnik.isNotEmpty
+        ? kontakt.sotrudnik.toString()
+        : 'Сотрудник не указан';
+    String kontragent = kontakt.kontragent.isNotEmpty
+        ? kontakt.kontragent.toString()
         : 'Контрагент не указан';
     return Card(
       child: InkWell(
-        onTap: () => TaskHelper.openItem(context, task.guid),
+        onTap: () => KontaktHelper.openItem(context, kontakt.guid),
         child: Padding(
           padding: const EdgeInsets.only(left: 10, top: 8, bottom: 8, right: 8),
           child: Row(
@@ -171,9 +171,10 @@ class _TaskListState extends State<TaskList> {
                 child: RotatedBox(
                   quarterTurns: -1,
                   child: Text(
-                    '${task.status}',
+                    '${kontakt.status}',
                     style: TextStyle(
-                        color: TaskHelper.getStatusColor(context, task.status),
+                        color: KontaktHelper.getStatusColor(
+                            context, kontakt.status),
                         fontSize: 12),
                   ),
                 ),
@@ -189,17 +190,17 @@ class _TaskListState extends State<TaskList> {
                       children: <Widget>[
                         Expanded(
                           child: Text(
-                            '${task.theme}',
+                            '${kontakt.theme}',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                         ),
-                        TaskHelper.getDateBadge(task)
+                        Text('${kontakt.number}')
                       ],
                     ),
                     Text(kontragent),
                     Text(
-                      executer,
+                      sotrudnik,
                       style: TextStyle(
                           color: Theme.of(context)
                               .textTheme
@@ -249,23 +250,32 @@ class _TaskListState extends State<TaskList> {
   void _openFilter(BuildContext context) {
     List<String> statuses = filter.statuses;
     List<bool> isSelected = List<bool>();
-    List<String> allStatuses = ['все', 'новая', 'в работе', 'завершена'];
+    List<String> allStatuses = [
+      'все',
+      'запланирован',
+      'состоялся',
+      'недозвон',
+      'отменен'
+    ];
     PikerController kontragent = PikerController(
         label: 'Контрагент', type: 'Контрагенты', value: filter.kontragent);
     PikerController theme = PikerController(
         label: 'Тема', type: 'ТемыКонтактов', value: filter.theme);
-    PikerController group = PikerController(
-        label: 'Группа', type: 'СпискиИсполнителейЗадач', value: filter.group);
-    PikerController executer = PikerController(
-        label: 'Исполнитель', type: 'Пользователи', value: filter.executer);
+    PikerController vid =
+        PikerController(label: 'Вид', type: 'ВидыКонтактов', value: filter.vid);
+    PikerController sposob = PikerController(
+        label: 'Способ', type: 'СпособыКонтактов', value: filter.sposob);
+    PikerController sotrudnik = PikerController(
+        label: 'Сотрудник', type: 'ФизическиеЛица', value: filter.sotrudnik);
     if (statuses.contains('все')) {
-      isSelected = [true, false, false, false];
+      isSelected = [true, false, false, false, false];
     } else {
       isSelected = [
         false,
         statuses.contains(allStatuses[1]),
         statuses.contains(allStatuses[2]),
-        statuses.contains(allStatuses[3])
+        statuses.contains(allStatuses[3]),
+        statuses.contains(allStatuses[4])
       ];
     }
     double width = MediaQuery.of(context).size.width;
@@ -296,63 +306,42 @@ class _TaskListState extends State<TaskList> {
                     PikerField(
                       controller: theme,
                     ),
-                    Visibility(
-                      visible: !filter.forMe,
-                      child: PikerField(
-                        controller: group,
-                      ),
+                    PikerField(
+                      controller: vid,
                     ),
-                    Visibility(
-                      visible: !filter.forMe,
-                      child: PikerField(
-                        controller: executer,
-                      ),
+                    PikerField(
+                      controller: sposob,
                     ),
-                    ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      title: Text('Доступные мне'),
-                      subtitle: Text(
-                        'Задачи, которые выполняю или могу взять',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      trailing: CupertinoSwitch(
-                        activeColor: ColorMain,
-                        value: filter.forMe,
-                        onChanged: (bool value) {
+                    PikerField(
+                      controller: sotrudnik,
+                    ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: ToggleButtons(
+                        borderRadius: BorderRadius.circular(5),
+                        textStyle: Theme.of(context).textTheme.caption,
+                        color: Theme.of(context).textTheme.caption.color,
+                        constraints: BoxConstraints(
+                            minWidth: width / 4 - 5, minHeight: 36),
+                        children: allStatuses.map((e) => Text(e)).toList(),
+                        onPressed: (int index) {
                           setModalState(() {
-                            filter.forMe = value;
+                            isSelected[index] = !isSelected[index];
+                            if (index != 0 && isSelected[index] == true) {
+                              isSelected[0] = false;
+                            } else if (index == 0 &&
+                                isSelected[index] == true) {
+                              for (var i = 1; i < isSelected.length; i++) {
+                                isSelected[i] = false;
+                              }
+                            }
+                            if (!isSelected.contains(true)) {
+                              isSelected[0] = true;
+                            }
                           });
                         },
+                        isSelected: isSelected,
                       ),
-                      onTap: () {
-                        setModalState(() {
-                          filter.forMe = !filter.forMe;
-                        });
-                      },
-                    ),
-                    ToggleButtons(
-                      borderRadius: BorderRadius.circular(5),
-                      textStyle: Theme.of(context).textTheme.caption,
-                      color: Theme.of(context).textTheme.caption.color,
-                      constraints: BoxConstraints(
-                          minWidth: width / 4 - 5, minHeight: 36),
-                      children: allStatuses.map((e) => Text(e)).toList(),
-                      onPressed: (int index) {
-                        setModalState(() {
-                          isSelected[index] = !isSelected[index];
-                          if (index != 0 && isSelected[index] == true) {
-                            isSelected[0] = false;
-                          } else if (index == 0 && isSelected[index] == true) {
-                            for (var i = 1; i < isSelected.length; i++) {
-                              isSelected[i] = false;
-                            }
-                          }
-                          if (!isSelected.contains(true)) {
-                            isSelected[0] = true;
-                          }
-                        });
-                      },
-                      isSelected: isSelected,
                     ),
                     SizedBox(
                       width: double.infinity,
@@ -377,11 +366,12 @@ class _TaskListState extends State<TaskList> {
                             }
                             filter.kontragent = kontragent.value;
                             filter.theme = theme.value;
-                            filter.group = group.value;
-                            filter.executer = executer.value;
+                            filter.vid = vid.value;
+                            filter.sposob = sposob.value;
+                            filter.sotrudnik = sotrudnik.value;
                             Navigator.of(context).pop();
-                            loadTasks();
-                            Filters.saveTaskFilter(filter);
+                            loadKontakts();
+                            Filters.saveKontaktFilter(filter);
                           },
                           color: ColorMain,
                           child: Text("Готово"),

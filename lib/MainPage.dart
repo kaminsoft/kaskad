@@ -139,6 +139,7 @@ class _MainPageState extends State<MainPage> {
                                 child: FeatureCard(
                                   feature: list[index],
                                   index: index,
+                                  length: list.length,
                                   editMode: editMode,
                                 ));
                           }),
@@ -251,15 +252,21 @@ class FeatureCard extends StatelessWidget {
     @required this.feature,
     @required this.index,
     @required this.editMode,
+    @required this.length,
   }) : super(key: key);
 
   final Feature feature;
   final int index;
+  final int length;
   final bool editMode;
 
   @override
   Widget build(BuildContext context) {
     bool even = index % 2 == 0;
+    bool last = false;
+    if (index == length - 1) {
+      last = true;
+    }
 
     var size = MediaQuery.of(context).size;
     return StoreConnector<AppState, List<Feature>>(
@@ -267,7 +274,10 @@ class FeatureCard extends StatelessWidget {
         builder: (context, userFeatures) {
           return Padding(
             padding: EdgeInsets.only(
-                top: 10, left: even ? 10 : 5, right: even ? 5 : 10),
+                top: 10,
+                bottom: last ? 10 : 0,
+                left: even ? 10 : 5,
+                right: even ? 5 : 10),
             child: Container(
               width: size.width / 2 - 15,
               height: size.height / 3,

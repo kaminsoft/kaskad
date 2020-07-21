@@ -9,8 +9,12 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:toast/toast.dart';
 
+import '../../Models/linkItem.dart';
+import '../Kontakts/KontaktHelper.dart';
+
 var dogovors;
 var products;
+var settlementData;
 
 class ItemWidget extends StatefulWidget {
   final Kontragent kontragent;
@@ -37,6 +41,7 @@ class _ItemWidgetState extends State<ItemWidget> {
   void dispose() {
     dogovors = null;
     products = null;
+    settlementData = null;
     super.dispose();
   }
 
@@ -47,6 +52,9 @@ class _ItemWidgetState extends State<ItemWidget> {
         kontragent: kontragent,
       ),
       ProductWidget(
+        kontragent: kontragent,
+      ),
+      SettlementWidget(
         kontragent: kontragent,
       )
     ];
@@ -77,11 +85,18 @@ class _ItemWidgetState extends State<ItemWidget> {
           appBar: AppBar(
             centerTitle: true,
             title: Text(
-              '${kontragent.name}',
+              'Контрагент',
               maxLines: 2,
               textAlign: TextAlign.center,
             ),
             actions: <Widget>[
+              IconButton(
+                  icon: Icon(CupertinoIcons.person_add_solid),
+                  onPressed: () => KontaktHelper.newItem(context,
+                      kontragent: LinkItem(
+                          guid: kontragent.guid,
+                          name: kontragent.name,
+                          type: "Контрагенты"))),
               loading
                   ? IconButton(
                       icon: CupertinoActivityIndicator(),
@@ -112,7 +127,9 @@ class _ItemWidgetState extends State<ItemWidget> {
           body: _getWidget(kontragents),
           bottomNavigationBar: BottomNavigationBar(
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              //showUnselectedLabels: true,
               elevation: 0,
+              unselectedItemColor: Theme.of(context).textTheme.caption.color,
               selectedItemColor: Theme.of(context).colorScheme.onSurface,
               currentIndex: currentIndex,
               onTap: (index) {
@@ -127,6 +144,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                     icon: Icon(Icons.description), title: Text('Договоры')),
                 BottomNavigationBarItem(
                     icon: Icon(Icons.archive), title: Text('Продукты/ИТС')),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.monetization_on),
+                    title: Text('Взаиморасчеты')),
               ]),
         );
       },
@@ -149,6 +169,7 @@ class _ItemWidgetState extends State<ItemWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            _labeledWidget(kontragent.name, 'Наименование'),
             _labeledWidget(kontragent.fullName, 'Полное наименование'),
             _getAdresses(),
             _getINNKPP(),
@@ -691,6 +712,81 @@ class _ProductWidgetState extends State<ProductWidget> {
       textAlign: TextAlign.center,
       style: _style,
     );
+  }
+}
+
+class SettlementWidget extends StatefulWidget {
+  const SettlementWidget({
+    @required this.kontragent,
+    Key key,
+  }) : super(key: key);
+
+  final Kontragent kontragent;
+  @override
+  _SettlementWidgetState createState() => _SettlementWidgetState();
+}
+
+class _SettlementWidgetState extends State<SettlementWidget> {
+  List _data;
+
+  @override
+  Widget build(BuildContext context) {
+    if (settlementData == null) {
+      Connection.getKontragentSettlement(widget.kontragent.guid)
+          .then((_inData) {
+        setState(() {
+          _data = _inData;
+          settlementData = _data;
+        });
+      });
+    } else {
+      _data = settlementData;
+    }
+
+    if (_data == null) {
+      return Center(
+        child: CupertinoActivityIndicator(),
+      );
+    }
+
+    if (_data.isEmpty) {
+      return Center(
+          child: Text(
+        'Нет данных о взаиморасчетах',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).textTheme.bodyText2.color.withAlpha(150)),
+      ));
+    }
+    return ListView.builder(
+      itemCount: _data.length,
+      itemBuilder: (BuildContext context, int index) {
+        KontragentSettlement settlement = _data[index];
+        return Column(
+          children: _settlementWidgetChilds(settlement),
+        );
+      },
+    );
+  }
+
+  List<Widget> _settlementWidgetChilds(KontragentSettlement settlement) {
+    List<Widget> result = List<Widget>();
+    result.add(Text(
+      settlement.type,
+      textAlign: TextAlign.center,
+    ));
+    settlement.data.forEach((element) {
+      result.add(Card(
+        child: ListTile(
+          title:
+              Text(element.dogovor.isEmpty ? "Без договора" : element.dogovor),
+          subtitle: Text(element.amount > 0 ? "Долг клиента" : "Наш долг"),
+          trailing: Text(element.amount.abs().toStringAsFixed(2)),
+        ),
+      ));
+    });
+    return result;
   }
 }
 

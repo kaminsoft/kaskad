@@ -1,7 +1,7 @@
-
 class User {
   int id;
   String guid;
+  String individualGuid;
   String username;
   String firstname;
   String lastname;
@@ -11,7 +11,18 @@ class User {
   String password;
   String avatar;
 
-  User({this.id, this.username, this.firstname, this.lastname, this.avatar, this.password, this.position, this.secondname, this.subdivision});
+  User(
+      {this.id,
+      this.username,
+      this.guid,
+      this.individualGuid,
+      this.firstname,
+      this.lastname,
+      this.avatar,
+      this.password,
+      this.position,
+      this.secondname,
+      this.subdivision});
 
   factory User.fromJSON(Map<String, dynamic> json) {
     return User(
@@ -37,6 +48,5 @@ class User {
         "secondname": secondname,
         "position": position,
         "subdivision": subdivision,
-    };
-
+      };
 }

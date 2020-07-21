@@ -6,6 +6,7 @@ import 'package:mobile_kaskad/Data/Connection.dart';
 import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/filters.dart';
+import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
@@ -403,19 +404,15 @@ class GetTasks extends ReduxAction<AppState> {
     AppState newState = AppState.copy(state);
 
     List<Task> newList = await Connection.getTasks(
-        forMe: filter.forMe,
-        status: filter.statusString,
-        kontragent: filter.kontragent,
-        theme: filter.theme,
-        executer: filter.executer,
-        group: filter.group,
-        last: clearLoad ? '' : newState.tasks.last.number);
+        filter: filter, last: clearLoad ? '' : newState.tasks.last.number);
 
     if (clearLoad) {
       newState.tasks = newList;
     } else {
       newState.tasks.addAll(newList);
     }
+
+    newState.taskListEnded = newList.isEmpty;
 
     return newState;
   }
@@ -507,7 +504,11 @@ class UpdateTask extends ReduxAction<AppState> {
     int index = newState.tasks.indexWhere((element) => element.guid == guid);
     Task newTask = await Connection.getTask(guid);
     newTask.loaded = true;
-    newState.tasks[index] = newTask;
+    if (index == -1) {
+      newState.tasks.insert(0, newTask);
+    } else {
+      newState.tasks[index] = newTask;
+    }
     return newState;
   }
 }
@@ -526,6 +527,84 @@ class UpdateTaskCount extends ReduxAction<AppState> {
       newState.taskCount = await Connection.getTaskCount();
     }
 
+    return newState;
+  }
+}
+
+// kontakts
+class GetKontakts extends ReduxAction<AppState> {
+  bool clearLoad;
+  KontaktFilter filter;
+
+  GetKontakts({this.clearLoad = true, this.filter});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+
+    List<Kontakt> newList = await Connection.getKontakts(
+        filter: filter, last: clearLoad ? 0 : newState.kontakts.last.number);
+
+    if (clearLoad) {
+      newState.kontakts = newList;
+    } else {
+      newState.kontakts.addAll(newList);
+    }
+
+    newState.kontaktListEnded = newList.isEmpty;
+
+    return newState;
+  }
+}
+
+class UpdateKontakt extends ReduxAction<AppState> {
+  String guid;
+
+  UpdateKontakt({@required this.guid});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    int index = newState.kontakts.indexWhere((element) => element.guid == guid);
+    Kontakt newKontakt = await Connection.getKontakt(guid);
+    newKontakt.loaded = true;
+    if (index == -1) {
+      newState.kontakts.insert(0, newKontakt);
+    } else {
+      newState.kontakts[index] = newKontakt;
+    }
+    return newState;
+  }
+}
+
+class SaveKontakt extends ReduxAction<AppState> {
+  Kontakt kontakt;
+
+  SaveKontakt({@required this.kontakt});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    String guid = await Connection.saveKontakt(
+        kontakt: kontakt,
+        onError: (error) {
+          Toast.show(
+            error,
+            mainWidgetKey.currentContext,
+            gravity: Toast.BOTTOM,
+            duration: 5,
+          );
+        });
+    if (guid.isNotEmpty) {
+      Kontakt newKontakt = await Connection.getKontakt(guid);
+      if (kontakt.guid.isEmpty) {
+        newState.kontakts.insert(0, newKontakt);
+      } else {
+        int index =
+            newState.kontakts.indexWhere((element) => element.guid == guid);
+        newState.kontakts[index] = newKontakt;
+      }
+    }
     return newState;
   }
 }

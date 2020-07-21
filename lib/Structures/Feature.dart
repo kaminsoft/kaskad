@@ -7,6 +7,8 @@ import 'package:mobile_kaskad/Structures/Post/Post.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
+import 'Kontakts/KontaktHelper.dart';
+
 typedef PressCallback = void Function(BuildContext context, {String feature});
 
 enum FeatureRole { none, message, publicate, task }
@@ -86,9 +88,10 @@ List<Feature> getInitialFeatureList() {
         image: 'assets/img/cards/task.png',
         onPressed: (ctx, {feature}) => TaskHelper.openList(ctx)),
     Feature(
+        enabled: true,
         name: 'Контакты',
         image: 'assets/img/cards/contact.png',
-        onPressed: _wip),
+        onPressed: (ctx, {feature}) => KontaktHelper.openList(ctx)),
     Feature(
         name: 'Проекты',
         image: 'assets/img/cards/project.png',
