@@ -146,8 +146,8 @@ class Connection {
     return msgs;
   }
 
-  static Future<NewMessageCount> getMessageCount() async {
-    NewMessageCount count = NewMessageCount();
+  static Future<Map<String, dynamic>> getMessageCount() async {
+    Map<String, dynamic> count = Map<String, dynamic>();
     User user = Data.curUser;
     Logger.log("getting message count");
     try {
@@ -157,9 +157,7 @@ class Connection {
       ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
 
       if (response.statusCode == 200) {
-        var parsedres = json.decode(response.body);
-        count.message = parsedres['msg'];
-        count.post = parsedres['post'];
+        count = json.decode(response.body);
       }
     } catch (e) {
       Logger.warning(e);

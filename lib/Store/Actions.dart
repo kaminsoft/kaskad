@@ -123,11 +123,34 @@ class LogOut extends ReduxAction<AppState> {
 
 // message
 
+class UpdateMessageTaskCount extends ReduxAction<AppState> {
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    Map<String, dynamic> count = await Connection.getMessageCount();
+    newState.msgCount = count["msg"];
+    newState.postCount = count["post"];
+
+    bool tasksEnabled =
+        newState.features.firstWhere((f) => f.role == FeatureRole.task) != null;
+
+    newState.taskCount = '';
+    if (tasksEnabled) {
+      newState.taskCount = await Connection.getTaskCount();
+    }
+
+    return newState;
+  }
+}
+
 class UpdateMessageCount extends ReduxAction<AppState> {
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
-    newState.messageCount = await Connection.getMessageCount();
+    Map<String, dynamic> count = await Connection.getMessageCount();
+    newState.msgCount = count["msg"];
+    newState.postCount = count["post"];
+    print("${newState.msgCount} ${newState.postCount}");
     return newState;
   }
 }
@@ -141,7 +164,9 @@ class SetMessageRead extends ReduxAction<AppState> {
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
     await Connection.setMessageRead(msg.guid);
-    newState.messageCount = await Connection.getMessageCount();
+    Map<String, dynamic> count = await Connection.getMessageCount();
+    newState.msgCount = count["msg"];
+    newState.postCount = count["post"];
     Message tmp;
     if (msg.isPublicite) {
       tmp = newState.messagesP.firstWhere((m) => m.guid == msg.guid);
@@ -162,8 +187,8 @@ class SetReadAll extends ReduxAction<AppState> {
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
     await Connection.setReadAll(isPublicate);
-    newState.messageCount.message = 0;
-    newState.messageCount.post = 0;
+    newState.msgCount = 0;
+    newState.postCount = 0;
 
     if (isPublicate) {
       newState.messagesP

@@ -50,14 +50,12 @@ class _MainPageState extends State<MainPage> {
     if (!subscibed) {
       Events.subscribeMessageEvents(context);
       FirebaseNotifications().setUpFirebase(context);
-      StoreProvider.dispatchFuture(context, UpdateMessageCount());
-      StoreProvider.dispatchFuture(context, UpdateTaskCount());
+      StoreProvider.dispatchFuture(context, UpdateMessageTaskCount());
       subscibed = true;
     }
     SystemChannels.lifecycle.setMessageHandler((msg) async {
       if (msg == AppLifecycleState.resumed.toString()) {
-        StoreProvider.dispatchFuture(context, UpdateMessageCount());
-        StoreProvider.dispatchFuture(context, UpdateTaskCount());
+        StoreProvider.dispatchFuture(context, UpdateMessageTaskCount());
       }
       return "";
     });
@@ -178,18 +176,16 @@ class _MainPageState extends State<MainPage> {
                               return SafeArea(
                                 bottom: true,
                                 top: false,
-                                child:
-                                    StoreConnector<AppState, NewMessageCount>(
-                                  converter: (store) =>
-                                      store.state.messageCount,
-                                  builder: (context, messages) {
+                                child: StoreConnector<AppState, AppState>(
+                                  converter: (store) => store.state,
+                                  builder: (context, state) {
                                     return Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: <Widget>[
                                         Expanded(
                                             child: MessageButton(
-                                          count: messages.message,
+                                          count: state.msgCount,
                                           onPressed: () =>
                                               Post.openList(context, false),
                                           text: 'сообщения',
@@ -199,7 +195,7 @@ class _MainPageState extends State<MainPage> {
                                         ),
                                         Expanded(
                                             child: MessageButton(
-                                          count: messages.post,
+                                          count: state.postCount,
                                           onPressed: () =>
                                               Post.openList(context, true),
                                           text: 'объявления',
@@ -341,11 +337,10 @@ class FeatureCard extends StatelessWidget {
                             ),
                           ),
                           feature.role == FeatureRole.message
-                              ? StoreConnector<AppState, NewMessageCount>(
-                                  converter: (store) =>
-                                      store.state.messageCount,
+                              ? StoreConnector<AppState, int>(
+                                  converter: (store) => store.state.msgCount,
                                   builder: (context, messages) {
-                                    if (messages.message == 0) {
+                                    if (messages == 0) {
                                       return Container();
                                     }
                                     return Padding(
@@ -355,7 +350,7 @@ class FeatureCard extends StatelessWidget {
                                         padding: EdgeInsets.all(8),
                                         badgeColor: ColorMain,
                                         badgeContent: Text(
-                                          '${messages.message}',
+                                          '$messages',
                                           style: TextStyle(color: Colors.white),
                                         ),
                                       ),
@@ -364,11 +359,10 @@ class FeatureCard extends StatelessWidget {
                                 )
                               : Container(),
                           feature.role == FeatureRole.publicate
-                              ? StoreConnector<AppState, NewMessageCount>(
-                                  converter: (store) =>
-                                      store.state.messageCount,
-                                  builder: (context, messages) {
-                                    if (messages.post == 0) {
+                              ? StoreConnector<AppState, int>(
+                                  converter: (store) => store.state.postCount,
+                                  builder: (context, post) {
+                                    if (post == 0) {
                                       return Container();
                                     }
                                     return Padding(
@@ -378,7 +372,7 @@ class FeatureCard extends StatelessWidget {
                                         padding: EdgeInsets.all(8),
                                         badgeColor: ColorMain,
                                         badgeContent: Text(
-                                          '${messages.post}',
+                                          '$post',
                                           style: TextStyle(color: Colors.white),
                                         ),
                                       ),

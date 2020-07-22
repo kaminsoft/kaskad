@@ -294,9 +294,8 @@ class _MessageListState extends State<MessageList> {
       converter: (store) => store.state,
       builder: (BuildContext context, state) {
         var messages = widget.isPublicate ? state.messagesP : state.messages;
-        hasNewMessages = widget.isPublicate
-            ? state.messageCount.post > 0
-            : state.messageCount.message > 0;
+        hasNewMessages =
+            widget.isPublicate ? state.postCount > 0 : state.msgCount > 0;
         if (!_built) {
           _built = true;
           if (messages.length == 0) {

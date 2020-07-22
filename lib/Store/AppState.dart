@@ -15,7 +15,8 @@ class AppState {
   List<Message> messages;
   List<Message> messagesP;
 
-  NewMessageCount messageCount;
+  int msgCount;
+  int postCount;
   String taskCount;
 
   List<Feature> features;
@@ -42,7 +43,6 @@ class AppState {
         messagesP: List<Message>(),
         user: user,
         features: ftrs,
-        messageCount: NewMessageCount(),
         kontragents: kontr,
         settings: prefs,
         tasks: List<Task>(),
@@ -53,8 +53,9 @@ class AppState {
       {this.user,
       this.messages,
       this.messagesP,
-      this.messageCount,
       this.taskCount = "",
+      this.msgCount = 0,
+      this.postCount = 0,
       this.features,
       this.kontragents,
       this.settings,
@@ -70,7 +71,8 @@ class AppState {
     kontragents = List<Kontragent>.from(other.kontragents);
     tasks = List<Task>.from(other.tasks);
     kontakts = List<Kontakt>.from(other.kontakts);
-    messageCount = other.messageCount;
+    msgCount = other.msgCount;
+    postCount = other.postCount;
     user = other.user;
     settings = other.settings;
     taskCount = other.taskCount;
