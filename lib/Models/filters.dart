@@ -43,6 +43,23 @@ class Filters {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("KontaktFilter", filter.toJson());
   }
+
+  static Future<ProjectFilter> getProjectFilter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var filter = prefs.getString("ProjectFilter");
+    if (filter == null) {
+      return ProjectFilter(
+        project: LinkItem(),
+        executer: LinkItem(),
+      );
+    }
+    return ProjectFilter.fromJson(filter);
+  }
+
+  static void saveProjectFilter(ProjectFilter filter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("ProjectFilter", filter.toJson());
+  }
 }
 
 class TaskFilter {
@@ -141,6 +158,51 @@ class KontaktFilter {
       theme: LinkItem.fromJSON(map['theme']),
       sposob: LinkItem.fromJSON(map['sposob']),
       infoSource: LinkItem.fromJSON(map['infoSource']),
+    );
+  }
+}
+
+class ProjectFilter {
+  String statusString;
+  String type;
+  LinkItem executer;
+  LinkItem project;
+  bool forMe;
+
+  ProjectFilter({
+    this.statusString = "все",
+    this.type = "Предложения",
+    this.executer,
+    this.project,
+    this.forMe = true,
+  });
+
+  get statuses => statusString.split(',');
+  set status(String newStatus) => statusString = newStatus;
+
+  String toJson() => json.encode(toMap());
+
+  static ProjectFilter fromJson(String source) => fromMap(json.decode(source));
+
+  Map<String, dynamic> toMap() {
+    return {
+      'statusString': statusString,
+      'executer': executer?.toJson(),
+      'type': type,
+      'project': project?.toJson(),
+      'active': forMe,
+    };
+  }
+
+  static ProjectFilter fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return ProjectFilter(
+      statusString: map['statusString'],
+      executer: LinkItem.fromJSON(map['executer']),
+      project: LinkItem.fromJSON(map['project']),
+      type: map['type'],
+      forMe: map['active'],
     );
   }
 }

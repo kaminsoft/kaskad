@@ -123,7 +123,7 @@ class LogOut extends ReduxAction<AppState> {
 
 // message
 
-class UpdateMessageTaskCount extends ReduxAction<AppState> {
+class UpdateMainPageCount extends ReduxAction<AppState> {
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
@@ -133,10 +133,18 @@ class UpdateMessageTaskCount extends ReduxAction<AppState> {
 
     bool tasksEnabled =
         newState.features.firstWhere((f) => f.role == FeatureRole.task) != null;
+    bool projectsEnabled =
+        newState.features.firstWhere((f) => f.role == FeatureRole.project) !=
+            null;
 
     newState.taskCount = '';
+    newState.projectCount = '';
     if (tasksEnabled) {
       newState.taskCount = await Connection.getTaskCount();
+    }
+
+    if (projectsEnabled) {
+      newState.projectCount = await Connection.getProjectCount();
     }
 
     return newState;

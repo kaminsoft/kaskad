@@ -18,6 +18,7 @@ class AppState {
   int msgCount;
   int postCount;
   String taskCount;
+  String projectCount;
 
   List<Feature> features;
   List<Kontragent> kontragents;
@@ -54,6 +55,7 @@ class AppState {
       this.messages,
       this.messagesP,
       this.taskCount = "",
+      this.projectCount = "",
       this.msgCount = 0,
       this.postCount = 0,
       this.features,
@@ -73,6 +75,7 @@ class AppState {
     kontakts = List<Kontakt>.from(other.kontakts);
     msgCount = other.msgCount;
     postCount = other.postCount;
+    projectCount = other.projectCount;
     user = other.user;
     settings = other.settings;
     taskCount = other.taskCount;

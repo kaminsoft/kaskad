@@ -11,7 +11,7 @@ import 'package:mobile_kaskad/Structures/Kontakts/KontaktHelper.dart';
 
 typedef PressCallback = void Function(BuildContext context, {String feature});
 
-enum FeatureRole { none, message, publicate, task }
+enum FeatureRole { none, message, publicate, task, project }
 
 class Feature {
   final String name;
@@ -96,6 +96,7 @@ List<Feature> getInitialFeatureList() {
         enabled: true,
         name: 'Проекты',
         image: 'assets/img/cards/project.png',
+        role: FeatureRole.project,
         onPressed: (ctx, {feature}) => ProjectHelper.openList(ctx)),
   ];
 }

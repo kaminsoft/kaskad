@@ -156,6 +156,14 @@ class _ItemWidgetState extends State<ItemWidget> {
   bool showAll = false;
 
   var versions = [
+    NewVersion(version: "0.0.7", features: [
+      FeatureDescriber("Проекты",
+          "Добавлен новый раздел - проекты. Создавайте, просматривайте и выполняйте предложения и несоответствия прямо из мобильного приложения",
+          isHot: true),
+    ], bugs: [
+      FeatureDescriber("Сообщения",
+          "Исправлено отображение количества новых сообщений и объявлений"),
+    ]),
     NewVersion(version: "0.0.6", features: [
       FeatureDescriber("Контакты",
           "Добавлен новый раздел - контакты. Создавайте и просматривайте контакты прямо из мобильного приложения",

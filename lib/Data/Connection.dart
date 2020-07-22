@@ -778,4 +778,28 @@ class Connection {
 
     return result;
   }
+
+  // projects
+  static Future<String> getProjectCount() async {
+    String result = '';
+    Logger.log('getting project count');
+    User user = Data.curUser;
+
+    try {
+      final response = await http.get(
+        '$url/projects/count',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        result = response.body;
+      } else {
+        Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
 }

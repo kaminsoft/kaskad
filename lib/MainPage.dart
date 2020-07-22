@@ -50,12 +50,12 @@ class _MainPageState extends State<MainPage> {
     if (!subscibed) {
       Events.subscribeMessageEvents(context);
       FirebaseNotifications().setUpFirebase(context);
-      StoreProvider.dispatchFuture(context, UpdateMessageTaskCount());
+      StoreProvider.dispatchFuture(context, UpdateMainPageCount());
       subscibed = true;
     }
     SystemChannels.lifecycle.setMessageHandler((msg) async {
       if (msg == AppLifecycleState.resumed.toString()) {
-        StoreProvider.dispatchFuture(context, UpdateMessageTaskCount());
+        StoreProvider.dispatchFuture(context, UpdateMainPageCount());
       }
       return "";
     });
@@ -394,6 +394,34 @@ class FeatureCard extends StatelessWidget {
                                             top: 40, right: 20),
                                         child: Text(
                                           taskCount,
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .caption
+                                                  .color),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(),
+                          feature.role == FeatureRole.project
+                              ? StoreConnector<AppState, String>(
+                                  converter: (store) =>
+                                      store.state.projectCount,
+                                  builder: (context, projectCount) {
+                                    if (projectCount.isEmpty) {
+                                      return Container();
+                                    }
+                                    return Align(
+                                      alignment: Alignment.topRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 40, right: 20),
+                                        child: Text(
+                                          projectCount,
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
                                               fontSize: 10,
