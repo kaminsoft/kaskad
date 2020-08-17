@@ -9,6 +9,7 @@ import 'package:mobile_kaskad/Models/filters.dart';
 import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/projectTask.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -637,6 +638,69 @@ class SaveKontakt extends ReduxAction<AppState> {
             newState.kontakts.indexWhere((element) => element.guid == guid);
         newState.kontakts[index] = newKontakt;
       }
+    }
+    return newState;
+  }
+}
+
+// project Tasks
+class GetProjectTasks extends ReduxAction<AppState> {
+  bool clearLoad;
+  ProjectFilter filter;
+
+  GetProjectTasks({this.clearLoad = true, this.filter});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+
+    if (filter.forMe) {
+      List<ProjectTaskGroup> newList =
+          await Connection.getProjctTasksGroup(filter: filter);
+
+      newState.projectTasksGroup = newList;
+      newState.projectTasks.clear();
+
+      for (var project in newList) {
+        for (var status in project.data) {
+          newState.projectTasks.addAll(status.data);
+        }
+      }
+    } else {
+      List<ProjectTask> newList = await Connection.getProjctTasks(
+          filter: filter,
+          last: clearLoad ? 0 : newState.projectTasks.last.number);
+      if (clearLoad) {
+        newState.projectTasks = newList;
+      } else {
+        newState.projectTasks.addAll(newList);
+      }
+
+      newState.projectTaskListEnded = newList.isEmpty;
+    }
+
+    return newState;
+  }
+}
+
+class UpdateProjectTask extends ReduxAction<AppState> {
+  String guid;
+  bool isBug;
+
+  UpdateProjectTask({@required this.guid, @required this.isBug});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+
+    int index =
+        newState.projectTasks.indexWhere((element) => element.guid == guid);
+    ProjectTask newTask = await Connection.getProjectTask(guid, isBug);
+    newTask.loaded = true;
+    if (index == -1) {
+      newState.projectTasks.insert(0, newTask);
+    } else {
+      newState.projectTasks[index] = newTask;
     }
     return newState;
   }

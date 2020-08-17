@@ -3,6 +3,7 @@ import 'package:mobile_kaskad/Data/Database.dart';
 import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/projectTask.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -23,11 +24,14 @@ class AppState {
   List<Feature> features;
   List<Kontragent> kontragents;
   List<Task> tasks;
+  List<ProjectTask> projectTasks;
+  List<ProjectTaskGroup> projectTasksGroup;
   List<Kontakt> kontakts;
 
   Settings settings;
 
   bool taskListEnded;
+  bool projectTaskListEnded;
   bool kontaktListEnded;
 
   static Future<AppState> initState() async {
@@ -47,6 +51,8 @@ class AppState {
         kontragents: kontr,
         settings: prefs,
         tasks: List<Task>(),
+        projectTasks: List<ProjectTask>(),
+        projectTasksGroup: List<ProjectTaskGroup>(),
         kontakts: List<Kontakt>());
   }
 
@@ -62,6 +68,8 @@ class AppState {
       this.kontragents,
       this.settings,
       this.tasks,
+      this.projectTasks,
+      this.projectTasksGroup,
       this.kontakts,
       this.taskListEnded = false,
       this.kontaktListEnded = false});
@@ -72,6 +80,8 @@ class AppState {
     features = List<Feature>.from(other.features);
     kontragents = List<Kontragent>.from(other.kontragents);
     tasks = List<Task>.from(other.tasks);
+    projectTasks = List<ProjectTask>.from(other.projectTasks);
+    projectTasksGroup = List<ProjectTaskGroup>.from(other.projectTasksGroup);
     kontakts = List<Kontakt>.from(other.kontakts);
     msgCount = other.msgCount;
     postCount = other.postCount;

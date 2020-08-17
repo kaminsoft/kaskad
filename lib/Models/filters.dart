@@ -168,13 +168,15 @@ class ProjectFilter {
   LinkItem executer;
   LinkItem project;
   bool forMe;
+  bool forMyProjects;
 
   ProjectFilter({
     this.statusString = "все",
-    this.type = "Предложения",
+    this.type = "предложения",
     this.executer,
     this.project,
     this.forMe = true,
+    this.forMyProjects = false,
   });
 
   get statuses => statusString.split(',');
@@ -190,7 +192,8 @@ class ProjectFilter {
       'executer': executer?.toJson(),
       'type': type,
       'project': project?.toJson(),
-      'active': forMe,
+      'forMe': forMe,
+      'forMyProjects': forMyProjects,
     };
   }
 
@@ -202,7 +205,8 @@ class ProjectFilter {
       executer: LinkItem.fromJSON(map['executer']),
       project: LinkItem.fromJSON(map['project']),
       type: map['type'],
-      forMe: map['active'],
+      forMe: map['forMe'],
+      forMyProjects: map['forMyProjects'],
     );
   }
 }

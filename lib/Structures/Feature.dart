@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Pages/underConstruction.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
-import 'package:mobile_kaskad/Structures/Project/ProjectHelper.dart';
+import 'package:mobile_kaskad/Structures/Project/ProjectTaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 import 'package:mobile_kaskad/Structures/Kontakts/KontaktHelper.dart';
@@ -97,6 +97,6 @@ List<Feature> getInitialFeatureList() {
         name: 'Проекты',
         image: 'assets/img/cards/project.png',
         role: FeatureRole.project,
-        onPressed: (ctx, {feature}) => ProjectHelper.openList(ctx)),
+        onPressed: (ctx, {feature}) => ProjectTaskHelper.openList(ctx)),
   ];
 }

@@ -13,6 +13,7 @@ import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/projectTask.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -780,6 +781,98 @@ class Connection {
   }
 
   // projects
+
+  static Future<List<ProjectTask>> getProjctTasks({
+    ProjectFilter filter,
+    int last = 0,
+  }) async {
+    List<ProjectTask> list = List<ProjectTask>();
+    User user = Data.curUser;
+    Logger.log('getting Tasks');
+    var project = filter.project == null || filter.project.isEmpty
+        ? ''
+        : jsonEncode(filter.project?.toJson());
+    var executer = filter.executer == null || filter.executer.isEmpty
+        ? ''
+        : jsonEncode(filter.executer?.toJson());
+    var status = filter.statusString == 'все' ? '' : filter.statusString;
+    try {
+      final response = await http.get(
+        '$url/projects?type=${filter.type}&forMe=${filter.forMe}&forMyProjects=${filter.forMyProjects}&status=$status&lastNum=$last&project=$project&executer=$executer',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = jsonDecode(response.body);
+        parsedList.forEach((item) {
+          list.add(ProjectTask.fromJSON(item));
+        });
+      } else {
+        Logger.warning(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e.toString());
+    }
+
+    return list;
+  }
+
+  static Future<List<ProjectTaskGroup>> getProjctTasksGroup({
+    ProjectFilter filter,
+  }) async {
+    List<ProjectTaskGroup> list = List<ProjectTaskGroup>();
+    User user = Data.curUser;
+    Logger.log('getting Tasks');
+    var project = filter.project == null || filter.project.isEmpty
+        ? ''
+        : jsonEncode(filter.project?.toJson());
+    var executer = filter.executer == null || filter.executer.isEmpty
+        ? ''
+        : jsonEncode(filter.executer?.toJson());
+    var status = filter.statusString == 'все' ? '' : filter.statusString;
+    try {
+      final response = await http.get(
+        '$url/projects?type=${filter.type}&forMe=${filter.forMe}&forMyProjects=${filter.forMyProjects}&status=$status&project=$project&executer=$executer',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        var parsedList = jsonDecode(response.body);
+        parsedList.forEach((item) {
+          list.add(ProjectTaskGroup.fromJSON(item));
+        });
+      } else {
+        Logger.warning(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e.toString());
+    }
+
+    return list;
+  }
+
+  static Future<ProjectTask> getProjectTask(String guid, bool isBug) async {
+    ProjectTask task = ProjectTask();
+    Logger.log('getting project task');
+    User user = Data.curUser;
+    try {
+      final response = await http.get(
+        '$url/projects/$guid/$isBug',
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        task = ProjectTask.fromJSON(json.decode(response.body));
+      } else {
+        Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return task;
+  }
+
   static Future<String> getProjectCount() async {
     String result = '';
     Logger.log('getting project count');
