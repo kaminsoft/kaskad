@@ -18,6 +18,10 @@ class LinkItem {
   bool get isNotEmpty =>
       guid.isNotEmpty && guid != '00000000-0000-0000-0000-000000000000';
 
+  CustomField getCustomFieldByName(String name) {
+    return fields.firstWhere((e) => e.name == name, orElse: () => null);
+  }
+
   factory LinkItem.fromJSON(Map<String, dynamic> json) {
     if (json == null) {
       return LinkItem();
@@ -74,18 +78,21 @@ class LinkItem {
 class CustomField {
   String name;
   String value;
+  String guid;
 
-  CustomField({this.name, this.value});
+  CustomField({this.name, this.value, this.guid});
 
   factory CustomField.fromJSON(Map<String, dynamic> json) {
     return CustomField(
       name: json['name'],
       value: json['value'],
+      guid: json['guid'],
     );
   }
 
   Map<String, dynamic> toJson() => {
         "name": name,
         "value": value,
+        "guid": guid,
       };
 }

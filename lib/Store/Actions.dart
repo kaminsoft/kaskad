@@ -9,6 +9,7 @@ import 'package:mobile_kaskad/Models/filters.dart';
 import 'package:mobile_kaskad/Models/kontakt.dart';
 import 'package:mobile_kaskad/Models/kontragent.dart';
 import 'package:mobile_kaskad/Models/message.dart';
+import 'package:mobile_kaskad/Models/projectTask.dart';
 import 'package:mobile_kaskad/Models/settings.dart';
 import 'package:mobile_kaskad/Models/task.dart';
 import 'package:mobile_kaskad/Models/user.dart';
@@ -123,11 +124,42 @@ class LogOut extends ReduxAction<AppState> {
 
 // message
 
+class UpdateMainPageCount extends ReduxAction<AppState> {
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    Map<String, dynamic> count = await Connection.getMessageCount();
+    newState.msgCount = count["msg"];
+    newState.postCount = count["post"];
+
+    bool tasksEnabled =
+        newState.features.firstWhere((f) => f.role == FeatureRole.task) != null;
+    bool projectsEnabled =
+        newState.features.firstWhere((f) => f.role == FeatureRole.project) !=
+            null;
+
+    newState.taskCount = '';
+    newState.projectCount = '';
+    if (tasksEnabled) {
+      newState.taskCount = await Connection.getTaskCount();
+    }
+
+    if (projectsEnabled) {
+      newState.projectCount = await Connection.getProjectCount();
+    }
+
+    return newState;
+  }
+}
+
 class UpdateMessageCount extends ReduxAction<AppState> {
   @override
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
-    newState.messageCount = await Connection.getMessageCount();
+    Map<String, dynamic> count = await Connection.getMessageCount();
+    newState.msgCount = count["msg"];
+    newState.postCount = count["post"];
+    print("${newState.msgCount} ${newState.postCount}");
     return newState;
   }
 }
@@ -141,7 +173,9 @@ class SetMessageRead extends ReduxAction<AppState> {
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
     await Connection.setMessageRead(msg.guid);
-    newState.messageCount = await Connection.getMessageCount();
+    Map<String, dynamic> count = await Connection.getMessageCount();
+    newState.msgCount = count["msg"];
+    newState.postCount = count["post"];
     Message tmp;
     if (msg.isPublicite) {
       tmp = newState.messagesP.firstWhere((m) => m.guid == msg.guid);
@@ -162,8 +196,8 @@ class SetReadAll extends ReduxAction<AppState> {
   FutureOr<AppState> reduce() async {
     AppState newState = AppState.copy(state);
     await Connection.setReadAll(isPublicate);
-    newState.messageCount.message = 0;
-    newState.messageCount.post = 0;
+    newState.msgCount = 0;
+    newState.postCount = 0;
 
     if (isPublicate) {
       newState.messagesP
@@ -605,6 +639,147 @@ class SaveKontakt extends ReduxAction<AppState> {
         newState.kontakts[index] = newKontakt;
       }
     }
+    return newState;
+  }
+}
+
+// project Tasks
+class GetProjectTasks extends ReduxAction<AppState> {
+  bool clearLoad;
+  ProjectFilter filter;
+
+  GetProjectTasks({this.clearLoad = true, this.filter});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+
+    if (filter.forMe) {
+      List<ProjectTaskGroup> newList =
+          await Connection.getProjctTasksGroup(filter: filter);
+
+      newState.projectTasksGroup = newList;
+      newState.projectTasks.clear();
+
+      for (var project in newList) {
+        for (var status in project.data) {
+          newState.projectTasks.addAll(status.data);
+        }
+      }
+    } else {
+      List<ProjectTask> newList = await Connection.getProjctTasks(
+          filter: filter,
+          last: clearLoad ? 0 : newState.projectTasks.last.number);
+      if (clearLoad) {
+        newState.projectTasks = newList;
+      } else {
+        newState.projectTasks.addAll(newList);
+      }
+
+      newState.projectTaskListEnded = newList.isEmpty;
+    }
+
+    return newState;
+  }
+}
+
+class UpdateProjectTask extends ReduxAction<AppState> {
+  String guid;
+  bool isBug;
+
+  UpdateProjectTask({@required this.guid, @required this.isBug});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+
+    int index =
+        newState.projectTasks.indexWhere((element) => element.guid == guid);
+    ProjectTask newTask = await Connection.getProjectTask(guid, isBug);
+    newTask.loaded = true;
+    if (index == -1) {
+      newState.projectTasks.insert(0, newTask);
+    } else {
+      newState.projectTasks[index] = newTask;
+    }
+    return newState;
+  }
+}
+
+class SaveProjectTask extends ReduxAction<AppState> {
+  ProjectTask task;
+  SaveProjectTask({@required this.task});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    String guid = await Connection.saveProjectTask(
+        task: task,
+        onError: (error) {
+          Toast.show(
+            error,
+            mainWidgetKey.currentContext,
+            gravity: Toast.BOTTOM,
+            duration: 5,
+          );
+        });
+    ProjectFilter filter = await Filters.getProjectFilter();
+    if (guid.isNotEmpty) {
+      ProjectTask newTask = await Connection.getProjectTask(guid, task.isBug);
+      if (task.guid.isEmpty) {
+        newState.projectTasks.insert(0, newTask);
+      } else {
+        int index =
+            newState.projectTasks.indexWhere((element) => element.guid == guid);
+        newState.projectTasks[index] = newTask;
+        if (filter.forMe) {
+          List<ProjectTaskGroup> newList =
+              await Connection.getProjctTasksGroup(filter: filter);
+
+          newState.projectTasksGroup = newList;
+          newState.projectTasks.clear();
+
+          for (var project in newList) {
+            for (var status in project.data) {
+              newState.projectTasks.addAll(status.data);
+            }
+          }
+        }
+      }
+    }
+    Toast.show(
+      "Отправлено",
+      mainWidgetKey.currentContext,
+      gravity: Toast.BOTTOM,
+      duration: 5,
+    );
+    return newState;
+  }
+}
+
+class SaveNewProjectTask extends ReduxAction<AppState> {
+  ProjectTask task;
+  SaveNewProjectTask({@required this.task});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    await Connection.saveNewProjectTask(
+        task: task,
+        onError: (error) {
+          Toast.show(
+            error,
+            mainWidgetKey.currentContext,
+            gravity: Toast.BOTTOM,
+            duration: 5,
+          );
+        });
+    Toast.show(
+      "Отправлено",
+      mainWidgetKey.currentContext,
+      gravity: Toast.BOTTOM,
+      duration: 5,
+    );
     return newState;
   }
 }

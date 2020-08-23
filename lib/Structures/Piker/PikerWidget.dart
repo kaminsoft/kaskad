@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -40,10 +38,14 @@ class _PickerWidgetState extends State<PickerWidget> {
     super.initState();
   }
 
-  Future<List<LinkItem>> _getList() async {
+  Future<List<LinkItem>> _getList({bool clearLoad = false}) async {
     String last = "";
     if (list.length > 0) {
       last = list.last.name;
+    }
+    if (clearLoad) {
+      return await Connection.getListPiker(widget.type,
+          fields: fields, query: filter.text, owner: widget.owner);
     }
     return await Connection.getListPiker(widget.type,
         fields: fields, query: filter.text, owner: widget.owner, last: last);
@@ -94,7 +96,7 @@ class _PickerWidgetState extends State<PickerWidget> {
                     setState(() {
                       loading = true;
                     });
-                    var lst = await _getList();
+                    var lst = await _getList(clearLoad: true);
                     setState(() {
                       list = lst;
                     });

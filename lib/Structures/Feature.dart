@@ -4,14 +4,14 @@ import 'package:flutter/widgets.dart';
 import 'package:mobile_kaskad/Pages/underConstruction.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
+import 'package:mobile_kaskad/Structures/Project/ProjectTaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
-
-import 'Kontakts/KontaktHelper.dart';
+import 'package:mobile_kaskad/Structures/Kontakts/KontaktHelper.dart';
 
 typedef PressCallback = void Function(BuildContext context, {String feature});
 
-enum FeatureRole { none, message, publicate, task }
+enum FeatureRole { none, message, publicate, task, project }
 
 class Feature {
   final String name;
@@ -93,8 +93,10 @@ List<Feature> getInitialFeatureList() {
         image: 'assets/img/cards/contact.png',
         onPressed: (ctx, {feature}) => KontaktHelper.openList(ctx)),
     Feature(
+        enabled: true,
         name: 'Проекты',
         image: 'assets/img/cards/project.png',
-        onPressed: _wip),
+        role: FeatureRole.project,
+        onPressed: (ctx, {feature}) => ProjectTaskHelper.openList(ctx)),
   ];
 }

@@ -136,4 +136,13 @@ class NewMessageCount {
   int post;
 
   NewMessageCount({this.message = 0, this.post = 0});
+
+  factory NewMessageCount.fromJSON(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return NewMessageCount(
+      message: map["msg"],
+      post: map['post'],
+    );
+  }
 }

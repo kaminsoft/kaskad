@@ -122,6 +122,7 @@ class MyApp extends StatelessWidget {
       cupertinoOverrideTheme: CupertinoThemeData(brightness: Brightness.light),
       accentColor: ColorMain,
       colorScheme: Theme.of(context).colorScheme.copyWith(
+          brightness: Brightness.light,
           primary: ColorMain,
           onSecondary: Color(0xFFDADDEB),
           onSurface: ColorMain),
@@ -151,6 +152,7 @@ class MyApp extends StatelessWidget {
           )),
       accentColor: ColorMainLight,
       colorScheme: Theme.of(context).colorScheme.copyWith(
+          brightness: Brightness.dark,
           primary: ColorMainLight,
           onSecondary: ColorMiddle,
           onSurface: ColorMainLight),
