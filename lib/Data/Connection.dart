@@ -584,7 +584,7 @@ class Connection {
     Logger.log('saving task');
     User user = Data.curUser;
     String releaseBefore =
-        DateFormat("yyyy.MM.dd HH:mm:ss").format(task.releaseBefore);
+        DateFormat("yyyyMMddHHmmss").format(task.releaseBefore);
     try {
       final response = await http.get(
         '$url/tasks/save?id=${task.guid}&status=${task.status}&text=${task.text}&authorInfo=$authorInfo' +
@@ -888,6 +888,98 @@ class Connection {
         result = response.body;
       } else {
         Logger.error(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
+
+  static Future<String> saveProjectTask(
+      {@required ProjectTask task,
+      bool statusChanged = true,
+      OnError onError}) async {
+    String result = '';
+    Logger.log('saving project task');
+    User user = Data.curUser;
+    String releaseBefore = DateFormat("yyyyMMdd").format(task.releaseBefore);
+    try {
+      final response = await http.post(
+        '$url/projects/save',
+        body: jsonEncode(<String, String>{
+          'id': task.guid,
+          'status': task.status,
+          'isBug': task.isBug.toString(),
+          'isChange': statusChanged.toString(),
+          'executer': task.executer.guid,
+          'tester': task.tester.guid,
+          'metodist': task.metodist.guid,
+          'project': task.project.guid,
+          'text': task.text,
+          'resolutionText': task.resolutionText,
+          'siteText': task.siteText,
+          'isToSite': task.isToSite.toString(),
+          'name': task.name,
+          'releaseBefore': releaseBefore,
+        }),
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+      // final response = await http.get(
+      //   '$url/projects/save?id=${task.guid}&status=${task.status}&isBug=${task.isBug}' +
+      //       '&isChange=$statusChanged' +
+      //       '&executer=${task.executer}' +
+      //       '&tester=${task.tester}' +
+      //       '&metodist=${task.metodist}' +
+      //       '&project=${task.project}' +
+      //       '&text=${task.text}' +
+      //       '&resolutionText=${task.resolutionText}' +
+      //       '&siteText=${task.siteText}' +
+      //       '&isToSite=${task.isToSite}' +
+      //       '&name=${task.name}' +
+      //       '&releaseBefore=$releaseBefore',
+      //   headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      // ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        result = response.body;
+      } else {
+        Logger.error(response.body);
+        onError(response.body);
+      }
+    } catch (e) {
+      Logger.warning(e);
+    }
+
+    return result;
+  }
+
+  static Future<String> saveNewProjectTask(
+      {@required ProjectTask task, OnError onError}) async {
+    String result = '';
+    Logger.log('saving new project task');
+    User user = Data.curUser;
+    String releaseBefore = DateFormat("yyyyMMdd").format(task.releaseBefore);
+    try {
+      final response = await http.post(
+        '$url/projects/new',
+        body: jsonEncode(<String, String>{
+          'status': task.status,
+          'isBug': task.isBug.toString(),
+          'executer': task.executer.guid,
+          'project': task.project.guid,
+          'text': task.text,
+          'name': task.name,
+          'releaseBefore': releaseBefore,
+        }),
+        headers: {HttpHeaders.authorizationHeader: "Basic ${user.password}"},
+      ).timeout(Duration(seconds: timeOut), onTimeout: onTimeout);
+
+      if (response.statusCode == 200) {
+        result = response.body;
+      } else {
+        Logger.error(response.body);
+        onError(response.body);
       }
     } catch (e) {
       Logger.warning(e);

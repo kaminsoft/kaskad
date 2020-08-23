@@ -705,3 +705,81 @@ class UpdateProjectTask extends ReduxAction<AppState> {
     return newState;
   }
 }
+
+class SaveProjectTask extends ReduxAction<AppState> {
+  ProjectTask task;
+  SaveProjectTask({@required this.task});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    String guid = await Connection.saveProjectTask(
+        task: task,
+        onError: (error) {
+          Toast.show(
+            error,
+            mainWidgetKey.currentContext,
+            gravity: Toast.BOTTOM,
+            duration: 5,
+          );
+        });
+    ProjectFilter filter = await Filters.getProjectFilter();
+    if (guid.isNotEmpty) {
+      ProjectTask newTask = await Connection.getProjectTask(guid, task.isBug);
+      if (task.guid.isEmpty) {
+        newState.projectTasks.insert(0, newTask);
+      } else {
+        int index =
+            newState.projectTasks.indexWhere((element) => element.guid == guid);
+        newState.projectTasks[index] = newTask;
+        if (filter.forMe) {
+          List<ProjectTaskGroup> newList =
+              await Connection.getProjctTasksGroup(filter: filter);
+
+          newState.projectTasksGroup = newList;
+          newState.projectTasks.clear();
+
+          for (var project in newList) {
+            for (var status in project.data) {
+              newState.projectTasks.addAll(status.data);
+            }
+          }
+        }
+      }
+    }
+    Toast.show(
+      "Отправлено",
+      mainWidgetKey.currentContext,
+      gravity: Toast.BOTTOM,
+      duration: 5,
+    );
+    return newState;
+  }
+}
+
+class SaveNewProjectTask extends ReduxAction<AppState> {
+  ProjectTask task;
+  SaveNewProjectTask({@required this.task});
+
+  @override
+  FutureOr<AppState> reduce() async {
+    AppState newState = AppState.copy(state);
+    await Connection.saveNewProjectTask(
+        task: task,
+        onError: (error) {
+          Toast.show(
+            error,
+            mainWidgetKey.currentContext,
+            gravity: Toast.BOTTOM,
+            duration: 5,
+          );
+        });
+    Toast.show(
+      "Отправлено",
+      mainWidgetKey.currentContext,
+      gravity: Toast.BOTTOM,
+      duration: 5,
+    );
+    return newState;
+  }
+}

@@ -163,6 +163,8 @@ class _ItemWidgetState extends State<ItemWidget> {
     ], bugs: [
       FeatureDescriber("Сообщения",
           "Исправлено отображение количества новых сообщений и объявлений"),
+      FeatureDescriber("Список выбора",
+          "Исправлена ошибка, при которой в списке выбора могло не отображаться значений, даже если по фильтру они подходят"),
     ]),
     NewVersion(version: "0.0.6", features: [
       FeatureDescriber("Контакты",

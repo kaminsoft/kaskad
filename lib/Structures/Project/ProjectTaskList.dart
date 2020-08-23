@@ -94,6 +94,7 @@ class _ProjectTaskListState extends State<ProjectTaskList> {
         actions: <Widget>[
           IconButton(
               onPressed: () {
+                openMenu(context);
                 //ProjectTaskHelper.newItem(context);
               },
               icon: Icon(Icons.add)),
@@ -566,6 +567,34 @@ class _ProjectTaskListState extends State<ProjectTaskList> {
                 ),
               );
             }),
+          );
+        });
+  }
+
+  openMenu(context) {
+    showCupertinoModalPopup(
+        context: context,
+        builder: (context) {
+          return CupertinoActionSheet(
+            actions: <Widget>[
+              CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    ProjectTaskHelper.newItem(context, false);
+                  },
+                  child: Text('Предложение')),
+              CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    ProjectTaskHelper.newItem(context, true);
+                  },
+                  child: Text('Несоответствие'))
+            ],
+            cancelButton: CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Отмена')),
           );
         });
   }

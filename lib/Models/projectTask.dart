@@ -13,6 +13,7 @@ class ProjectTask {
   String name;
   String type;
   String user;
+  String resolutionText;
 
   DateTime date;
   DateTime releaseBefore;
@@ -37,6 +38,7 @@ class ProjectTask {
   bool get onInfo => status == "На уточнении задания";
   bool get onCheck => status == "На проверке";
   bool get isNew => status == "Новое";
+  bool get isBug => type == "Нс";
 
   bool get userIsAuthor => author.guid == Data.curUser.guid;
   bool get userIsExecuter => executer.guid == Data.curUser.guid;
@@ -51,6 +53,7 @@ class ProjectTask {
     this.status,
     this.text,
     this.siteText,
+    this.resolutionText = "",
     this.name,
     this.date,
     this.releaseBefore,
@@ -78,6 +81,7 @@ class ProjectTask {
       'number': number,
       'status': status,
       'text': text,
+      'resolutionText': resolutionText,
       'siteText': siteText,
       'name': name,
       'date': date?.toString(),
@@ -106,6 +110,7 @@ class ProjectTask {
       number: map['number'],
       status: map['status'],
       text: map['text'],
+      resolutionText: map['resolutionText'] ?? "",
       siteText: map['siteText'],
       name: map['name'],
       date: DateTime.parse(map['date']),

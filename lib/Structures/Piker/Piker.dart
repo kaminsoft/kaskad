@@ -6,7 +6,10 @@ import 'package:mobile_kaskad/Models/linkItem.dart';
 import 'package:mobile_kaskad/Structures/Piker/PikerWidget.dart';
 
 class Picker {
-  static Map<String, String> _commonFields = {"Контрагенты": "ИНН"};
+  static Map<String, String> _commonFields = {
+    "Контрагенты": "ИНН",
+    "Проекты": "Менеджер,ТехническийРуководитель"
+  };
 
   static String getObjectFields(String name) {
     return _commonFields[name] ?? "";
