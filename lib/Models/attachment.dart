@@ -7,6 +7,7 @@ import 'package:mobile_kaskad/Structures/CustomLink.dart';
 import 'package:mobile_kaskad/Structures/Kontakts/KontaktHelper.dart';
 import 'package:mobile_kaskad/Structures/Kontragent/Kontragent.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
+import 'package:mobile_kaskad/Structures/Project/ProjectTaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Tasks/TaskHelper.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
 
@@ -52,6 +53,8 @@ class Attachment {
     "Справочник.Пользователи",
     "Документ.Контакт",
     "Справочник.Задачи",
+    "Справочник.Предложения",
+    "Справочник.Несоответствия",
   ];
 
   void _openAvaliableType(BuildContext context) async {
@@ -70,6 +73,12 @@ class Attachment {
         break;
       case "Документ.Контакт":
         KontaktHelper.openItem(context, value);
+        break;
+      case "Справочник.Предложения":
+        ProjectTaskHelper.openItem(context, value, false);
+        break;
+      case "Справочник.Несоответствия":
+        ProjectTaskHelper.openItem(context, value, true);
         break;
       default:
     }

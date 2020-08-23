@@ -530,50 +530,67 @@ class _ItemWidgetState extends State<ItemWidget> {
   }
 
   Widget releaseBefore(double mult, BuildContext context) {
-    return InkWell(
-      onTap: task.userIsManager || task.userIsTechLead
-          ? () {
-              showCupertinoModalPopup(
-                context: context,
-                builder: (context) {
-                  return Container(
-                    height: 200,
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      use24hFormat: true,
-                      initialDateTime: task.releaseBefore,
-                      onDateTimeChanged: (DateTime newDateTime) {
-                        setState(() {
-                          task.releaseBefore = newDateTime;
-                        });
-                      },
-                    ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        InkWell(
+          onTap: task.userIsManager || task.userIsTechLead
+              ? () {
+                  showCupertinoModalPopup(
+                    context: context,
+                    builder: (context) {
+                      return Container(
+                        height: 200,
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        child: CupertinoDatePicker(
+                          mode: CupertinoDatePickerMode.date,
+                          use24hFormat: true,
+                          initialDateTime: task.releaseBefore,
+                          onDateTimeChanged: (DateTime newDateTime) {
+                            setState(() {
+                              task.releaseBefore = newDateTime;
+                            });
+                          },
+                        ),
+                      );
+                    },
                   );
-                },
-              );
-            }
-          : null,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 3),
-              child: Text(
-                "Выполнить до",
-                style: TextStyle(
-                    fontSize: 12 * mult,
-                    color: Theme.of(context).colorScheme.onSurface),
-              ),
+                }
+              : null,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Text(
+                    "Выполнить до",
+                    style: TextStyle(
+                        fontSize: 12 * mult,
+                        color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ),
+                Text(DateFormat("dd.MM.yyyy").format(task.releaseBefore),
+                    style: TextStyle(
+                        fontSize: 14 * mult, fontWeight: FontWeight.w500)),
+              ],
             ),
-            Text(DateFormat("dd.MM.yyyy").format(task.releaseBefore),
-                style: TextStyle(
-                    fontSize: 14 * mult, fontWeight: FontWeight.w500)),
-          ],
+          ),
         ),
-      ),
+        Visibility(
+          visible: task.userIsManager || task.userIsTechLead,
+          child: FlatButton.icon(
+              onPressed: () {
+                setState(() {
+                  task.releaseBefore = DateTime.now();
+                });
+              },
+              textColor: Theme.of(context).disabledColor,
+              icon: Icon(Icons.chevron_left),
+              label: Text("Сегодня")),
+        )
+      ],
     );
   }
 
