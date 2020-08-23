@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_kaskad/Data/Consts.dart';
 import 'package:mobile_kaskad/Models/projectTask.dart';
 import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
@@ -392,7 +393,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                               child: Padding(
                                 padding:
                                     const EdgeInsets.only(left: 10, right: 2.5),
-                                child: CupertinoButton.filled(
+                                child: CupertinoButton(
+                                  color: ColorMain,
                                   padding: EdgeInsets.all(0),
                                   onPressed: () async {
                                     task.tester = task.author;
@@ -408,7 +410,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                               child: Padding(
                                 padding:
                                     const EdgeInsets.only(left: 2.5, right: 10),
-                                child: CupertinoButton.filled(
+                                child: CupertinoButton(
+                                  color: ColorMain,
                                   padding: EdgeInsets.all(0),
                                   onPressed: () async {
                                     if (task.tester.isEmpty) {
@@ -482,7 +485,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       left: 10, right: 2.5),
-                                  child: CupertinoButton.filled(
+                                  child: CupertinoButton(
+                                    color: ColorMain,
                                     padding: EdgeInsets.all(0),
                                     onPressed: () async {
                                       task.metodist = task.author;
@@ -498,7 +502,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       left: 2.5, right: 10),
-                                  child: CupertinoButton.filled(
+                                  child: CupertinoButton(
+                                    color: ColorMain,
                                     padding: EdgeInsets.all(0),
                                     onPressed: () async {
                                       if (task.metodist.isEmpty) {
