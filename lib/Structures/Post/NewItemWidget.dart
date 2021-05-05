@@ -15,6 +15,7 @@ class NewItemWidget extends StatefulWidget {
   final List<Recipient> to;
   final bool reSend;
   final bool isPublicate;
+  final bool formattedText;
 
   const NewItemWidget(
       {Key key,
@@ -22,7 +23,8 @@ class NewItemWidget extends StatefulWidget {
       this.text,
       this.to,
       this.reSend,
-      this.isPublicate = false})
+      this.isPublicate = false,
+      this.formattedText = false})
       : super(key: key);
 
   @override
@@ -31,6 +33,7 @@ class NewItemWidget extends StatefulWidget {
 
 class _NewItemWidgetState extends State<NewItemWidget> {
   bool isPublicate = false;
+  bool formattedText = false;
   TextEditingController textController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -47,6 +50,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
   @override
   void initState() {
     isPublicate = widget.isPublicate ?? false;
+    formattedText = widget.formattedText ?? false;
     textController.value = TextEditingValue(
         text: widget.text ?? '',
         selection: TextSelection(baseOffset: 0, extentOffset: 0));
@@ -124,6 +128,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                             if (formKey.currentState.validate()) {
                               Message msg = Message(
                                   isPublicite: isPublicate,
+                                  formattedText: formattedText,
                                   text: textController.text,
                                   title: titleController.text,
                                   to: to.map((t) => t.toLinkItem()).toList());

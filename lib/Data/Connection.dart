@@ -27,9 +27,7 @@ class Connection {
   static bool isProduction = bool.fromEnvironment('dart.vm.product');
   static int timeOut = 5;
 
-  static String get url => isProduction
-      ? 'http://62.148.143.24:81/kaskad/hs/mobile'
-      : 'http://62.148.143.24:81/kaskadfb/hs/mobile';
+  static String url = 'http://62.148.143.24:81/kaskad/hs/mobile';
 
   static FutureOr<http.Response> onTimeout() {
     Logger.log('time out');
@@ -38,7 +36,7 @@ class Connection {
   }
 
   static Future<List<User>> getAuthList() async {
-    List<User> users = List<User>();
+    List<User> users = <User>[];
 
     Logger.log('getting auth list');
     try {
@@ -275,6 +273,7 @@ class Connection {
       'title': msg.title,
       'text': msg.text,
       'isPublicate': msg.isPublicite,
+      'formattedText': msg.formattedText,
       'to': msg.to,
     };
     try {

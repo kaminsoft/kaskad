@@ -34,7 +34,8 @@ class Post {
       String text,
       List<Recipient> to,
       bool reSend,
-      bool isPublicate}) {
+      bool isPublicate,
+      bool formattedText}) {
     Navigator.of(context).push(MaterialPageRoute(
         settings: RouteSettings(
           name: 'Новое сообщение',
@@ -44,7 +45,8 @@ class Post {
             text: text,
             to: to,
             reSend: reSend,
-            isPublicate: isPublicate)));
+            isPublicate: isPublicate,
+            formattedText: formattedText)));
   }
 
   static void msgSent(BuildContext context, Message msg) {
