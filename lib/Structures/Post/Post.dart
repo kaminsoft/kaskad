@@ -33,6 +33,7 @@ class Post {
       {String title,
       String text,
       List<Recipient> to,
+      List<MessageImage> images,
       bool reSend,
       bool isPublicate,
       bool formattedText}) {
@@ -41,12 +42,14 @@ class Post {
           name: 'Новое сообщение',
         ),
         builder: (ctx) => NewItemWidget(
-            title: title,
-            text: text,
-            to: to,
-            reSend: reSend,
-            isPublicate: isPublicate,
-            formattedText: formattedText)));
+              title: title,
+              text: text,
+              to: to,
+              reSend: reSend,
+              isPublicate: isPublicate,
+              formattedText: formattedText,
+              images: images,
+            )));
   }
 
   static void msgSent(BuildContext context, Message msg) {

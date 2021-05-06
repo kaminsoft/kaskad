@@ -275,6 +275,7 @@ class Connection {
       'isPublicate': msg.isPublicite,
       'formattedText': msg.formattedText,
       'to': msg.to,
+      'images': msg.images,
     };
     try {
       final response = await http.post(

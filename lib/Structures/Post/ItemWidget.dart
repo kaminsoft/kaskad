@@ -145,7 +145,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                 title: 'RE: ${msg.title}',
                 to: to,
                 isPublicate: msg.isPublicite,
-                formattedText: msg.formattedText);
+                formattedText: msg.formattedText,
+                images: List<MessageImage>.from(msg.images));
             break;
           case 1: // reply all
             List<Recipient> to = msg.to.map((e) => e.toRecipient()).toList();
@@ -155,7 +156,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                 title: 'RE: ${msg.title}',
                 to: to,
                 isPublicate: msg.isPublicite,
-                formattedText: msg.formattedText);
+                formattedText: msg.formattedText,
+                images: List<MessageImage>.from(msg.images));
             break;
           case 2: // resend
             Post.newItem(context,
@@ -163,7 +165,8 @@ class _ItemWidgetState extends State<ItemWidget> {
                 title: 'FW: ${msg.title}',
                 reSend: true,
                 isPublicate: msg.isPublicite,
-                formattedText: msg.formattedText);
+                formattedText: msg.formattedText,
+                images: List<MessageImage>.from(msg.images));
             break;
           case 3: // attachments
             Post.showAttachments(context, msg.attachments);
