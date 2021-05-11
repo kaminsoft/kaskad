@@ -1,7 +1,51 @@
+import 'dart:convert';
+
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+
 import 'package:mobile_kaskad/Models/attachment.dart';
 import 'package:mobile_kaskad/Models/linkItem.dart';
+
+class MessageImage {
+  String id;
+  String data;
+  MessageImage({
+    this.id,
+    this.data,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'data': data,
+    };
+  }
+
+  factory MessageImage.fromJSON(Map<String, dynamic> _json) {
+    return MessageImage(
+      id: _json["id"],
+      data: _json["data"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "id": id ?? '',
+        "data": data ?? '',
+      };
+
+  @override
+  String toString() => 'MessageImage(id: $id, data: $data)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is MessageImage && other.id == id && other.data == data;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ data.hashCode;
+}
 
 class Message {
   String guid;
@@ -11,10 +55,12 @@ class Message {
   String text;
   LinkItem from;
   bool isPublicite;
+  bool formattedText;
   String status;
   List<LinkItem> to;
   int toCount;
   List<Attachment> attachments;
+  List<MessageImage> images;
 
   bool operator ==(other) => other.guid == guid;
 
@@ -78,11 +124,13 @@ class Message {
       this.status,
       this.to,
       this.toCount,
-      this.attachments});
+      this.attachments,
+      this.formattedText,
+      this.images});
 
   factory Message.fromJSON(Map<String, dynamic> _json) {
     List<dynamic> _to = _json['to'];
-    List<LinkItem> to = List<LinkItem>();
+    List<LinkItem> to = <LinkItem>[];
     if (_to != null) {
       for (var item in _to) {
         to.add(LinkItem.fromJSON(item));
@@ -90,10 +138,18 @@ class Message {
     }
 
     List<dynamic> _att = _json['attachments'];
-    List<Attachment> att = List<Attachment>();
+    List<Attachment> att = <Attachment>[];
     if (_att != null) {
       for (var item in _att) {
         att.add(Attachment.fromJSON(item));
+      }
+    }
+
+    List<dynamic> _img = _json['images'];
+    List<MessageImage> img = <MessageImage>[];
+    if (_img != null) {
+      for (var item in _img) {
+        img.add(MessageImage.fromJSON(item));
       }
     }
 
@@ -105,10 +161,12 @@ class Message {
       text: _json['text'],
       from: LinkItem.fromJSON(_json['from']),
       isPublicite: _json['isPublicite'],
+      formattedText: _json['formattedText'],
       status: _json['status'],
       to: to,
       toCount: _json['toCount'] ?? 0,
       attachments: att,
+      images: img,
     );
   }
 
@@ -120,10 +178,12 @@ class Message {
         "text": text ?? '',
         "from": from == null ? '' : from.toJson(),
         "isPublicite": isPublicite ?? '',
+        "formattedText": formattedText ?? '',
         "status": status ?? '',
         "to": to.map((t) => t.toJson()).toList(),
         "toCount": toCount ?? 0,
         "attachments": attachments.map((t) => t.toJson()).toList(),
+        "images": images.map((t) => t.toJson()).toList(),
       };
 
   @override

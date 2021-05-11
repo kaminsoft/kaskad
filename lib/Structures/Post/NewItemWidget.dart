@@ -15,6 +15,8 @@ class NewItemWidget extends StatefulWidget {
   final List<Recipient> to;
   final bool reSend;
   final bool isPublicate;
+  final bool formattedText;
+  final List<MessageImage> images;
 
   const NewItemWidget(
       {Key key,
@@ -22,7 +24,9 @@ class NewItemWidget extends StatefulWidget {
       this.text,
       this.to,
       this.reSend,
-      this.isPublicate = false})
+      this.isPublicate = false,
+      this.formattedText = false,
+      this.images})
       : super(key: key);
 
   @override
@@ -31,11 +35,13 @@ class NewItemWidget extends StatefulWidget {
 
 class _NewItemWidgetState extends State<NewItemWidget> {
   bool isPublicate = false;
+  bool formattedText = false;
   TextEditingController textController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  List<Recipient> to = List<Recipient>();
-  List<Recipient> allTo = List<Recipient>();
+  List<Recipient> to = <Recipient>[];
+  List<MessageImage> images = <MessageImage>[];
+  List<Recipient> allTo = <Recipient>[];
   bool isSending = false;
   bool built = false;
 
@@ -47,6 +53,7 @@ class _NewItemWidgetState extends State<NewItemWidget> {
   @override
   void initState() {
     isPublicate = widget.isPublicate ?? false;
+    formattedText = widget.formattedText ?? false;
     textController.value = TextEditingValue(
         text: widget.text ?? '',
         selection: TextSelection(baseOffset: 0, extentOffset: 0));
@@ -54,9 +61,14 @@ class _NewItemWidgetState extends State<NewItemWidget> {
     if (widget.to != null) {
       to = List<Recipient>.from(widget.to);
     } else {
-      to = List<Recipient>();
+      to = <Recipient>[];
     }
-    allTo = List<Recipient>();
+    if (widget.images != null) {
+      images = List<MessageImage>.from(widget.images);
+    } else {
+      images = <MessageImage>[];
+    }
+    allTo = <Recipient>[];
     EventEmitter.subscribe('Recipients_selected', (data) {
       setState(() {
         to = data;
@@ -124,8 +136,10 @@ class _NewItemWidgetState extends State<NewItemWidget> {
                             if (formKey.currentState.validate()) {
                               Message msg = Message(
                                   isPublicite: isPublicate,
+                                  formattedText: formattedText,
                                   text: textController.text,
                                   title: titleController.text,
+                                  images: images,
                                   to: to.map((t) => t.toLinkItem()).toList());
                               setState(() {
                                 isSending = true;

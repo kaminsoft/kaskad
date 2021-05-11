@@ -33,18 +33,23 @@ class Post {
       {String title,
       String text,
       List<Recipient> to,
+      List<MessageImage> images,
       bool reSend,
-      bool isPublicate}) {
+      bool isPublicate,
+      bool formattedText}) {
     Navigator.of(context).push(MaterialPageRoute(
         settings: RouteSettings(
           name: 'Новое сообщение',
         ),
         builder: (ctx) => NewItemWidget(
-            title: title,
-            text: text,
-            to: to,
-            reSend: reSend,
-            isPublicate: isPublicate)));
+              title: title,
+              text: text,
+              to: to,
+              reSend: reSend,
+              isPublicate: isPublicate,
+              formattedText: formattedText,
+              images: images,
+            )));
   }
 
   static void msgSent(BuildContext context, Message msg) {

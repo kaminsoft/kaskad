@@ -1,6 +1,8 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/html_parser.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_kaskad/Data/Connection.dart';
@@ -11,6 +13,7 @@ import 'package:mobile_kaskad/Store/Actions.dart';
 import 'package:mobile_kaskad/Store/AppState.dart';
 import 'package:mobile_kaskad/Structures/Post/Post.dart';
 import 'package:mobile_kaskad/Structures/Woker/Woker.dart';
+import 'dart:convert';
 
 class ItemWidget extends StatefulWidget {
   final String id;
@@ -141,7 +144,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                 text: '\n\n=== Пересылаемое сообщение === \n${msg.text}',
                 title: 'RE: ${msg.title}',
                 to: to,
-                isPublicate: msg.isPublicite);
+                isPublicate: msg.isPublicite,
+                formattedText: msg.formattedText,
+                images: List<MessageImage>.from(msg.images));
             break;
           case 1: // reply all
             List<Recipient> to = msg.to.map((e) => e.toRecipient()).toList();
@@ -150,14 +155,18 @@ class _ItemWidgetState extends State<ItemWidget> {
                 text: '\n\n=== Пересылаемое сообщение === \n${msg.text}',
                 title: 'RE: ${msg.title}',
                 to: to,
-                isPublicate: msg.isPublicite);
+                isPublicate: msg.isPublicite,
+                formattedText: msg.formattedText,
+                images: List<MessageImage>.from(msg.images));
             break;
           case 2: // resend
             Post.newItem(context,
                 text: '\n\n=== Пересылаемое сообщение === \n${msg.text}',
                 title: 'FW: ${msg.title}',
                 reSend: true,
-                isPublicate: msg.isPublicite);
+                isPublicate: msg.isPublicite,
+                formattedText: msg.formattedText,
+                images: List<MessageImage>.from(msg.images));
             break;
           case 3: // attachments
             Post.showAttachments(context, msg.attachments);
@@ -315,10 +324,22 @@ class _ItemWidgetState extends State<ItemWidget> {
                     )
                   : Container(),
           Divider(),
-          SelectableText(
-            inMsg.text,
-            style: TextStyle(fontSize: 16),
-          )
+          inMsg.formattedText
+              ? Html(
+                  data: inMsg.text,
+                  customRender: {
+                    "img": (RenderContext context, Widget child,
+                        Map<String, String> attributes, _) {
+                      MessageImage image = inMsg.images.firstWhere(
+                          (element) => element.id == attributes['data-guid']);
+                      return Image.memory(base64.decode(image.data));
+                    }
+                  },
+                )
+              : SelectableText(
+                  inMsg.text,
+                  style: TextStyle(fontSize: 16),
+                )
         ],
       ),
     );
